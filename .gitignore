@@ -1,0 +1,17 @@
+# Source material and private planning (kept local only)
+OrbitRoboticsCurriculum/
+planning/
+
+# Node / Astro
+node_modules/
+dist/
+.astro/
+*.log
+.env
+.env.*
+
+# OS / editor
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+.idea/
