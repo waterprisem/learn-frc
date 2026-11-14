@@ -29,6 +29,7 @@ import GoDeeper from '../../../components/lesson/GoDeeper.astro';
 import Checkpoint from '../../../components/lesson/Checkpoint.astro';
 import Practice from '../../../components/practice/Practice.astro';
 import AnnotatedCode from '../../../components/code/AnnotatedCode.astro';
+import NtExplorer from '../../../components/playgrounds/NtExplorer';
 
 <WhyItMatters>
 The robot code runs on the roboRIO, and you sit at a laptop. When the shooter misses, you cannot attach a debugger to a spinning wheel in the pit.
@@ -82,6 +83,10 @@ This is every topic the Lab 5 flywheel publishes. The last five are used for tun
 ```
 
 Notice the names. `Velocity RPS` tells a debugger six months from now what was measured and in which unit. A topic called `Speed` would not.
+
+## Try it: explore the tree
+
+<NtExplorer client:visible lessonId="4.2" />
 
 ## The publisher setup
 

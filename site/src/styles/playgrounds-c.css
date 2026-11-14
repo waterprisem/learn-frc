@@ -1,1 +1,16 @@
 /* Styles for playgrounds P13, P17-P20 and the extra diagrams. */
+
+/* ---------- P13 NetworkTables explorer ---------- */
+.lf-nt-drive { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 0.6rem 1rem; margin-bottom: 0.8rem; }
+.lf-nt-tree, .lf-nt-tree ul { list-style: none; margin: 0; padding: 0; }
+.lf-nt-tree { border: 1px solid var(--sl-color-gray-5); border-radius: 0.4rem; padding: 0.4rem 0.5rem; font-size: var(--sl-text-sm); }
+.lf-nt-tree li { margin: 0; }
+.lf-nt-folder { display: flex; align-items: center; gap: 0.25rem; width: 100%; background: none; border: 0; color: var(--sl-color-white); font: inherit; font-weight: 600; padding-block: 0.2rem; cursor: pointer; text-align: start; }
+.lf-nt-row { display: grid; grid-template-columns: minmax(0, 1fr) 4.2rem 6rem; gap: 0.5rem; align-items: center; padding-block: 0.1rem; }
+.lf-nt-row .name { background: none; border: 0; font: inherit; color: var(--sl-color-white); text-align: start; padding: 0.1rem 0.3rem; cursor: pointer; border-radius: 0.25rem; }
+.lf-nt-row .name[aria-pressed='true'] { outline: 2px solid var(--sig-setpoint); }
+.lf-nt-row .type { color: var(--sl-color-gray-3); font-size: var(--sl-text-xs); }
+.lf-nt-row output { color: var(--sig-measurement); text-align: end; font-variant-numeric: tabular-nums; }
+.lf-nt-row output.on { color: var(--sig-output); font-weight: 700; }
+.lf-nt-row input[type='number'] { width: 100%; font: inherit; font-variant-numeric: tabular-nums; text-align: end; color: var(--sl-color-white); background: var(--sl-color-bg); border: 1px solid var(--sig-setpoint); border-radius: 0.3rem; padding: 0.1rem 0.3rem; }
+.lf-nt-pick { display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem; align-items: center; margin-top: 0.6rem; min-height: 1.8rem; font-size: var(--sl-text-sm); }
