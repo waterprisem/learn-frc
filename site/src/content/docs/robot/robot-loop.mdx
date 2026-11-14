@@ -25,6 +25,7 @@ import RecapCard from '../../../components/lesson/RecapCard.astro';
 import GoDeeper from '../../../components/lesson/GoDeeper.astro';
 import Checkpoint from '../../../components/lesson/Checkpoint.astro';
 import Practice from '../../../components/practice/Practice.astro';
+import AbstractionStack from '../../../components/playgrounds/AbstractionStack.tsx';
 
 <WhyItMatters>
 You write `elevator.setVoltage(6.0)` and the elevator does not move. The line is correct, so where is the bug?
@@ -64,6 +65,10 @@ Your code never touches hardware directly. Between your Java and the mechanism t
 9. Your Java code reads the sensor value.
 
 You write at the top. The hardware works at the bottom. Most of this course teaches you to be fluent in the top two layers.
+
+## Try it: break a layer
+
+<AbstractionStack client:visible lessonId="1.12" />
 
 ## Bugs cross layers
 

@@ -41,3 +41,21 @@
 .lf-journey-card p { margin: 0; }
 .lf-journey-card .where { font-size: var(--sl-text-sm); margin-bottom: 0.25rem; }
 .lf-journey-card .loop { margin-inline-start: 0.6rem; padding: 0.05rem 0.45rem; border: 1px solid var(--sig-measurement); border-radius: 1rem; font-size: var(--sl-text-xs); }
+
+.lf-stack-grid { display: grid; grid-template-columns: minmax(0, 22rem) minmax(0, 1fr); gap: 1rem 1.5rem; align-items: start; }
+@media (max-width: 40rem) { .lf-stack-grid { grid-template-columns: minmax(0, 1fr); } }
+.lf-stack-map { width: 100%; display: block; }
+.lf-stack-map .layer { fill: var(--sl-color-bg); stroke: var(--sl-color-gray-4); stroke-width: 2; }
+.lf-stack-map g[role='button']:hover .layer { stroke: var(--sl-color-text-accent); }
+.lf-stack-map .layer.broken { stroke: var(--danger); fill: color-mix(in srgb, var(--danger) 14%, var(--sl-color-bg)); }
+.lf-stack-map .signal { fill: var(--sig-setpoint); stroke: var(--sl-color-bg); stroke-width: 2; }
+.lf-stack-map .signal.stuck { fill: var(--danger); }
+.lf-stack-step { margin: 0 0 0.5rem; min-height: 2.8em; }
+.lf-stack-ind { list-style: none; padding: 0; margin: 0 0 0.75rem; display: grid; gap: 0.3rem; }
+.lf-stack-ind li { display: flex; align-items: center; gap: 0.5rem; margin: 0; font-size: var(--sl-text-sm); color: var(--sl-color-gray-2); }
+.lf-stack-ind li.ok svg { color: var(--ok); }
+.lf-stack-ind li.bad svg { color: var(--danger); }
+.lf-stack-ind .wait { width: 1rem; height: 1rem; border-radius: 50%; border: 2px solid var(--sl-color-gray-4); box-sizing: border-box; }
+.lf-stack .lf-card p { margin: 0 0 0.3rem; }
+.lf-stack .lf-card ul { margin: 0 0 0.3rem; padding-inline-start: 1.1rem; }
+.lf-stack .lf-card .check { font-size: var(--sl-text-sm); color: var(--sl-color-gray-2); margin: 0; }
