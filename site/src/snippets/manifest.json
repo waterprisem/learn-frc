@@ -22,5 +22,167 @@
     "from": "labs/Session 4 - PID + Feedforward for Velocity Control/solution/src/main/java/frc/robot/Constants.java",
     "start": 20,
     "end": 25
+  },
+  {
+    "id": "lab3-1.10/binding",
+    "from": "labs/Session 3 - Open-Loop Flywheel with TalonFX/solution/src/main/java/frc/robot/RobotContainer.java",
+    "start": 25,
+    "end": 29
+  },
+  {
+    "id": "lab3-1.10/subsystem",
+    "from": "labs/Session 3 - Open-Loop Flywheel with TalonFX/solution/src/main/java/frc/robot/subsystems/FlywheelSubsystem.java",
+    "start": 57,
+    "end": 73
+  },
+  {
+    "id": "lab2-1.13/robot",
+    "from": "labs/Session 2 - How 1360 Robot Code Is Organized/solution/src/main/java/frc/robot/Robot.java",
+    "start": 20,
+    "end": 41
+  },
+  {
+    "id": "lab6-1.8/elevator-conversions",
+    "from": "labs/Session 6 - Profiled Elevator Control/solution/src/main/java/frc/robot/subsystems/ElevatorSubsystem.java",
+    "start": 144,
+    "end": 154
+  },
+  {
+    "id": "lab7-1.8/arm-conversions",
+    "from": "labs/Session 7 - ArmSubsystem with ProfiledPIDController/solution/src/main/java/frc/robot/subsystems/ArmSubsystem.java",
+    "start": 154,
+    "end": 168
+  },
+  {
+    "id": "lab7-1.8/arm-ratio-config",
+    "from": "labs/Session 7 - ArmSubsystem with ProfiledPIDController/solution/src/main/java/frc/robot/subsystems/ArmSubsystem.java",
+    "start": 88,
+    "end": 94
+  },
+  {
+    "id": "lab2-2.1/robot-container",
+    "from": "labs/Session 2 - How 1360 Robot Code Is Organized/solution/src/main/java/frc/robot/RobotContainer.java",
+    "start": 14,
+    "end": 31
+  },
+  {
+    "id": "lab3-2.2/ownership",
+    "from": "labs/Session 3 - Open-Loop Flywheel with TalonFX/solution/src/main/java/frc/robot/subsystems/FlywheelSubsystem.java",
+    "start": 21,
+    "end": 31
+  },
+  {
+    "id": "lab3-2.2/methods",
+    "from": "labs/Session 3 - Open-Loop Flywheel with TalonFX/solution/src/main/java/frc/robot/subsystems/FlywheelSubsystem.java",
+    "start": 57,
+    "end": 73
+  },
+  {
+    "id": "lab3-2.3/lifecycle",
+    "from": "labs/Session 3 - Open-Loop Flywheel with TalonFX/solution/src/main/java/frc/robot/commands/SetFlywheelVoltageCommand.java",
+    "start": 21,
+    "end": 37
+  },
+  {
+    "id": "lab3-2.4/requirements",
+    "from": "labs/Session 3 - Open-Loop Flywheel with TalonFX/solution/src/main/java/frc/robot/commands/SetFlywheelVoltageCommand.java",
+    "start": 15,
+    "end": 19
+  },
+  {
+    "id": "lab3-2.5/bindings",
+    "from": "labs/Session 3 - Open-Loop Flywheel with TalonFX/solution/src/main/java/frc/robot/RobotContainer.java",
+    "start": 24,
+    "end": 38
+  },
+  {
+    "id": "lab3-2.7/construct",
+    "from": "labs/Session 3 - Open-Loop Flywheel with TalonFX/solution/src/main/java/frc/robot/subsystems/FlywheelSubsystem.java",
+    "start": 23,
+    "end": 24
+  },
+  {
+    "id": "lab3-2.7/configure",
+    "from": "labs/Session 3 - Open-Loop Flywheel with TalonFX/solution/src/main/java/frc/robot/subsystems/FlywheelSubsystem.java",
+    "start": 36,
+    "end": 52
+  },
+  {
+    "id": "lab3-2.7/control",
+    "from": "labs/Session 3 - Open-Loop Flywheel with TalonFX/solution/src/main/java/frc/robot/subsystems/FlywheelSubsystem.java",
+    "start": 57,
+    "end": 59
+  },
+  {
+    "id": "lab3-2.7/signals",
+    "from": "labs/Session 3 - Open-Loop Flywheel with TalonFX/solution/src/main/java/frc/robot/subsystems/FlywheelSubsystem.java",
+    "start": 61,
+    "end": 67
+  },
+  {
+    "id": "lab3-2.8/command",
+    "from": "labs/Session 3 - Open-Loop Flywheel with TalonFX/solution/src/main/java/frc/robot/commands/SetFlywheelVoltageCommand.java",
+    "start": 15,
+    "end": 37
+  },
+  {
+    "id": "lab3-2.8/periodic",
+    "from": "labs/Session 3 - Open-Loop Flywheel with TalonFX/solution/src/main/java/frc/robot/subsystems/FlywheelSubsystem.java",
+    "start": 69,
+    "end": 80
+  },
+  {
+    "id": "lab6-3.7/closed-loop-calculate",
+    "from": "labs/Session 6 - Profiled Elevator Control/solution/src/main/java/frc/robot/subsystems/ElevatorSubsystem.java",
+    "start": 109,
+    "end": 122
+  },
+  {
+    "id": "lab6-3.7/periodic",
+    "from": "labs/Session 6 - Profiled Elevator Control/solution/src/main/java/frc/robot/subsystems/ElevatorSubsystem.java",
+    "start": 124,
+    "end": 135
+  },
+  {
+    "id": "lab6-3.7/constants",
+    "from": "labs/Session 6 - Profiled Elevator Control/solution/src/main/java/frc/robot/Constants.java",
+    "start": 25,
+    "end": 35
+  },
+  {
+    "id": "lab7-3.8/helpers",
+    "from": "labs/Session 7 - ArmSubsystem with ProfiledPIDController/solution/src/main/java/frc/robot/subsystems/ArmSubsystem.java",
+    "start": 154,
+    "end": 160
+  },
+  {
+    "id": "lab7-3.8/feedforward",
+    "from": "labs/Session 7 - ArmSubsystem with ProfiledPIDController/solution/src/main/java/frc/robot/subsystems/ArmSubsystem.java",
+    "start": 115,
+    "end": 128
+  },
+  {
+    "id": "lab4-3.9/trigger",
+    "from": "labs/Session 4 - PID + Feedforward for Velocity Control/solution/src/main/java/frc/robot/subsystems/FlywheelSubsystem.java",
+    "start": 56,
+    "end": 57
+  },
+  {
+    "id": "lab9-3.9/triggers",
+    "from": "labs/Session 9 - Command Composition with Roti-Style Superstructure/solution/src/main/java/frc/robot/subsystems/ArmSubsystem.java",
+    "start": 70,
+    "end": 82
+  },
+  {
+    "id": "lab5-4.1/flywheel-constants",
+    "from": "labs/Session 5 - Constants, Logging, and Code Review/solution/src/main/java/frc/robot/Constants.java",
+    "start": 14,
+    "end": 31
+  },
+  {
+    "id": "lab11-4.7/flywheel-test",
+    "from": "labs/Session 11 - Mini Scorer Challenge/solution/src/test/java/frc/robot/MiniScorerSimulationTest.java",
+    "start": 34,
+    "end": 52
   }
 ]

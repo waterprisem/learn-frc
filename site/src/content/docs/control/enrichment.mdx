@@ -5,16 +5,121 @@ id: "3.10"
 track: "control"
 session: 8
 isNew: false
-status: stub
+minutes: 25
+prereqs: ["1.6", "3.4", "3.7", "3.8"]
+outcomes:
+  - Explain how a follower motor shares one mechanism between two motors
+  - Say what the kA term adds and when it helps
+  - Describe a homing routine step by step
+  - Use the debugging map to go from a graph symptom to the first thing to inspect
+sources:
+  - curriculum: "labs/Session 8 - Enrichment and Make-Up Day/LAB_MANUAL.md"
+  - curriculum: "misc/v1/frc1360_programming_curriculum_plan.md"
+  - doc: "https://docs.wpilib.org/en/stable/docs/software/advanced-controls/introduction/introduction-to-feedforward.html"
+status: review
 sidebar:
   label: "3.10 Enrichment: followers, kA, homing"
   order: 10
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import GoDeeper from '../../../components/lesson/GoDeeper.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
 
-**What it will cover:** Follower motors, the acceleration term, a homing routine, and a gravity comparison.
+<WhyItMatters>
+Your elevator works with one motor, but real elevators usually use two, and they must start from a known height every match.
+Three small upgrades make the elevator and arm from lessons 3.7 and 3.8 behave like competition mechanisms. When something still looks wrong, a short map tells you where to look first.
+</WhyItMatters>
 
-Based on Session 8 of the Orbit Robotics curriculum.
+## Follower motors
+
+A heavy elevator often has two motors on one gearbox or belt. Writing a second set of control code would be wasteful and risky, because the motors could disagree.
+Instead, you tell the second motor (the **follower**) to copy the first (the **leader**). Your control code still talks only to the leader.
+
+The lab's recipe for a second `TalonFX`:
+
+1. Give the follower its own CAN ID constant.
+2. Make it a field next to the leader motor.
+3. Give it the same neutral mode and current limit as the leader.
+4. Call `setControl` with a CTRE `Follower` request that names the leader's device ID.
+5. Decide whether it runs the same direction or opposite, based on how the two motors are mounted.
+
+Phoenix 6 changes its API between seasons, so confirm the `Follower` constructor in the CTRE docs for your version (2026). Commands and the public subsystem methods should not change at all.
+
+## The acceleration term, kA
+
+Feedforward so far predicted voltage from velocity (`kV`) and gravity (`kG`). A profile also speeds up and slows down, and speeding up takes extra push. The **acceleration term** `kA` supplies it, in volts per unit of acceleration.
+
+| Phase of the profile | What kA does |
+|---|---|
+| Speeding up | Adds voltage, so the mechanism does not lag behind the profile |
+| Cruising | Nothing, because acceleration is 0 |
+| Slowing down | Subtracts voltage, so the mechanism does not overshoot |
+
+`ElevatorFeedforward` accepts an acceleration input, so the profile's acceleration goes in beside its velocity. Test it with the lab's questions: does error peak while accelerating, does a small `kA` lower that peak, and does too much `kA` cause overshoot? Restore a stable value afterward.
+
+## Homing
+
+An elevator's encoder only counts movement since power-up, so the code does not know the height until you **home** it (lesson 1.6).
+
+1. Drive down slowly with a small voltage, so a mistake does not slam the mechanism.
+2. Stop when the limit switch closes. Some robots watch for a current spike instead.
+3. Set the encoder position to the known bottom height.
+4. Only then enable position control.
+
+In the lab's plan, the simulator provides a simulated limit switch for this.
+
+## Gravity comparison
+
+The lab also compares the arm with `FEEDFORWARD_KG_VOLTS = 0.0` against the tuned value at three angles: near horizontal, near vertical, and below horizontal if your range allows it. Gravity pulls hardest sideways at horizontal and not at all at vertical, so the gain that helps most there should matter most at horizontal. Explaining why is the point, not just showing that `kG` helps.
+
+## Debugging map
+
+Use this when the graph does not match the story you expect.
+
+| Symptom | First place to inspect |
+|---|---|
+| Project does not compile | Imports, constant names, unfinished `TODO Step` comments |
+| Target never changes | `RobotContainer.java` bindings |
+| Output voltage stays zero | Command `execute()` and the subsystem calculation's return value |
+| Profiled setpoint never moves | Max velocity and max acceleration constants |
+| Measurement moves the wrong direction | PID argument order, motor inversion, encoder conversion |
+| Measurement moves but never settles | PID gains, feedforward gains, tolerance |
+| Readiness never becomes true | `setTolerance(...)`, `atGoal()`, the error graph |
+| Mechanism does not return home or stow | Default command setup and `whileTrue` bindings |
+
+<GoDeeper title="why a tolerance that is too tight delays readiness">
+Tolerance only changes when the controller reports "ready". It does not change the motor output. A very tight tolerance can make At Target flip on late or flicker, which matters when a scoring command waits for it.
+</GoDeeper>
+
+## Practice
+
+<Practice bank="3-10" />
+
+## Checkpoint
+
+<Checkpoint lesson="3.10">
+
+<details>
+<summary>Why does feedback not replace feedforward, and the other way round?</summary>
+Feedforward predicts the voltage before any error appears but cannot know about friction changes or a heavier load. Feedback reacts to the measured error but only after an error exists, so it is slower and weaker alone.
+</details>
+
+<details>
+<summary>Why home before using position control?</summary>
+The encoder starts counting from wherever the mechanism happens to be. Without a known reference, "height 0.5 m" means nothing. Homing sets that reference.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- A follower copies the leader, so the control code stays the same.
+- `kA` adds voltage while the profile accelerates and removes it while decelerating.
+- Homing: drive slowly, stop at the limit switch, set the position, then enable control.
+- `kG` helps most where gravity pulls hardest on the mechanism.
+- Start every debugging session from the symptom table.
+</RecapCard>

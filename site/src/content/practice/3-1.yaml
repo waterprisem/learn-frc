@@ -1,0 +1,50 @@
+# Practice bank for lesson 3.1 (Open vs closed loop).
+lesson: "3.1"
+items:
+  - type: mcq
+    prompt: "Which of these is open-loop control?"
+    choices:
+      - "Setting a shooter motor to a fixed 6 V and never reading its encoder"
+      - "Reading the encoder every 20 ms and raising the voltage when the wheel is slow"
+      - "Stopping an elevator when its limit switch is pressed"
+      - "Adjusting the voltage by the difference between target and measured speed"
+    answer: 0
+    explain: "Open loop means the output never depends on the result. The other choices all use a sensor reading to decide what to do next."
+  - type: read-graph
+    preset: "flywheel:no-feedback+load"
+    prompt: "A load is added while the wheel holds its target. What does the graph show?"
+    choices:
+      - "The voltage rises to bring the speed back"
+      - "The speed drops and the voltage stays flat"
+      - "Both the speed and the voltage drop"
+      - "The speed stays on target"
+    answer: 1
+    explain: "With no feedback the code never sees the drop, so it keeps sending the same voltage. The common wrong idea is that the motor compensates by itself. It does not."
+  - type: predict-graph
+    prompt: "A closed-loop controller is holding 40 RPS and a load is added. Which graph will you see?"
+    presets: ["flywheel:no-feedback+load", "flywheel:tuned+load", "flywheel:p-only"]
+    answer: 1
+    explain: "A closed loop sees the speed fall, raises the voltage, and brings the speed back near the target. Graph A is the open-loop result: speed drops, voltage flat."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "A shooter sends the same voltage every shot. Early in the match it launches well. Late in the match, with a tired battery, shots fall short."
+    choices:
+      - "The code sets the voltage open loop, so battery sag lowers the speed"
+      - "The encoder is unplugged"
+      - "The target speed is too high"
+      - "The loop runs too slowly"
+    answer: 0
+    explain: "The same command gives less speed when the battery sags. Closed loop would notice the lower speed and add voltage."
+  - type: multi
+    prompt: "Which of these can change a flywheel's speed even when the commanded voltage stays the same? Select all that apply."
+    choices:
+      - "Battery voltage dropping"
+      - "A game piece dragging on the wheel"
+      - "Friction changing as the bearings warm up"
+      - "The name of the variable in the code"
+    answers: [0, 1, 2]
+    explain: "Each of the first three changes how much speed a volt buys. A variable's name changes nothing about the physics."
+  - type: free
+    prompt: "In your own words, what three things does a closed-loop controller do each cycle?"
+    modelAnswer: "It measures the real value with a sensor, compares it with the target, and corrects the output to close the gap. It repeats this every 20 ms."
+    explain: "Measure, compare, correct. If a controller skips the measurement, it is open loop."

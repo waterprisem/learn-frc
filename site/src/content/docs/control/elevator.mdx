@@ -5,16 +5,175 @@ id: "3.7"
 track: "control"
 session: 6
 isNew: false
-status: stub
+minutes: 30
+prereqs: ["3.5", "3.6", "1.6"]
+outcomes:
+  - Build an elevator controller from ProfiledPIDController and ElevatorFeedforward
+  - Explain what kG does and why feedforward uses the setpoint velocity
+  - Read goal, profiled setpoint and height on a graph
+  - Match a graph symptom to the gain to change
+status: review
+sources:
+  - curriculum: "labs/Session 6 - Profiled Elevator Control/LAB_MANUAL.md"
+  - curriculum: "labs/Session 6 - Profiled Elevator Control/solution/src/main/java/frc/robot/subsystems/ElevatorSubsystem.java"
+  - curriculum: "presentations/Session 6 - ElevatorSubsystem with ProfiledPIDController/Raw Data/slides.md"
+  - doc: "https://docs.wpilib.org/en/stable/docs/software/advanced-controls/controllers/feedforward.html"
 sidebar:
   label: "3.7 Profiled elevator"
   order: 7
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import DoItForReal from '../../../components/lesson/DoItForReal.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import GoDeeper from '../../../components/lesson/GoDeeper.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
+import AnnotatedCode from '../../../components/code/AnnotatedCode.astro';
 
-**What it will cover:** ProfiledPIDController and ElevatorFeedforward, with Lab 6.
+<WhyItMatters>
+A flywheel only has to hold a speed. An elevator has to travel to a height, stop there, and then keep holding the carriage up against gravity, with the motor doing real work even when nothing moves.
+Lesson 3.6 planned the trip; this lesson adds the two WPILib objects that follow the plan and carry the weight.
+</WhyItMatters>
 
-Based on Session 6 of the Orbit Robotics curriculum.
+## Two objects, two jobs
+
+- **`ProfiledPIDController`** is a PID controller with a trapezoid profile built in. You give it a goal; each loop it moves its profiled setpoint along the plan and returns a correction for the measured height. Its constructor takes `kP`, `kI`, `kD`, and the `TrapezoidProfile.Constraints` from lesson 3.6.
+- **`ElevatorFeedforward`** predicts voltage from a model. It never reads the encoder.
+
+The calls you use:
+
+| Call | What it does |
+|---|---|
+| `setGoal(...)` or the second argument of `calculate` | The final height |
+| `calculate(measurement, goal)` | Advances the profile one loop and returns the PID volts. Measurement first. |
+| `getSetpoint()` | The profiled setpoint, with `.position` and `.velocity` |
+| `getGoal().position` | The goal you gave it |
+| `reset(position, velocity)` | Restarts the profile from where the mechanism really is |
+| `atGoal()` | True when the height is within tolerance of the goal |
+
+## Feedforward with gravity
+
+`ElevatorFeedforward` has three main gains, plus a fourth the lab also sets.
+
+| Gain | Meaning |
+|---|---|
+| `kS` | Volts to overcome friction and start moving |
+| `kG` | **Constant volts that hold the carriage against gravity** |
+| `kV` | Volts per meter per second of velocity |
+| `kA` | Volts per meter per second squared of acceleration (the lab sets it, 0.05) |
+
+`kG` is one number at every height, because gravity pulls the same everywhere on a vertical lift. The flywheel needed voltage only to spin. The elevator needs `kG` even at zero speed, so the PID does not have to build up error just to hold still.
+
+## How Lab 6 combines them
+
+```text
+output = PID(measured height, goal)  +  feedforward(setpoint velocity)
+```
+
+Feedforward gets the **setpoint** velocity, not the goal, because it needs to know how fast the plan is moving now. The goal is a position, not a speed.
+
+<AnnotatedCode
+  file="lab6-3.7/closed-loop-calculate"
+  title="ElevatorSubsystem.java"
+  notes={[
+    { lines: '2-6', text: 'The soft limit. Whatever height is requested, the target is clamped between the minimum and maximum elevator height.' },
+    { lines: '7', text: 'Measurement first, goal second. Calling <code>calculate</code> also advances the profile one step.' },
+    { lines: '8', text: 'Feedforward from the setpoint velocity the profile just produced. Even at zero velocity this still returns <code>kG</code>, so the carriage is held up.' },
+    { lines: '12-14', text: 'The command calls this once in <code>initialize()</code>, never every loop. It starts the profile from the real height and velocity, not an old plan.' },
+  ]}
+/>
+
+The same constants file holds every gain you tune:
+
+<AnnotatedCode
+  file="lab6-3.7/constants"
+  title="Constants.java (ElevatorConstants)"
+  notes={[
+    { lines: '1-3', text: '<code>kP</code> is in volts per meter of error. <code>kI</code> stays 0 because feedforward already handles steady holding.' },
+    { lines: '4-5', text: 'The profile limits from lesson 3.6, in meters.' },
+    { lines: '6', text: 'The "close enough" band: 2.5 cm. It only answers the readiness question; it does not end the command.' },
+    { lines: '8-11', text: 'The feedforward gains. <code>kG</code> is 0.55 V.' },
+  ]}
+/>
+
+And the telemetry, which is what you graph:
+
+<AnnotatedCode
+  file="lab6-3.7/periodic"
+  title="ElevatorSubsystem.java"
+  notes={[
+    { lines: '3', text: '<code>atGoal()</code> feeds the <code>elevatorAtTarget</code> trigger that later commands can wait on.' },
+    { lines: '6-7', text: 'Goal and profiled setpoint go out as separate topics. Comparing them shows the profile working.' },
+    { lines: '9', text: 'Error is the controller\'s position error: setpoint minus height, not goal minus height.' },
+  ]}
+/>
+
+## What you see, what you change
+
+Tune in the order the lab sets things up: PID starting gains, then the constraints, then the feedforward gains. Change one thing at a time, then restore it.
+
+| What you see on the graph | What to change |
+|---|---|
+| With `FEEDFORWARD_KG_VOLTS` at 0.0, error grows and output works harder near each goal | `kG` is too small: restore it so feedforward carries the weight |
+| Profiled setpoint takes longer to reach the goal (lab: `MAX_VELOCITY_METERS_PER_SECOND` at 0.4) | The max velocity is low: raise it for a snappier move |
+| Height overshoots or oscillates | `PID_KP` too large (or `PID_KD`): reduce it |
+| Elevator jumps or overshoots at the start of a move | Reduce `PID_KP`, `PID_KD`, or max acceleration; check the reset is in `initialize()` only |
+| Output stays at 0 and nothing moves | A constant, such as the PID or constraints, is still zero |
+| `At Target` never turns true | `setTolerance()` is missing, or `periodic()` does not assign `atGoal()` |
+
+## Practice
+
+<Practice bank="3-7" />
+
+## Do it for real
+
+<DoItForReal tools="WPILib simulator + AdvantageScope">
+This is **Lab 6** in the team curriculum repository.
+
+1. In the WPILib VS Code, open `labs/Session 6 - Profiled Elevator Control/solution` first and simulate it. Hold Xbox A, B, X, and Y for 0.18, 0.42, 0.72, and 1.05 m. With no button the elevator holds stow at 0.02 m.
+2. Open the `assignment` project and search for `TODO Step`. Work through the manual's Steps 2 to 15: PID gains, constraints, feedforward, the controller, the reset, the command, the default stow command, and the four bindings.
+3. Run **WPILib: Simulate Robot Code**, set the Driver Station to **Teleoperated**, and in AdvantageScope connect to the simulator.
+4. Graph these under `/Subsystems/ElevatorSubsystem/`: `Target Meters` (the goal), `Profiled Setpoint Meters`, and `Height Meters`. Add `Output Voltage` and `At Target` if you want.
+5. Run the three tuning experiments from the table above, one at a time, restoring the expected values after each.
+
+**You know it worked when** `Target Meters` jumps the moment you press a button, `Profiled Setpoint Meters` ramps smoothly after it, `Height Meters` follows the ramp, error approaches zero, and `At Target` becomes true near each height. Releasing a button returns the elevator to stow.
+
+**On a real robot, also check**
+
+- Soft limits: requested heights are clamped to the minimum and maximum, and a limit switch guards the physical extreme.
+- Homing (lesson 1.6): drive slowly down to the limit switch and reset the encoder, so 0 m is real before you trust any height.
+- Current limits are set. Lab 6 uses a stator limit of 80 A and a supply limit of 40 A.
+- Expect different `kG`, `kS`, and `kV` than the simulation, and start with a slow profile and the carriage low.
+</DoItForReal>
+
+## Checkpoint
+
+<Checkpoint lesson="3.7">
+
+<details>
+<summary>Why does an elevator need <code>kG</code>?</summary>
+Gravity pulls on the carriage all the time, so holding a height takes a constant voltage. `kG` supplies it, so the PID only corrects small errors instead of fighting gravity alone.
+</details>
+
+<details>
+<summary>Why reset with both position and velocity, and why in <code>initialize()</code>?</summary>
+The profile must start from where the mechanism really is, including how fast it is moving. Resetting in `initialize()` does that once; resetting in `execute()` would restart the profile every 20 ms.
+</details>
+
+<details>
+<summary>How could a later scoring command use <code>elevatorAtTarget</code>?</summary>
+It can wait for the trigger to be true, so the mechanism only scores once the elevator is within tolerance of its goal.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- `ProfiledPIDController` plans the setpoint toward the goal and returns the PID correction.
+- `ElevatorFeedforward` adds `kS`, `kG` (constant gravity hold), `kV`, and `kA`.
+- Output = PID(measured height, goal) + feedforward(setpoint velocity).
+- Reset from the real height and velocity once, in `initialize()`.
+- Graph goal, profiled setpoint and height: the setpoint ramps, the height follows it.
+</RecapCard>

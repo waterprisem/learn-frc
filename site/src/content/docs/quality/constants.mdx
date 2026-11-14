@@ -5,16 +5,129 @@ id: "4.1"
 track: "quality"
 session: 5
 isNew: false
-status: stub
+status: review
+minutes: 15
+prereqs: ["3.5"]
+outcomes:
+  - Replace a magic number with a named constant
+  - Put units in a constant's name so a wrong unit is easy to spot
+  - Explain why each mechanism gets its own nested class in Constants.java
+  - Audit a Constants.java file for missing names and ambiguous units
+sources:
+  - curriculum: "labs/Session 5 - Constants, Logging, and Code Review/LAB_MANUAL.md"
+  - curriculum: "presentations/Session 5 - Constants, Logging, and Code Review/raw_data/slides.md"
 sidebar:
   label: "4.1 Constants and naming with units"
   order: 1
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import DoItForReal from '../../../components/lesson/DoItForReal.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import GoDeeper from '../../../components/lesson/GoDeeper.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
+import AnnotatedCode from '../../../components/code/AnnotatedCode.astro';
 
-**What it will cover:** No magic numbers, and names that carry their units.
+<WhyItMatters>
+Between matches you have ten minutes to fix a shooter that is a little slow. If the speed is a bare `70.0` hidden in three different files, you will change one and miss two.
+Worse, a number with no unit invites mistakes: someone passes rotations per minute where rotations per second were expected, and the wheel spins 60 times too fast.
+</WhyItMatters>
 
-Based on Session 5 of the Orbit Robotics curriculum.
+## Magic numbers
+
+A **magic number** is a bare value in code whose meaning you have to guess, like `0.12` or `70.0`.
+A **named constant** gives the value one name, in one place, so you can search for it, review it, and change it once.
+
+Constants live in `Constants.java`. It stores configuration only: IDs, limits, gains, and setpoints. It never calculates a voltage or decides anything.
+
+## Names carry units
+
+A number alone does not say whether it is volts, amps, or rotations per second (RPS). Put the unit at the end of the name, so every place that uses it shows what it expects.
+
+| Weak name | Better name | Why |
+|---|---|---|
+| `HIGH_SPEED` | `HIGH_VELOCITY_RPS` | Says what is measured and in which unit |
+| `TOLERANCE` | `VELOCITY_TOLERANCE_RPS` | Tolerance of what? RPS removes the doubt |
+| `CURRENT_LIMIT` | `FLYWHEEL_STATOR_CURRENT_LIMIT_AMPS` | Names the mechanism, the kind of limit, and the unit |
+| `KS` | `FEEDFORWARD_KS_VOLTS` | `kS` is a voltage, so volts belong in the name |
+| `KV` | `FEEDFORWARD_KV_VOLTS_PER_RPS` | A ratio shows both units: volts for each RPS |
+| `DEADBAND` | `SIM_STOPPED_RPM_DEADBAND` | Says it is a simulation value measured in RPM, a different unit from the RPS used elsewhere |
+
+A unit in the name also makes a mistake visible. `setTarget(HIGH_VELOCITY_RPS)` reads correctly. `setTarget(SOME_RPM_VALUE)` looks wrong the moment you write it.
+
+## One class per mechanism
+
+Each mechanism gets its own nested class, so everything about the flywheel is in one place. A teammate hunting for flywheel gains opens `FlywheelConstants` and finds them together.
+
+- Every constant is `public static final`: shared everywhere, one copy, never reassigned.
+- A private constructor, `private FlywheelConstants() {}`, stops anyone from creating an object of the class by accident.
+
+## The Lab 5 constants
+
+<AnnotatedCode
+  file="lab5-4.1/flywheel-constants"
+  title="Constants.java"
+  notes={[
+    { lines: '1', text: 'One nested class for the flywheel. Elsewhere the code writes <code>FlywheelConstants.PID_KP</code>, so you always see where a value lives.' },
+    { lines: '2-5', text: 'Hardware settings: the CAN ID, motor direction, and the two current limits, each ending in <code>_AMPS</code>.' },
+    { lines: '7-12', text: 'Gains and tolerance. The unit is part of the name wherever one exists: <code>_VOLTS</code>, <code>_VOLTS_PER_RPS</code>, <code>_RPS</code>.' },
+    { lines: '14-16', text: 'Named setpoints. The command picks one of these; it never types <code>70.0</code> itself.' },
+  ]}
+/>
+
+<GoDeeper title="why the lab keeps simulation constants separate">
+The full `FlywheelConstants` class also holds values such as `SIM_MOMENT_OF_INERTIA_KG_METERS_SQUARED` and `SIM_LOOP_PERIOD_SECONDS`. They describe the simulated wheel, not the robot's setpoints, so they carry a `SIM_` prefix.
+Anyone tuning a real shot can skip them, and no one mistakes them for operating values.
+</GoDeeper>
+
+## Practice
+
+<Practice bank="4-1" />
+
+## Do it for real
+
+<DoItForReal tools="Lab 5 solution project in WPILib VS Code">
+This is **Lab 5, Step 2: Audit `Constants.java`**.
+
+1. Open the Lab 5 project and open `Constants.java`, then `FlywheelConstants`.
+2. For each value, check four things:
+   - Hardware IDs and current limits are named constants.
+   - Gains are not written directly inside the subsystem.
+   - Setpoints are named constants.
+   - A unit appears in the name wherever the unit could be confused.
+3. Search `FlywheelSubsystem.java` and the command for any bare number that should be a constant.
+4. Check that nothing in `Constants.java` makes a decision or touches a motor.
+
+**You know it worked when** you can point to the line that holds every number the flywheel uses, and you can say each one's unit without opening another file.
+
+**On a real robot, also check**
+
+- A CAN ID in `Constants.java` matches the ID shown in Phoenix Tuner for that device.
+- Current limits are named in amps and set to the values your mentor approved.
+</DoItForReal>
+
+## Checkpoint
+
+<Checkpoint lesson="4.1">
+
+<details>
+<summary>Why is `HIGH_VELOCITY_RPS` safer than `HIGH_SPEED`?</summary>
+It says what is measured (velocity) and the unit callers must use (RPS). A future caller cannot pass RPM by accident without noticing the mismatch.
+</details>
+
+<details>
+<summary>Where does a named setpoint live, and where do the decisions about it live?</summary>
+The named value lives in `Constants.java`. Choosing a target and applying the calculated voltage stay in the subsystem and command code.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- A magic number is a bare value whose meaning and unit you must guess. Give it a name in one place.
+- Put the unit at the end of the name: `_VOLTS`, `_RPS`, `_AMPS`, `_METERS`, `_DEGREES`.
+- One nested class per mechanism, every constant `public static final`, private constructor.
+- `Constants.java` holds configuration only. Behavior stays in subsystems and commands.
+</RecapCard>

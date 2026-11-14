@@ -1,0 +1,44 @@
+# Practice bank for lesson 1.8 (Gearing and motion).
+lesson: "1.8"
+items:
+  - type: mcq
+    prompt: "A motor spins at 80 RPS through a 5:1 reduction. How fast does the mechanism turn?"
+    choices:
+      - "400 RPS"
+      - "16 RPS"
+      - "80 RPS"
+      - "5 RPS"
+    answer: 1
+    explain: "Divide by the ratio: 80 ÷ 5 = 16 RPS. Multiplying gives 400, which is the mistake of reading the ratio as a speed-up."
+  - type: mcq
+    prompt: "An elevator has a ratio of 10 and a drum radius of 0.022 m. Its motor turns 50 rotations. About how high has it risen?"
+    choices:
+      - "0.69 m"
+      - "0.069 m"
+      - "6.9 m"
+      - "1.10 m"
+    answer: 0
+    explain: "The drum turns 50 ÷ 10 = 5 times. Each turn lifts 2 × π × 0.022 = 0.138 m, so 5 × 0.138 = 0.69 m. Forgetting the ratio gives 6.9 m."
+  - type: fill-blank
+    prompt: "Complete the arm conversion. The motor turns `motorRotations`, and `GEAR_RATIO` is the number of motor rotations per arm rotation."
+    code: |
+      double armRotations = motorRotations ____ GEAR_RATIO;
+      double angleDegrees = armRotations ____ 360.0;
+    blanks:
+      - ["/"]
+      - ["*"]
+    explain: "Dividing by the ratio gives arm rotations, and multiplying by 360 turns rotations into degrees."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "An arm with a 100:1 ratio is told to go to 90 degrees. It only moves about 0.9 degrees, and the logged angle is about 100 times too small."
+    choices:
+      - "The conversion multiplies by the ratio, not divides"
+      - "The gear ratio was applied twice"
+      - "The code is using motor rotations as if they were arm rotations"
+      - "The angle was divided by 360 twice"
+    answer: 2
+    explain: "If the code skips the ratio, one arm degree takes 100 times more motor rotation than the code believes. Applying the ratio twice would be a different error, 10,000 times too small."
+  - type: free
+    prompt: "A drum has a radius of 0.03 m. How many meters does the carriage move for each full drum turn? Give the answer and the formula."
+    modelAnswer: "2 × π × 0.03 m = 0.188 m per drum turn. The carriage moves one circumference per turn."
+    explain: "One drum turn pulls the belt by the drum's circumference, 2πr. Using the radius alone, or the diameter, would be a common mistake."

@@ -5,16 +5,131 @@ id: "2.3"
 track: "commands"
 session: 3
 isNew: false
-status: stub
+minutes: 20
+prereqs: ["2.2"]
+outcomes:
+  - Name the four lifecycle methods and when each one runs
+  - Trace which method runs on each loop tick for a button press and release
+  - Explain what the interrupted flag tells end()
+  - Say why safe cleanup belongs in end()
+sources:
+  - curriculum: "presentations/Session 2 - How 1360 Robot Code Is Organized/raw_data/slides.md"
+  - curriculum: "presentations/Session 3 - Open-Loop Flywheel with TalonFX/raw_data/slides.md"
+  - curriculum: "labs/Session 3 - Open-Loop Flywheel with TalonFX/LAB_MANUAL.md"
+  - doc: "https://docs.wpilib.org/en/stable/docs/software/commandbased/commands.html"
+status: review
 sidebar:
   label: "2.3 Command lifecycle"
   order: 3
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import DoItForReal from '../../../components/lesson/DoItForReal.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
+import AnnotatedCode from '../../../components/code/AnnotatedCode.astro';
 
-**What it will cover:** initialize, execute, isFinished, and end, stepped through one loop at a time.
+<WhyItMatters>
+You hold a button, the flywheel spins, you let go, and it stops. Nothing in your code checks the button.
+The stop happens because a command has a fixed lifecycle, and the scheduler calls its methods at exactly the right moments.
+</WhyItMatters>
 
-Based on Session 3 of the Orbit Robotics curriculum.
+## Four methods, four moments
+
+A **command** is a class that extends `Command`. The **command lifecycle** is the set of methods the scheduler calls on it, in a fixed pattern.
+
+| Method | When it runs | Typical job |
+|---|---|---|
+| `initialize()` | Once, when the command starts | One-time setup |
+| `execute()` | Every loop (every 20 ms) while the command is running | The repeating work |
+| `isFinished()` | Right after each `execute()` | Return `true` when the job is done |
+| `end(boolean interrupted)` | Once, when the command stops | Leave the mechanism safe |
+
+You write these methods. You never call them yourself: the scheduler does (lesson 2.4).
+
+## Stepping through the loop
+
+Say a button is pressed at tick 3 and released at tick 6. A **tick** is one 20 ms loop. This command's `isFinished()` always returns `false`.
+
+| Tick | Button | `initialize()` | `execute()` | `isFinished()` | `end()` |
+|---|---|---|---|---|---|
+| 1 | up | | | | |
+| 2 | up | | | | |
+| 3 | **pressed** | runs | runs | false | |
+| 4 | held | | runs | false | |
+| 5 | held | | runs | false | |
+| 6 | **released** | | | | `end(true)` |
+| 7 | up | | | | |
+
+The press starts the command, and `execute()` runs on that same tick. On tick 6 the scheduler cancels the command before it can execute again, so the last `execute()` is tick 5.
+
+## What `interrupted` means
+
+`end()` is the only method that gets an argument.
+
+- **`true`**: something outside stopped the command. The button was released, or another command took over its subsystem.
+- **`false`**: the command stopped itself because `isFinished()` returned `true`.
+
+Either way, `end()` runs once. That is why safe cleanup, such as setting a motor to 0 V, goes in `end()` and not in the button code.
+
+## The code
+
+This is the Lab 3 command that runs the flywheel at a fixed voltage.
+
+<AnnotatedCode
+  file="lab3-2.3/lifecycle"
+  title="SetFlywheelVoltageCommand.java"
+  notes={[
+    { lines: '2', text: '<code>initialize()</code> is empty. An open-loop voltage command has nothing to set up.' },
+    { lines: '5-6', text: '<code>execute()</code> asks the subsystem for the same voltage on every tick. The command picks the voltage; the subsystem talks to the motor.' },
+    { lines: '10-11', text: '<code>end()</code> sets 0 V whether <code>interrupted</code> is true or false. The wheel is never left driven.' },
+    { lines: '15-16', text: 'Always <code>false</code>: this command never finishes by itself. Only a button release or another command ends it.' },
+  ]}
+/>
+
+## Practice
+
+<Practice bank="2-3" />
+
+## Do it for real
+
+<DoItForReal tools="WPILib simulator">
+Watch the lifecycle happen in the **Lab 3** solution project.
+
+1. Open `labs/Session 3 - Open-Loop Flywheel with TalonFX/solution` in WPILib VS Code.
+2. Temporarily add `System.out.println("initialize");` to `initialize()`, and similar lines to `end()` (print `interrupted` too). Leave `execute()` silent, because it prints 50 times a second.
+3. Run **WPILib: Simulate Robot Code**, set the Driver Station to **Teleoperated**, then tap and release keyboard <kbd>Z</kbd> (Xbox **A**).
+
+**You know it worked when** the console shows `initialize` once on the press and `end` with `interrupted` true once on the release.
+
+**On a real robot, also check**
+
+- Disable the robot while a button is held. Commands are cancelled on disable, so `end(true)` runs and the motor goes to 0 V.
+- Delete the debug prints afterward.
+</DoItForReal>
+
+## Checkpoint
+
+<Checkpoint lesson="2.3">
+
+<details>
+<summary>You hold A for one second, then release it. What is the call sequence?</summary>
+`initialize()` once, `execute()` about 50 times (once per 20 ms loop), then `end(true)` once when the release cancels the command.
+</details>
+
+<details>
+<summary>Why does this command put 0 V in `end()` instead of in a button handler?</summary>
+`end()` runs on every way the command can stop: release, another command taking over, or finishing. One place covers all of them, so the mechanism is always left safe.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- `initialize()` runs once, `execute()` every 20 ms, `isFinished()` after each `execute()`, `end()` once.
+- A command that starts on a tick also executes on that tick. A cancelled command does not execute on the tick it is cancelled.
+- `end(true)` means stopped from outside. `end(false)` means `isFinished()` returned `true`.
+- Put safe cleanup in `end()`.
+</RecapCard>

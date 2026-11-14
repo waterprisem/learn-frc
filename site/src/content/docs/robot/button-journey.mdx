@@ -5,16 +5,125 @@ id: "1.10"
 track: "robot"
 session: null
 isNew: true
-status: stub
+minutes: 20
+prereqs: ["1.2", "1.5", "1.9"]
+outcomes:
+  - Name each step between pressing Xbox A and a motor turning
+  - Say which layer each step lives in (USB, network, code, CAN, physics)
+  - Explain how the result gets back to a graph
+  - Use the trace to narrow down where "the button does nothing" comes from
+sources:
+  - curriculum: "labs/Session 3 - Open-Loop Flywheel with TalonFX/solution/src/main/java/frc/robot/RobotContainer.java"
+  - curriculum: "labs/Session 3 - Open-Loop Flywheel with TalonFX/solution/src/main/java/frc/robot/subsystems/FlywheelSubsystem.java"
+  - curriculum: "labs/Session 2 - How 1360 Robot Code Is Organized/LAB_MANUAL.md"
+  - curriculum: "presentations/Session 1 - Ground Zero - Robot Hardware, Systems, and Programming Philosophy/raw_data/slides.md"
+status: review
 sidebar:
   label: "1.10 Follow one button press"
   order: 10
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import GoDeeper from '../../../components/lesson/GoDeeper.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
+import AnnotatedCode from '../../../components/code/AnnotatedCode.astro';
 
-**What it will cover:** An end-to-end trace from an Xbox button through the hardware and code and back to a graph.
+<WhyItMatters>
+You press a button and the mechanism does nothing. That one symptom can come from a dead cable, a missing binding, a wrong CAN ID, or a stalled motor.
+If you know the full path, you can test it one step at a time instead of guessing.
+</WhyItMatters>
 
-This lesson goes beyond the Orbit Robotics curriculum.
+## The trace
+
+This is the Lab 3 flywheel. Holding Xbox A runs the flywheel at 6 volts (`FORWARD_VOLTAGE`). Each row hands the press to the next.
+
+| # | Where | What happens |
+|---|---|---|
+| 1 | **USB**: controller | The controller reports that A is down. |
+| 2 | **USB**: Driver Station laptop | The Driver Station reads the controller and packs it into its next message. It sends input about every 20 ms. |
+| 3 | **Network**: Wi-Fi to the radio | The message travels over Wi-Fi to the radio on the robot. |
+| 4 | **Network**: Ethernet to the roboRIO | The radio passes the message over Ethernet. WPILib on the roboRIO now knows A is pressed. |
+| 5 | **Code**: scheduler | Every 20 ms the `CommandScheduler` checks all triggers. It sees that `driverController.a()` became true. |
+| 6 | **Code**: command | `whileTrue` schedules a `SetFlywheelVoltageCommand`. Its `execute()` now runs every loop. |
+| 7 | **Code**: subsystem | `execute()` calls `flywheelSubsystem.setFlywheelVoltage(6.0)`, which calls `flywheelMotor.setControl(new VoltageOut(volts))` on the `TalonFX`. |
+| 8 | **CAN**: frame | Phoenix 6 turns the request into a CAN frame addressed to CAN ID 1 (`FLYWHEEL_MOTOR_CAN_ID`). |
+| 9 | **CAN**: TalonFX | The TalonFX reads the frame and switches battery power to the motor so that it averages 6 V. |
+| 10 | **Physics**: motor | Current flows, the motor makes torque, and the wheel speeds up. This is the slowest step: the wheel takes a fraction of a second to get going. |
+| 11 | **Physics**: encoder | The motor's built-in sensor measures the new speed. |
+| 12 | **CAN**: report back | The TalonFX sends the speed back to the roboRIO in CAN frames. |
+| 13 | **Code**: `periodic()` | Each loop, `getFlywheelVelocityRPS()` reads the speed and `velocityPublisher.accept(...)` publishes it to NetworkTables. |
+| 14 | **Network**: AdvantageScope | AdvantageScope reads `/Subsystems/FlywheelSubsystem/Velocity RPS` and draws the graph. |
+
+Steps 5 to 7 and 13 happen inside the 20 ms robot loop. So the code reacts to a press within one or two loops, and the physical wheel takes longer than any of the electronics.
+
+## Where the code is
+
+Steps 5 to 7 are three short pieces of the lab. The binding is in `RobotContainer`:
+
+<AnnotatedCode
+  file="lab3-1.10/binding"
+  title="RobotContainer.java"
+  notes={[
+    { lines: '1-2', text: '<code>driverController.a()</code> is the trigger the scheduler checks every loop (step 5).' },
+    { lines: '3-5', text: '<code>whileTrue</code> schedules this command when A goes down and cancels it when A is released (step 6).' },
+  ]}
+/>
+
+The subsystem does steps 7 and 13:
+
+<AnnotatedCode
+  file="lab3-1.10/subsystem"
+  title="FlywheelSubsystem.java"
+  notes={[
+    { lines: '1-3', text: 'Step 7. The <code>TalonFX</code> is told what to do; the CAN frame in step 8 is sent by Phoenix 6, not by your code.' },
+    { lines: '5-7', text: 'Step 12 arrives here: the speed the TalonFX reported over CAN.' },
+    { lines: '14-15', text: 'Step 13. Every loop, <code>periodic()</code> publishes the speed to NetworkTables.' },
+  ]}
+/>
+
+<GoDeeper title="the same trace in Lab 2">
+In Lab 2, A is bound to a `RunSelfCheckCommand` instead of a motor. The trace is the same through the scheduler: `RobotContainer.configureBindings()`, then `RunSelfCheckCommand.execute()`, then `DiagnosticsSubsystem.runSelfCheckCycle()`, then `periodic()`, then NetworkTables. In VS Code you can follow it with Go to Definition and Find All References.
+</GoDeeper>
+
+## Why this matters for debugging
+
+A fault at any of these steps looks the same from the driver's seat: the button does nothing. The trace tells you where to look first.
+
+- **Steps 1 to 4:** does the Driver Station show the button lighting up? If not, the fault is the controller, USB, or the network (lesson 1.9).
+- **Steps 5 to 6:** is the command running? A missing binding or a command that is already using the subsystem stops it here.
+- **Steps 7 to 9:** does the motor controller's light show it received the command? A wrong CAN ID in `Constants.java` fails here with no error (lesson 1.5).
+- **Steps 10 to 11:** the command ran and the TalonFX is trying, but the wheel does not move. Look at power, a jam, or a stalled motor.
+- **Steps 12 to 14:** the wheel spins but the graph is flat. The fault is in reporting, not in moving.
+
+## Practice
+
+<Practice bank="1-10" />
+
+## Checkpoint
+
+<Checkpoint lesson="1.10">
+
+<details>
+<summary>Which steps run inside the 20 ms robot loop, and which do not?</summary>
+The scheduler check, the command's `execute()`, the subsystem call, and `periodic()` run in the loop. USB, Wi-Fi, CAN, and the motor's physical response happen between loops.
+</details>
+
+<details>
+<summary>The graph of the wheel's speed stays at 0 while the wheel visibly spins. Which steps might be broken?</summary>
+Steps 11 to 14: the sensor, the CAN report back, the `periodic()` publish, or the NetworkTables topic. The command and the motor are working.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+
+- One press crosses USB, network, code, CAN, and physics, then comes back as a graph.
+- The robot loop runs every 20 ms and the Driver Station sends input about every 20 ms.
+- Your code never touches the motor directly; Phoenix 6 sends a CAN frame and the TalonFX switches the power.
+- "The button does nothing" has about a dozen possible causes, and the trace tells you which to test first.
+
+</RecapCard>

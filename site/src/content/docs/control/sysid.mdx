@@ -5,16 +5,94 @@ id: "3.11"
 track: "control"
 session: null
 isNew: true
-status: stub
+minutes: 20
+prereqs: ["3.4", "3.5", "3.7"]
+outcomes:
+  - Explain what quasistatic and dynamic tests each reveal
+  - List the four test routines and what gets logged
+  - Say what you provide to a WPILib SysIdRoutine
+  - Treat the fitted constants as a starting point to check on graphs
+sources:
+  - doc: "https://docs.wpilib.org/en/stable/docs/software/advanced-controls/system-identification/index.html"
+  - doc: "https://docs.wpilib.org/en/stable/docs/software/advanced-controls/system-identification/creating-routine.html"
+status: review
 sidebar:
   label: "3.11 SysId characterization"
   order: 11
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import GoDeeper from '../../../components/lesson/GoDeeper.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
 
-**What it will cover:** Measuring feedforward constants instead of guessing them.
+<WhyItMatters>
+You have been finding `kS`, `kV`, and `kG` by nudging numbers and watching graphs. That works, but it is slow, and a new robot means starting again.
+**System identification** (SysId) measures the constants instead: run the mechanism through a few fixed tests and let a tool fit the numbers.
+</WhyItMatters>
 
-This lesson goes beyond the Orbit Robotics curriculum.
+## The four tests
+
+SysId drives the mechanism with a known voltage and records the voltage, position, and velocity. It runs two kinds of test, each in both directions.
+
+| Test | What the voltage does | What it reveals |
+|---|---|---|
+| Quasistatic | Rises slowly, for example 1 V per second | Friction and back-EMF at each speed: `kS` and `kV` |
+| Dynamic | Jumps to a fixed step, for example 7 V | How quickly the mechanism speeds up: `kA` |
+
+Run each in forward and reverse, which makes four routines. Going both ways separates gravity (`kG`) from friction, because gravity helps one direction and fights the other.
+
+A slow ramp keeps acceleration near zero, so what is left is friction plus speed. A sudden step makes acceleration large, so the extra voltage it needs tells you `kA`.
+
+## What your code provides
+
+WPILib's `SysIdRoutine` class does the sequencing. You give it three things:
+
+1. **A way to apply a voltage** to the motors, such as a method that calls `setVoltage`.
+2. **A way to log**: each loop, record the voltage, position, and velocity for that mechanism.
+3. **The subsystem**, so the test commands require it and nothing else can drive the mechanism meanwhile.
+
+You then bind the routine's four commands (a quasistatic and a dynamic one for each direction) to buttons. The default ramp rate, step voltage, and timeout can be changed in its config.
+
+The result is a log file. Open it in the SysId tool, which ships with WPILib, choose the mechanism type (elevator, arm, or simple motor), and it reports the fitted constants.
+
+## Safety and trust
+
+- The mechanism needs room to move. A ramp keeps speeding up until the test ends, so an elevator can reach its top or bottom stop.
+- Keep a hand on the disable key, and start with the mechanism in the middle of its travel.
+- Soft limits and current limits stay on.
+- The fitted constants are a **starting point**. Put them in, then check the graphs as you did in lesson 3.5. Bad data, such as a mechanism that hit a stop, produces bad constants.
+
+<GoDeeper title="why the units must match">
+The tool fits constants in the units you logged. If position is in meters, `kV` comes out in volts per meter per second. Log a different unit than your feedforward code uses and the numbers will be wrong by a constant factor.
+</GoDeeper>
+
+## Practice
+
+<Practice bank="3-11" />
+
+## Checkpoint
+
+<Checkpoint lesson="3.11">
+
+<details>
+<summary>Why run each test in both directions?</summary>
+Friction is the same both ways but gravity is not. Comparing the two directions lets the tool separate them, which gives `kG` for an elevator or arm.
+</details>
+
+<details>
+<summary>You get constants from SysId. What do you do next?</summary>
+Enter them in the feedforward and graph the mechanism following a target. Adjust if the graph shows steady error or overshoot. The constants are a starting point, not a final answer.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- SysId measures feedforward constants from logged voltage, position, and velocity.
+- Quasistatic is a slow ramp (`kS`, `kV`). Dynamic is a step (`kA`). Both run forward and reverse.
+- `SysIdRoutine` needs a voltage method, a logging method, and the subsystem.
+- Leave room to move, be ready to disable, and verify the result on graphs.
+</RecapCard>

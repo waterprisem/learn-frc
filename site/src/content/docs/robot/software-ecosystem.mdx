@@ -5,16 +5,117 @@ id: "1.11"
 track: "robot"
 session: 1
 isNew: false
-status: stub
+minutes: 15
+prereqs: ["1.1"]
+outcomes:
+  - Say what WPILib provides and what it does not
+  - Explain what a vendordep is and where it lives in a project
+  - Match each library on this site to what you use it for
+  - Add a vendor library in VS Code
+sources:
+  - curriculum: "presentations/Session 1 - Ground Zero - Robot Hardware, Systems, and Programming Philosophy/raw_data/slides.md"
+  - curriculum: "misc/v1/frc1360_programming_curriculum_plan.md"
+  - curriculum: "template/vendordeps"
+  - doc: "https://docs.wpilib.org/en/stable/docs/software/vscode-overview/3rd-party-libraries.html"
+status: review
 sidebar:
   label: "1.11 Software ecosystem"
   order: 11
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import GoDeeper from '../../../components/lesson/GoDeeper.astro';
+import DoItForReal from '../../../components/lesson/DoItForReal.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
 
-**What it will cover:** WPILib, vendor libraries, and installing the tools.
+<WhyItMatters>
+The first time you write `new TalonFX(1)`, VS Code may underline `TalonFX` in red even though your code is correct. The class lives in a library your project does not have yet.
+Knowing where robot code gets its pieces from turns that error into a one-minute fix.
+</WhyItMatters>
 
-Based on Session 1 of the Orbit Robotics curriculum.
+## WPILib is the foundation
+
+**WPILib** is the free, official FRC library and toolset. It gives your project the robot loop, the command-based framework, joystick and NetworkTables classes, control math such as PID, and the simulator.
+
+The installer also sets up VS Code with the WPILib extension, a Java JDK, the Gradle build system, and tools such as AdvantageScope. Installing is a one-time job on each laptop: lesson R.1 walks through it.
+
+WPILib does not know about any specific company's motor controllers, sensors, or cameras. Those come from vendors.
+
+## Vendor libraries add hardware and features
+
+A **vendor library**, or **vendordep** (vendor dependency), is a library from the company that makes a device. It is described by a small **JSON** file in your project's `vendordeps/` folder. When you build, Gradle reads that file and downloads the library.
+
+The template project for the labs has these files:
+
+| File in `vendordeps/` | Library |
+|---|---|
+| `Phoenix6-26.2.0.json` | CTRE Phoenix 6 |
+| `PathplannerLib-2026.1.2.json` | PathPlanner |
+| `AdvantageKit.json` | AdvantageKit |
+| `REVLib.json` | REV Robotics |
+| `WPILibNewCommands.json` | WPILib's command-based framework |
+
+PhotonLib (the PhotonVision library) is not in that template. You add it when you reach the vision lessons.
+
+## Which library is for what
+
+| Library | Made by | You use it for | When you meet it here |
+|---|---|---|---|
+| **WPILib** | FIRST and the community | The robot loop, commands, controllers, NetworkTables, simulation | Everywhere, starting in track 2 |
+| **Phoenix 6** | CTRE | `TalonFX` motors, `CANcoder`, Pigeon 2 | Lesson 2.7, then every mechanism lab |
+| **PathPlannerLib** | The PathPlanner project | Autonomous paths and `AutoBuilder` | Lesson 8.1 |
+| **PhotonLib** | PhotonVision | Reading camera and AprilTag results | Lesson 7.1 |
+| **REVLib** | REV Robotics | Spark motor controllers | Not taught. Older team code uses it. |
+| **AdvantageKit** | Team 6328 | An advanced logging framework | Awareness only |
+
+<GoDeeper title="tools are not libraries">
+AdvantageScope, Phoenix Tuner X, and the Driver Station are apps that run on your laptop. They are not vendordeps, and your robot project does not import them. AdvantageScope (an app) and AdvantageKit (a library) have similar names and are different things.
+</GoDeeper>
+
+## Do it for real
+
+<DoItForReal tools="VS Code with the WPILib extension">
+
+1. Open a robot project in VS Code.
+2. Open the command palette and run **WPILib: Manage Vendor Libraries**.
+3. Choose **Install new libraries (online)** and paste the library's JSON URL, which is listed in the vendor's documentation.
+4. Build the project once so Gradle downloads the library.
+
+**You know it worked when** a new `.json` file appears in `vendordeps/` and the red underlines on that library's classes are gone.
+
+**On a real robot, also check** that the library's version matches the firmware on your devices. Phoenix Tuner X shows the device firmware.
+
+</DoItForReal>
+
+## Practice
+
+<Practice bank="1-11" />
+
+## Checkpoint
+
+<Checkpoint lesson="1.11">
+
+<details>
+<summary>What is the difference between WPILib and a vendor library?</summary>
+WPILib is the official foundation: the robot loop, commands, controls math, and simulation. A vendor library adds support for one company's hardware or a specialised feature, such as Phoenix 6 for `TalonFX` motors.
+</details>
+
+<details>
+<summary>Name two vendor libraries from this site and what each is for.</summary>
+Phoenix 6 for TalonFX motors and CANcoders. PathPlannerLib for autonomous paths. PhotonLib for reading camera results.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+
+- WPILib is the foundation; vendor libraries add specific hardware and features.
+- A vendordep is a JSON file in the project's `vendordeps/` folder, and Gradle downloads the library from it.
+- This site teaches Phoenix 6, PathPlannerLib, and PhotonLib. REVLib is recognized, not taught.
+- In VS Code, add a library with WPILib: Manage Vendor Libraries.
+
+</RecapCard>

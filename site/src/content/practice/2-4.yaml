@@ -1,0 +1,56 @@
+# Practice bank for lesson 2.4 (Scheduler and requirements).
+lesson: "2.4"
+items:
+  - type: mcq
+    prompt: "Where is `CommandScheduler.getInstance().run()` called in a standard robot project?"
+    choices:
+      - "In each command's `execute()`"
+      - "In `Robot.robotPeriodic()`"
+      - "In each subsystem's constructor"
+      - "Once, at the end of `RobotContainer`"
+    answer: 1
+    explain: "`robotPeriodic()` runs every 20 ms in every mode, so the scheduler runs every loop. Calling it once would run the commands once."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "Two commands both set the shooter motor voltage, one at 4 V and one at 8 V. When both are active the motor jitters between the two values."
+    choices:
+      - "One command forgot `addRequirements(shooterSubsystem)`"
+      - "The motor is plugged into the wrong CAN ID"
+      - "`isFinished()` returns `true` too early"
+      - "The loop runs at the wrong rate"
+    answer: 0
+    explain: "Without the requirement, the scheduler does not know the commands conflict, so it runs both. Each `execute()` overwrites the other's voltage every tick. With the requirement, the second would interrupt the first."
+  - type: mcq
+    prompt: "Command A requires the flywheel and is running. Command B also requires the flywheel and is scheduled. What happens by default?"
+    choices:
+      - "B waits until A finishes"
+      - "B is ignored"
+      - "A is interrupted, and `end(true)` runs on A"
+      - "Both run, in the order they were scheduled"
+    answer: 2
+    explain: "By default the incoming command wins. The scheduler interrupts A, runs its `end(true)`, then starts B."
+  - type: mcq
+    prompt: "An intake command requires `IntakeSubsystem`. A flywheel command requires `FlywheelSubsystem`. Both are scheduled. What happens?"
+    choices:
+      - "The newer command interrupts the older one"
+      - "Both run at the same time"
+      - "Neither runs"
+      - "The scheduler throws an error"
+    answer: 1
+    explain: "Requirements conflict only when two commands share a subsystem. Different subsystems can be controlled together."
+  - type: fill-blank
+    prompt: "Declare the requirement in the constructor so the scheduler protects the flywheel."
+    code: |
+      public SetFlywheelVoltageCommand(FlywheelSubsystem flywheelSubsystem, double voltage) {
+        this.flywheelSubsystem = flywheelSubsystem;
+        this.voltage = voltage;
+        ___(___);
+      }
+    blanks:
+      - ["addRequirements"]
+      - ["flywheelSubsystem", "this.flywheelSubsystem"]
+    explain: "`addRequirements` takes the subsystem the command controls. Forgetting it compiles fine, which is why the bug only shows up as a jittering motor."
+  - type: free
+    prompt: "In Lab 3 you hold A, then also hold B. Explain what happens to the A command, in terms of the lifecycle."
+    modelAnswer: "B's command requires the flywheel, so the scheduler interrupts A's command. A gets end(true), which sets 0 V, and B's command runs initialize and then execute."
+    explain: "Both commands require the flywheel, so only one can own it. Holding the button does not protect A, because the incoming command wins."

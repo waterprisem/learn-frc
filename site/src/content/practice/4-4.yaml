@@ -1,0 +1,61 @@
+# Practice bank for lesson 4.4 (AdvantageScope workflow).
+lesson: "4.4"
+items:
+  - type: read-graph
+    preset: "flywheel:tuned"
+    prompt: "Once the wheel has settled, which signal tells you the code considers it ready to shoot?"
+    choices:
+      - "`Output Voltage`, because it is steady."
+      - "`At Target`, which is true while the error is inside the tolerance."
+      - "`Target RPS`, because it is flat."
+      - "`Velocity RPS`, because it is close to the target."
+    answer: 1
+    explain: "`At Target` is the code's own readiness decision. Velocity looking close is a guess by eye; the flag applies the 2 RPS tolerance for you."
+  - type: read-graph
+    preset: "flywheel:kv-low"
+    prompt: "Which signal shows that the wheel is not getting where you asked, and what does it show?"
+    choices:
+      - "`Error RPS` stays positive and does not shrink toward 0."
+      - "`Target RPS` drifts downward."
+      - "`At Target` is true but flickering."
+      - "`Output Voltage` is 0 V."
+    answer: 0
+    explain: "Error is target minus measurement. A positive error that stays put means the wheel is stuck below the target. The target itself is fixed, and the output is not 0, because the controller is pushing."
+  - type: read-graph
+    preset: "flywheel:kp-high"
+    prompt: "Which two signals together show over-correction?"
+    choices:
+      - "`Target RPS` and `At Target`."
+      - "`Velocity RPS` crossing the target and `Output Voltage` swinging each time it does."
+      - "`Error RPS` only, because it is always positive."
+      - "`Velocity RPS` only, because it is noisy."
+    answer: 1
+    explain: "One signal alone is ambiguous. Velocity crossing the target shows the symptom, and the swinging voltage shows the controller causing it."
+  - type: predict-graph
+    prompt: "You lower `kV` a lot and leave `kP` modest. In which graph does `At Target` never turn true even though the velocity looks steady?"
+    presets: ["flywheel:kp-high", "flywheel:kv-low", "flywheel:tuned"]
+    answer: 1
+    explain: "A low `kV` leaves a steady error outside the tolerance, so the flag stays false. Graph A keeps swinging, and graph C is tuned."
+  - type: symptom-cause
+    prompt: "What do you check first?"
+    symptom: "In AdvantageScope, `Target RPS` shows 40 while `Velocity RPS` and `Output Voltage` stay at 0."
+    choices:
+      - "Lower `kP`, because the controller is over-correcting."
+      - "Whether a command is actually running the calculation and sending the voltage, and whether the gains are 0."
+      - "Raise `kV` by a large amount."
+      - "Replace the encoder."
+    answer: 1
+    explain: "The target exists but the output is 0, so the problem is on the code side, before the motor. Raising or lowering gains does not help until the output moves. The encoder is not suspect while the output is 0."
+  - type: mcq
+    prompt: "You want to compare two values of `kP`. Which test is fair?"
+    choices:
+      - "Hold A for the first value and B for the second."
+      - "Change `kP` and `kV` together, then judge the result."
+      - "Hold the same buttons in the same order both times and change only `kP`."
+      - "Judge each run from memory."
+    answer: 2
+    explain: "A fair comparison changes one thing. A different target or a second changed gain makes the difference in the graph impossible to attribute."
+  - type: free
+    prompt: "A teammate says the shooter is bad and wants to double every gain. What do you ask them to show you first?"
+    modelAnswer: "A graph of target, velocity, error, output voltage, and At Target from the same test. The pattern in the graph says which gain, if any, to change, and by how much."
+    explain: "Read the graph before touching a gain; guessing at several gains at once hides the cause."

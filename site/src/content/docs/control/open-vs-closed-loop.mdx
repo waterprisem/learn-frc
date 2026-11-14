@@ -5,16 +5,91 @@ id: "3.1"
 track: "control"
 session: 4
 isNew: false
-status: stub
+minutes: 15
+prereqs: ["1.3"]
+outcomes:
+  - Explain why the same voltage can give different speeds
+  - Tell an open-loop controller from a closed-loop one
+  - Name the three steps a closed loop repeats every 20 ms
+sources:
+  - curriculum: "labs/Session 4 - PID + Feedforward for Velocity Control/LAB_MANUAL.md"
+  - curriculum: "presentations/Session 4 - PID + Feedforward for Velocity Control/raw_data/slides.md"
+status: review
 sidebar:
   label: "3.1 Open vs closed loop"
   order: 1
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
+import FlywheelTuner from '../../../components/playgrounds/FlywheelTuner.tsx';
 
-**What it will cover:** Why a fixed voltage does not give a fixed speed.
+<WhyItMatters>
+A shooter that sends 5 V to its wheel launches a note at one speed on a fresh battery and a slower speed on a tired one.
+The shot lands short and nothing in the code knows. Control that checks the result fixes this.
+</WhyItMatters>
 
-Based on Session 4 of the Orbit Robotics curriculum.
+## One voltage, many speeds
+
+A motor's speed depends on more than the voltage you send it.
+
+| What changes | Effect on the wheel at the same voltage |
+|---|---|
+| Battery sag (lesson 1.3) | The motor really gets less than you asked for, so it spins slower |
+| A load, such as a game piece squeezed by the wheel | The wheel is dragged down |
+| Friction that shifts with heat and wear | The wheel needs more voltage to hold the same speed |
+
+So "set 5 V" is a request for a voltage, not for a speed. If you care about speed, you have to look at the speed.
+
+## Two kinds of loop
+
+An **open-loop** controller sends an output and never looks at the result. Setting a motor to a fixed voltage is open loop.
+
+A **closed-loop** controller measures the result and uses it to change the output. Every 20 ms (50 times a second), it repeats three steps:
+
+1. **Measure** the real speed with the encoder.
+2. **Compare** it with the speed you want.
+3. **Correct** the voltage to close the gap.
+
+Open loop is fine when the result does not matter much, such as an intake that only has to spin. Use closed loop when the result matters, such as a shooter that must hit a speed.
+
+## Experiment: add a load
+
+This starts with no feedback: the voltage is a fixed prediction and the code never reads the encoder.
+
+<FlywheelTuner client:visible guide={false} initialPreset="no-feedback" />
+
+1. Predict, then do: hold 40 RPS. Will the Output Voltage line move when you add a load? (It should stay flat.)
+2. Tick "Add a load". Does the speed hold or drop? Why does the voltage not change?
+3. Switch the preset to "Tuned" and repeat. Predict what the voltage will do this time, and where the speed will end up.
+
+## Practice
+
+<Practice bank="3-1" />
+
+## Checkpoint
+
+<Checkpoint lesson="3.1">
+
+<details>
+<summary>Why does a fixed voltage not guarantee a fixed flywheel speed?</summary>
+Battery voltage sags, friction changes, and loads such as a game piece drag the wheel down. The same voltage gives a different speed each time, and open-loop code never checks.
+</details>
+
+<details>
+<summary>What makes a controller closed loop?</summary>
+It uses a measurement of the result to change its output, repeatedly. Without the measurement, it is open loop.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- Voltage is not speed: battery sag, load, and friction all change the speed you get.
+- Open loop never looks at the result. Closed loop does.
+- A closed loop measures, compares, and corrects every 20 ms.
+- Use closed loop when the result matters, such as shooter speed.
+</RecapCard>

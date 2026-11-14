@@ -1,0 +1,42 @@
+# Practice bank for lesson 3.3 (PID intuition).
+lesson: "3.3"
+items:
+  - type: mcq
+    prompt: "`kP` is 0.5 volts per RPS and the error is +4 RPS. What is the P output?"
+    choices: ["0.125 V", "2 V", "4.5 V", "8 V"]
+    answer: 1
+    explain: "P output = `kP` × error = 0.5 × 4 = 2 V. The units work out: volts per RPS times RPS gives volts."
+  - type: multi
+    prompt: "Which terms need a memory of earlier loops, instead of only the current reading? Select all that apply."
+    choices: ["P", "I", "D"]
+    answers: [1, 2]
+    explain: "I adds up past error, and D compares the error with the previous loop's error. P uses only the error right now."
+  - type: read-graph
+    preset: "flywheel:p-only"
+    prompt: "The wheel has settled but the velocity line sits below the target and the Error line is above zero. What does this show?"
+    choices:
+      - "Steady-state error, because P output needs an error to exist"
+      - "Oscillation, because `kP` is too large"
+      - "Windup from `kI`"
+      - "A broken encoder"
+    answer: 0
+    explain: "The error stays steady instead of swinging, so it is not oscillation. P alone cannot reach zero error while it still has to supply the holding voltage."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "After you raise `kP` a lot, the flywheel swings above and below the target and the output voltage jumps up and down."
+    choices:
+      - "`kP` is too large"
+      - "`kP` is too small"
+      - "`kI` is too small"
+      - "The tolerance is too large"
+    answer: 0
+    explain: "A large `kP` turns a small error into a big voltage change, which overshoots and then over-corrects the other way. A small `kP` would give steady error, not swinging."
+  - type: predict-graph
+    prompt: "Only `kP` is set (feedforward is 0). You double `kP`. Which graph will you see?"
+    presets: ["flywheel:p-only", "flywheel:kp-high", "flywheel:no-feedback"]
+    answer: 0
+    explain: "Raising a modest `kP` moves the wheel closer to the target, so the steady error shrinks, as in graph A. Graph B is what happens when `kP` is far too large, and C has no feedback at all."
+  - type: free
+    prompt: "A teammate says: add a big `kI` and the steady error will disappear immediately. What would you tell them?"
+    modelAnswer: "`kI` does remove steady error because it keeps growing while any error remains. But it works slowly, and a big `kI` builds up too much (windup) and overshoots. Feedforward gives the holding voltage directly."
+    explain: "I trades a steady error for slow response and overshoot. It is rarely the first fix on a velocity loop."

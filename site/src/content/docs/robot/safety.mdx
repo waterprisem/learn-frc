@@ -5,16 +5,89 @@ id: "1.14"
 track: "robot"
 session: null
 isNew: true
-status: stub
+minutes: 10
+prereqs: ["1.13"]
+outcomes:
+  - Use the Driver Station disable and emergency stop correctly
+  - Run through a "before you enable" check
+  - Handle a battery safely
+  - Explain why brake mode does not make a mechanism safe
+sources:
+  - curriculum: "presentations/Session 1 - Ground Zero - Robot Hardware, Systems, and Programming Philosophy/raw_data/slides.md"
+  - doc: "https://docs.wpilib.org/en/stable/docs/software/driverstation/driver-station.html"
+status: review
 sidebar:
   label: "1.14 Safety around a live robot"
   order: 14
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
 
-**What it will cover:** Enable and disable, E-stop, and battery handling.
+<WhyItMatters>
+A competition robot can move fast enough and hard enough to hurt someone, and code you just deployed has never been tested.
+These habits are short, and every team follows them.
+</WhyItMatters>
 
-This lesson goes beyond the Orbit Robotics curriculum.
+## Disable and emergency stop
+
+Your robot only drives its motors while **enabled**. **Disabled** is the safe state.
+
+In the Driver Station:
+
+- **Enter** disables the robot.
+- **Space bar** is the **emergency stop** (E-stop). It stops the robot immediately.
+
+An E-stopped robot must be restarted before it can be enabled again. Keep a hand near the keyboard whenever the robot is enabled.
+
+The first thing to reach for in an electrical emergency is the red main breaker, which cuts all power.
+
+## Before you enable
+
+<ol>
+<li>Everyone is clear of the mechanisms, wheels, and any moving arm or elevator.</li>
+<li>Safety glasses are on for everyone near the robot.</li>
+<li>The robot is on blocks if the wheels could move it.</li>
+<li>The person at the Driver Station knows the code that was just deployed.</li>
+<li>Call out "ENABLING!" loudly.</li>
+<li>Wait for people nearby to answer "clear" before you enable.</li>
+</ol>
+
+## Hands, power, and batteries
+
+- Turn the **main breaker off** before touching wiring or reaching into a mechanism.
+- Stay out of reach of anything that can move. Keep hands, hair, and loose clothing away from chains, gears, and wheels.
+- **Brake mode does not make a mechanism safe.** It resists motion only while the motor is powered and the controller is working. An arm or elevator can still fall when power is cut, so never stand or reach under a raised mechanism.
+- Carry a battery by its **case**, never by its cables.
+- Do not use a damaged or leaking battery. Tell a mentor.
+
+## Practice
+
+<Practice bank="1-14" />
+
+## Checkpoint
+
+<Checkpoint lesson="1.14">
+
+<details>
+<summary>The robot starts driving toward a teammate. What do you press, and what must happen before you can enable it again?</summary>
+Press the Space bar to E-stop (Enter only disables). The robot must then be restarted before it can be enabled again.
+</details>
+
+<details>
+<summary>A teammate wants to reach into the intake to free a jammed game piece. What do you do first?</summary>
+Disable the robot, and turn the main breaker off before anyone puts a hand in. A disabled robot with a live breaker can still be surprising when it re-enables.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- Enter disables, Space bar is the E-stop, and an E-stopped robot must be restarted.
+- Before enabling: clear the area, glasses on, call "ENABLING!", wait for "clear".
+- Main breaker off before touching wiring or mechanisms.
+- Brake mode is not a safety device. Carry batteries by the case.
+</RecapCard>

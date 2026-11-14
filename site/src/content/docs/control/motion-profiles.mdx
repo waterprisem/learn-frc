@@ -5,16 +5,135 @@ id: "3.6"
 track: "control"
 session: 6
 isNew: false
-status: stub
+minutes: 20
+prereqs: ["3.2", "3.5"]
+outcomes:
+  - Explain why a position PID with a far-away goal slams the mechanism
+  - Describe the three phases of a trapezoid profile
+  - Work out the time and distance of a trapezoid move from its two limits
+  - Tell the goal apart from the profiled setpoint
+status: review
+sources:
+  - curriculum: "labs/Session 6 - Profiled Elevator Control/LAB_MANUAL.md"
+  - curriculum: "presentations/Session 6 - ElevatorSubsystem with ProfiledPIDController/Raw Data/slides.md"
+  - doc: "https://docs.wpilib.org/en/stable/docs/software/commandbased/profilepid-subsystems-commands.html"
 sidebar:
   label: "3.6 Motion profiles"
   order: 6
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import GoDeeper from '../../../components/lesson/GoDeeper.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
 
-**What it will cover:** Trapezoid profiles: planning a smooth move from A to B.
+<WhyItMatters>
+Tell an elevator at the bottom to go to the top and a plain position PID sees a huge error on the first loop. It answers with full voltage, the carriage launches, then overshoots, and a chain or belt can skip a tooth.
+A **motion profile** plans the trip so the mechanism never has to be asked for more than it can smoothly do.
+</WhyItMatters>
 
-Based on Session 6 of the Orbit Robotics curriculum.
+## Why a far-away goal is a problem
+
+A position PID outputs `kP × error`. With the lab's `kP` of 18 volts per meter, a 1.0 m error asks for 18 V on the very first loop. A motor controller can only give 12 V at most.
+
+So the mechanism gets the full 12 V while it is far away, builds up speed, and the PID only starts backing off when it is already close. By then it is moving too fast to stop in time.
+
+The fix is to never show the PID a far-away target. Plan the trip first, then let the PID follow the plan.
+
+## The trapezoid profile
+
+A **trapezoid profile** is a plan with three phases, set by two limits you choose:
+
+1. **Accelerate** at the maximum acceleration until you reach the maximum velocity.
+2. **Cruise** at the maximum velocity.
+3. **Decelerate** at the same acceleration, arriving at the goal with zero velocity.
+
+Plotted as velocity against time, that shape is a trapezoid. The profile is recalculated every 20 ms loop.
+
+## Goal and setpoint
+
+These two words are the heart of the lesson.
+
+- The **goal** is the final position you asked for. It jumps the moment you press the button.
+- The **profiled setpoint** is where the plan says the mechanism should be right now, with the speed it should have there. It slides from the start toward the goal.
+
+The PID's error is measured against the nearby setpoint, so it stays small the whole trip. Lab 6 graphs both, so you can see the goal jump and the setpoint ramp after it.
+
+## A worked move
+
+Example limits: maximum velocity 1.0 m/s, maximum acceleration 2.0 m/s². Move from 0 to 1.0 m.
+
+| Phase | Time | Distance | Why |
+|---|---|---|---|
+| Accelerate | 0.5 s | 0.25 m | 1.0 m/s ÷ 2.0 m/s² = 0.5 s; distance = ½ × 2.0 × 0.5² |
+| Cruise | 0.5 s | 0.5 m | The rest: 1.0 − 0.25 − 0.25 = 0.5 m at 1.0 m/s |
+| Decelerate | 0.5 s | 0.25 m | Mirror of the acceleration |
+| **Total** | **1.5 s** | **1.0 m** | |
+
+Sampled along the way:
+
+| Time (s) | Setpoint position (m) | Setpoint velocity (m/s) |
+|---|---|---|
+| 0.0 | 0.000 | 0.0 |
+| 0.25 | 0.063 | 0.5 |
+| 0.5 | 0.250 | 1.0 |
+| 1.0 | 0.750 | 1.0 |
+| 1.25 | 0.938 | 0.5 |
+| 1.5 | 1.000 | 0.0 |
+
+**A short move.** Now move only 0.2 m with the same limits. Reaching 1.0 m/s would take 0.25 m, but half the move is only 0.1 m. The profile turns around before it reaches the maximum velocity, so it has no cruise phase and is a **triangle**.
+
+| Phase | Time | Result |
+|---|---|---|
+| Accelerate | about 0.32 s | peak velocity about 0.63 m/s |
+| Decelerate | about 0.32 s | |
+| **Total** | **about 0.63 s** | 0.2 m |
+
+<GoDeeper title="the formulas behind the table">
+Accelerating from rest at `a` for time `t` gives velocity `a × t` and distance ½ × `a` × `t`².
+For a move of distance `d` that is too short to cruise, each half covers `d / 2`, so the peak velocity is the square root of `a × d`.
+Here that is the square root of 2.0 × 0.2 = 0.63 m/s, which is below the 1.0 m/s limit, so the triangle case applies.
+</GoDeeper>
+
+## The constraints in code
+
+The two limits are one WPILib object, `TrapezoidProfile.Constraints`. These are the Lab 6 names and values:
+
+```java
+new TrapezoidProfile.Constraints(
+    ElevatorConstants.MAX_VELOCITY_METERS_PER_SECOND,          // 1.0
+    ElevatorConstants.MAX_ACCELERATION_METERS_PER_SECOND_SQUARED) // 1.8
+```
+
+They are not motor limits. They say how aggressive you allow the plan to be. Higher values feel snappier but demand more voltage and can overshoot; lower values are gentler and slower. Lesson 3.7 hands this object to a `ProfiledPIDController`.
+
+## Practice
+
+<Practice bank="3-6" />
+
+## Checkpoint
+
+<Checkpoint lesson="3.6">
+
+<details>
+<summary>Which signal is the final requested height, and which is the controller's planned position along the way?</summary>
+The goal (`Target Meters` in Lab 6) is the final requested height. The profiled setpoint (`Profiled Setpoint Meters`) is the planned position at this moment.
+</details>
+
+<details>
+<summary>Why does the PID stay calm during a long move?</summary>
+It only compares the measured height with the profiled setpoint, which is always close to the mechanism. It never sees the full distance to the goal.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- A position PID given a far-away goal outputs full voltage at once and overshoots.
+- A trapezoid profile accelerates, cruises, then decelerates, set by a maximum velocity and a maximum acceleration.
+- The goal is the final position. The profiled setpoint is the planned position right now.
+- The PID chases the setpoint, so its error stays small.
+- A move too short to reach the maximum velocity becomes a triangle.
+</RecapCard>

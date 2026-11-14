@@ -1,0 +1,67 @@
+# Practice bank for lesson 3.7 (Profiled elevator).
+lesson: "3.7"
+items:
+  - type: mcq
+    prompt: "In Lab 6, what two inputs make up the motor voltage?"
+    choices:
+      - "PID of the measured height plus feedforward of the profiled setpoint velocity"
+      - "PID of the goal velocity plus feedforward of the measured height"
+      - "Feedforward of the goal height only"
+      - "PID of the setpoint velocity plus feedforward of the goal height"
+    answer: 0
+    explain: "PID reads the encoder and corrects error. Feedforward never reads the encoder and uses the velocity the profile intends right now. The goal is a position, so it is not a feedforward input."
+    source: "Lab 6, Steps 8-9"
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "You set the feedforward gains and the carriage still ends up below the goal. The error stays above zero and the output voltage works hard near the goal just to hold the height."
+    choices:
+      - "`kG` is 0 or too small, so the PID has to fight gravity alone."
+      - "`kI` is too large."
+      - "The tolerance is 0.025 m."
+      - "The goal and the setpoint are swapped in the graph."
+    answer: 0
+    explain: "`kG` is the constant voltage that holds the carriage up. Without it the PID needs a steady error to produce that voltage, which is the sag you see."
+    source: "Lab 6, Experiment 1"
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "The profiled setpoint takes much longer than before to reach the goal after you press a button. The height follows it faithfully."
+    choices:
+      - "`PID_KP` was raised."
+      - "`MAX_VELOCITY_METERS_PER_SECOND` was lowered."
+      - "`kG` was raised."
+      - "The reset moved to `execute()`."
+    answer: 1
+    explain: "The goal still jumps immediately but the plan is allowed to move more slowly. The height follows the setpoint, so nothing is wrong with the tracking."
+    source: "Lab 6, Experiment 2"
+  - type: symptom-cause
+    prompt: "What should you change first?"
+    symptom: "After you raised `PID_KP` in steps, the height now overshoots each goal and swings back and forth."
+    choices:
+      - "Raise `PID_KP` further."
+      - "Lower `PID_KP` back toward the expected value."
+      - "Set `kG` to 0."
+      - "Raise the tolerance to 0.5 m."
+    answer: 1
+    explain: "A large `kP` turns small errors into big voltage, which over-corrects. Restore the value you could explain, as the lab says. The tolerance only changes readiness, not the motion."
+    source: "Lab 6, Experiment 3"
+  - type: fill-blank
+    prompt: "Complete the combined output. Pass the measurement first, and give feedforward the velocity the profile intends."
+    code: |
+      double pidOutput = elevatorPID.calculate(____, clampedTarget);
+      double feedforwardOutput = elevatorFF.calculate(elevatorPID.getSetpoint().____);
+      return pidOutput + feedforwardOutput;
+    blanks:
+      - ["getElevatorHeightMeters()"]
+      - ["velocity"]
+    explain: "`calculate(measurement, goal)`: swapping them flips the error sign. Feedforward needs how fast the plan is moving, which is `getSetpoint().velocity`."
+    source: "Lab 6, Steps 8-9"
+  - type: multi
+    prompt: "Which of these are correct about the elevator's code? Select all that apply."
+    choices:
+      - "The controller is reset from the current height and velocity."
+      - "`isFinished()` returns false, so releasing the button ends the command."
+      - "A default command holds the elevator at stow when no button is held."
+      - "`resetProfiledPIDController()` belongs in `execute()` so it stays current."
+    answers: [0, 1, 2]
+    explain: "Reset once in `initialize()`. Resetting in `execute()` would restart the profile every 20 ms. The default command is why only four buttons are bound."
+    source: "Lab 6, Steps 10-15"

@@ -5,16 +5,160 @@ id: "2.8"
 track: "commands"
 session: 3
 isNew: false
-status: stub
+minutes: 40
+prereqs: ["2.4", "2.5", "2.7"]
+outcomes:
+  - Explain what open loop means and why the speed can change
+  - Write a command that runs until interrupted and stops safely in end()
+  - Name the NetworkTables topics the flywheel publishes
+  - Run the lab's four tests and check them in AdvantageScope
+sources:
+  - curriculum: "labs/Session 3 - Open-Loop Flywheel with TalonFX/LAB_MANUAL.md"
+  - curriculum: "labs/Session 3 - Open-Loop Flywheel with TalonFX/solution/src/main/java/frc/robot/commands/SetFlywheelVoltageCommand.java"
+  - doc: "https://docs.wpilib.org/en/stable/docs/software/commandbased/index.html"
+status: review
 sidebar:
   label: "2.8 Build the open-loop flywheel"
   order: 8
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import DoItForReal from '../../../components/lesson/DoItForReal.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import GoDeeper from '../../../components/lesson/GoDeeper.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
+import AnnotatedCode from '../../../components/code/AnnotatedCode.astro';
 
-**What it will cover:** An annotated walkthrough of Lab 3, then do it for real.
+<WhyItMatters>
+This is your first complete mechanism: hold a button and a flywheel spins, release it and the wheel coasts to a stop.
+It uses every idea from the last lessons at once, so building it is how they stick.
+</WhyItMatters>
 
-Based on Session 3 of the Orbit Robotics curriculum.
+## What "open loop" means
+
+The code sends a fixed voltage, 6 V, and never checks how fast the wheel actually turns. That is **open loop**.
+
+The speed you get depends on things the code cannot see: battery charge, friction, a ball touching the wheel. The same 6 V can give different speeds on different days.
+
+Lesson 3.1 closes the loop by measuring the speed and correcting it. First you need the open-loop version working, because the closed-loop one reuses its structure.
+
+## The path from button to motor
+
+```text
+Xbox A or B  ->  binding  ->  SetFlywheelVoltageCommand  ->  FlywheelSubsystem  ->  TalonFX
+```
+
+The lab manual builds it from the motor outward: subsystem, command, bindings. The subsystem code was covered in lesson 2.7, so this lesson covers the two parts it did not.
+
+## The command
+
+The command carries a voltage and applies it for as long as it runs.
+
+<AnnotatedCode
+  file="lab3-2.8/command"
+  title="SetFlywheelVoltageCommand.java"
+  notes={[
+    { lines: '4', text: 'The requirement (lesson 2.4). Starting another flywheel command interrupts this one, so two commands never write to the motor at once.' },
+    { lines: '11-13', text: '<code>execute()</code> repeats the same request every 20 ms while the command is scheduled.' },
+    { lines: '16-18', text: '<code>end()</code> sets 0 V. It runs for a normal finish and for an interruption, so the wheel is never left driven.' },
+    { lines: '21-23', text: 'Returning <code>false</code> means the command never finishes on its own. A button release or another command ends it.' },
+  ]}
+/>
+
+Bindings (lesson 2.5) use `whileTrue()` for A at `FORWARD_VOLTAGE` (6 V) and B at `REVERSE_VOLTAGE` (-4 V). A default command holds 0 V when no button is pressed.
+
+## The report and the simulation
+
+Every 20 ms the subsystem publishes what the encoder says, so you can graph the wheel instead of trusting the animation.
+
+<AnnotatedCode
+  file="lab3-2.8/periodic"
+  title="FlywheelSubsystem.java"
+  notes={[
+    { lines: '1-5', text: '<code>periodic()</code> runs every loop on a real robot and in simulation. It only reads and publishes. It never drives the motor.' },
+    { lines: '7-12', text: '<code>simulationPeriodic()</code> runs only in simulation. It steps the provided physics helper, which is black-box code you never edit. On a real roboRIO the helper is <code>null</code> and this does nothing.' },
+  ]}
+/>
+
+<GoDeeper title="why the lab keeps the physics out of the subsystem">
+The simulation helper is desktop-only code. If it lived inside the subsystem, deployable robot code would carry laptop physics.
+Two contact points, one construction line and one update call, keep the boundary small enough to check at a glance.
+</GoDeeper>
+
+## Practice
+
+<Practice bank="2-8" />
+
+## Do it for real
+
+<DoItForReal tools="WPILib simulator + AdvantageScope">
+This is **Lab 3** in the team curriculum repository. Open the project folder `labs/Session 3 - Open-Loop Flywheel with TalonFX/assignment` as its own WPILib project. Do not edit `FlywheelSimulation.java`.
+
+**See the goal first.** Open `solution/` in WPILib VS Code, run **WPILib: Simulate Robot Code**, choose **Teleoperated**, enable, and hold A. Then stop the simulation.
+
+**Then build it, in the manual's order.** Search the assignment for `TODO Step` (Steps 1 to 7) and run **WPILib: Build Robot Code** before changing anything.
+
+1. **Step 1, constants** in `Constants.java`: CAN ID 1, `FLYWHEEL_MOTOR_INVERTED` false, stator limit 80 A, supply limit 40 A, `FORWARD_VOLTAGE` 6.0, `REVERSE_VOLTAGE` -4.0.
+2. **Step 2, configure the TalonFX** in `FlywheelSubsystem.java`: output config (inversion, coast) and both current limits with their enable flags.
+3. **Step 3, public methods:** `setFlywheelVoltage`, `getFlywheelVelocityRPS`, `getFlywheelPositionRotations`.
+4. **Step 4, telemetry:** publish both values in `periodic()`.
+5. **Step 5, simulation:** construct the helper only when `RobotBase.isSimulation()`, and call `update()` in `simulationPeriodic()`.
+6. **Step 6, command** in `SetFlywheelVoltageCommand.java`: requirement, `execute()`, `end()`, `isFinished()`.
+7. **Step 7, bindings** in `RobotContainer.java`: A, B, and the 0 V default command.
+
+Build after each step. Fix the first compiler error, not the last.
+
+**Check it in AdvantageScope.** Connect to the simulator and graph these two topics:
+
+- `/Subsystems/FlywheelSubsystem/Velocity RPS`
+- `/Subsystems/FlywheelSubsystem/Position Rotations`
+
+Do this sequence: idle 1 s, hold A for 2 s, release and wait, hold B for 2 s, release and wait.
+
+**The lab's four tests**
+
+- [ ] Test 1, idle: the wheel stays stopped and velocity is at or very near 0.
+- [ ] Test 2, forward: hold A for about 2 s. Velocity is positive, position rises, and the wheel coasts to a stop on release.
+- [ ] Test 3, reverse: hold B for about 2 s. Velocity is negative, position falls, and the wheel coasts to a stop on release.
+- [ ] Test 4, scheduler handoff: hold A, then also hold B. The two commands never run together. Release both and confirm 0 V.
+
+**You know it worked when** the graph shows a positive velocity plateau during A, a coast-down curve after release, a negative plateau during B, and another coast-down. Position rises going forward and falls going backward. The `Flywheel/Mechanism` widget animates both ways.
+
+**On a real robot, also check**
+
+- The CAN ID on the motor is 1, or the constant matches whatever it really is.
+- Positive voltage spins the way the mechanism expects. If not, flip `FLYWHEEL_MOTOR_INVERTED`.
+- The same 6 V gives a different speed than in simulation. That is the open-loop limit, and it is why lesson 3.1 exists.
+</DoItForReal>
+
+## Checkpoint
+
+<Checkpoint lesson="2.8">
+
+<details>
+<summary>Why does <code>end()</code> set the voltage to zero?</summary>
+The command ends whenever the button is released or another command takes over. Without a 0 V in `end()`, the last voltage request would keep driving the wheel.
+</details>
+
+<details>
+<summary>Why might the same 6 V give a different speed on a real robot?</summary>
+Open loop never measures speed. Battery voltage, friction, and load all change what 6 V produces.
+</details>
+
+<details>
+<summary>In Test 4, why do A and B not fight over the flywheel?</summary>
+Both commands require the flywheel subsystem, so the scheduler interrupts the older one when the newer one starts.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- Open loop sends a fixed voltage and never checks the speed.
+- The path is button, binding, command, subsystem, TalonFX.
+- The command requires the subsystem, applies voltage in `execute()`, and sets 0 V in `end()`.
+- `periodic()` publishes `Velocity RPS` and `Position Rotations`; the simulation helper stays out of the subsystem logic.
+- Verify with encoder graphs, not the animation alone.
+</RecapCard>

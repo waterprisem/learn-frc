@@ -5,16 +5,123 @@ id: "2.4"
 track: "commands"
 session: 2
 isNew: false
-status: stub
+minutes: 20
+prereqs: ["2.2", "2.3"]
+outcomes:
+  - Explain what the scheduler does on each 20 ms loop
+  - Declare a requirement with addRequirements
+  - Predict what happens when two commands require the same subsystem
+  - Diagnose a missing requirement from its symptom
+sources:
+  - curriculum: "presentations/Session 2 - How 1360 Robot Code Is Organized/raw_data/slides.md"
+  - curriculum: "labs/Session 3 - Open-Loop Flywheel with TalonFX/LAB_MANUAL.md"
+  - doc: "https://docs.wpilib.org/en/stable/docs/software/commandbased/command-scheduler.html"
+status: review
 sidebar:
   label: "2.4 Scheduler and requirements"
   order: 4
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import DoItForReal from '../../../components/lesson/DoItForReal.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import GoDeeper from '../../../components/lesson/GoDeeper.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
+import AnnotatedCode from '../../../components/code/AnnotatedCode.astro';
 
-**What it will cover:** How the scheduler runs commands and why two commands cannot share a subsystem.
+<WhyItMatters>
+Imagine a driver holds the forward button and the reverse button at once. If both commands wrote to the motor, it would flip between two voltages, and the wheel would shake.
+The scheduler prevents this by allowing only one command per subsystem at a time.
+</WhyItMatters>
 
-Based on Session 2 of the Orbit Robotics curriculum.
+## One call runs everything
+
+`Robot.robotPeriodic()` calls `CommandScheduler.getInstance().run()` every 20 ms. That one call is the **scheduler**, the part of WPILib that decides which commands run. Each loop it does this:
+
+1. Runs every subsystem's `periodic()`.
+2. Polls the **triggers** (button conditions, lesson 2.5) and schedules any commands they start.
+3. Runs `execute()` on each scheduled command, checks `isFinished()`, and calls `end()` on the ones that stopped.
+
+Your own code does not loop over commands. It only declares them, and the scheduler does the timing.
+
+## Requirements: one owner per subsystem
+
+A **requirement** is a subsystem a command promises to control. You declare it in the constructor.
+
+<AnnotatedCode
+  file="lab3-2.4/requirements"
+  title="SetFlywheelVoltageCommand.java"
+  notes={[
+    { lines: '4', text: '<code>addRequirements(flywheelSubsystem)</code> tells the scheduler this command controls the flywheel. Without it, the scheduler cannot protect the flywheel from other commands.' },
+  ]}
+/>
+
+The rule: two commands that require the same subsystem cannot run together. When a second one is scheduled, the scheduler **interrupts** the first. Its `end(true)` runs, then the new command's `initialize()` runs.
+
+| Command A requires | Command B requires | Result |
+|---|---|---|
+| Flywheel | Flywheel | B interrupts A. A's `end(true)` runs. |
+| Flywheel | Elevator | Both run together. |
+
+<GoDeeper title="when is the new command rejected instead?">
+By default the new command wins. A command can opt out by overriding `getInterruptionBehavior()` to return `kCancelIncoming`. Then the new command is dropped and the old one keeps running. Most commands never need this.
+</GoDeeper>
+
+## Worked example: the scheduler handoff
+
+In Lab 3, A runs the flywheel forward, B runs it in reverse, and a default command holds 0 V. All three require the flywheel. Test 4 asks you to hold A, then press B without releasing A.
+
+| What you do | Who owns the flywheel |
+|---|---|
+| Nothing | Default command (0 V) |
+| Hold A | Forward command. The default is interrupted. |
+| Also press B | Reverse command. Forward gets `end(true)`. |
+| Release both | The default resumes (0 V) |
+
+Releasing A while B is still held does nothing to B, because A's command is already gone. Use the encoder telemetry, not only the animation, to confirm which command is driving.
+
+## Practice
+
+<Practice bank="2-4" />
+
+## Do it for real
+
+<DoItForReal tools="WPILib simulator + AdvantageScope">
+This is **Test 4** in the Lab 3 manual.
+
+1. Open the Lab 3 project (`labs/Session 3 - Open-Loop Flywheel with TalonFX/solution`) and run **WPILib: Simulate Robot Code**. Set the Driver Station to **Teleoperated**.
+2. In AdvantageScope, connect to the simulator and graph the flywheel velocity from the `Subsystems/FlywheelSubsystem` topics.
+3. Hold keyboard <kbd>Z</kbd> (Xbox **A**). Without releasing it, also hold <kbd>X</kbd> (Xbox **B**). Then release both.
+
+**You know it worked when** the velocity turns from positive to negative when B joins in, with no shaking, and returns to 0 after both are released.
+
+**On a real robot, also check**
+
+- The wheel reverses direction smoothly. If it shakes instead, a command is missing `addRequirements`.
+</DoItForReal>
+
+## Checkpoint
+
+<Checkpoint lesson="2.4">
+
+<details>
+<summary>What conflict does addRequirements prevent?</summary>
+Two commands controlling the same subsystem at the same time. The incoming command interrupts the existing one instead.
+</details>
+
+<details>
+<summary>The driver holds A, then also holds B. What does the flywheel do, and what runs on the A command?</summary>
+The flywheel switches to the reverse voltage. The A command gets `end(true)`, which sets 0 V, and then the B command starts.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- `robotPeriodic()` calls `CommandScheduler.getInstance().run()` every 20 ms, and that call drives everything.
+- Each loop: subsystem `periodic()`, trigger polling, then `execute()`, `isFinished()`, and `end()`.
+- `addRequirements(subsystem)` lets the scheduler enforce one command per subsystem.
+- A new command that shares a requirement interrupts the old one, and the old one's `end(true)` runs.
+</RecapCard>

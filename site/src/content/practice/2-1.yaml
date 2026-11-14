@@ -1,0 +1,52 @@
+lesson: "2.1"
+items:
+  - type: mcq
+    prompt: "A mentor asks, \"What does the Xbox A button do?\" Which file do you open first?"
+    choices:
+      - "`Main.java`"
+      - "`Robot.java`"
+      - "`RobotContainer.java`"
+      - "`Constants.java`"
+    answer: 2
+    explain: "Buttons are connected to commands in `configureBindings()` inside `RobotContainer`. `Robot` only runs the scheduler, and `Constants` holds numbers, not behavior."
+    source: "Lab 2 slide 3"
+  - type: mcq
+    prompt: "Which file calls `CommandScheduler.getInstance().run()` every loop?"
+    choices:
+      - "`Robot.java`, in `robotPeriodic()`"
+      - "`RobotContainer.java`, in its constructor"
+      - "`Main.java`, in `main()`"
+      - "Each subsystem, in `periodic()`"
+    answer: 0
+    explain: "`Robot` is the timed entry point, and `robotPeriodic()` runs about every 20 ms. The scheduler then calls everything else; no other class runs it."
+  - type: multi
+    prompt: "Which of these are created or configured in `RobotContainer` in the Lab 2 project? Select all that apply."
+    choices:
+      - "The driver controller"
+      - "`DiagnosticsSubsystem`"
+      - "The Xbox A binding"
+      - "The `CommandScheduler` itself"
+    answers: [0, 1, 2]
+    explain: "`RobotContainer` assembles the robot: controller, subsystems, bindings, default command. The scheduler is a WPILib singleton that `Robot` runs."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "The controller port number 0 is typed in five different files. The driver moves to port 1 and only some of them are updated."
+    choices:
+      - "The port should be a named constant in `Constants.java`, such as `DRIVER_CONTROLLER_PORT`."
+      - "The port belongs in `Main.java`."
+      - "The port belongs in the `deploy` folder."
+      - "The port must be hard-coded in every command."
+    answer: 0
+    explain: "`Constants` gives important names and numbers one shared home, so a change happens once. The `deploy` folder is for non-Java files copied to the roboRIO."
+  - type: fill-blank
+    prompt: "Complete the binding so the command runs while A is held."
+    code: |
+      driverController.___().___(new RunSelfCheckCommand(diagnosticsSubsystem));
+    blanks:
+      - ["a", "a()"]
+      - ["whileTrue", "whileTrue()"]
+    explain: "`a()` is the A-button trigger and `whileTrue` schedules the command when it is pressed and cancels it on release."
+  - type: free
+    prompt: "In your own words, why is it a good sign that `Robot.java` contains almost no mechanism behavior?"
+    modelAnswer: "Behavior lives in subsystems and commands, so each piece can be found, tested and changed alone. `Robot` just runs the scheduler and asks `RobotContainer` for the autonomous command."
+    explain: "Putting mechanism logic in `Robot` would mix everything in one file and make it hard to trace a button to its effect."

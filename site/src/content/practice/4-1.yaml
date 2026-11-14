@@ -1,0 +1,56 @@
+# Practice bank for lesson 4.1 (Constants and naming with units).
+lesson: "4.1"
+items:
+  - type: mcq
+    prompt: "Which is the best name for the time between two simulation updates, 0.02 s?"
+    choices:
+      - "`LOOP`"
+      - "`SIM_LOOP_PERIOD_SECONDS`"
+      - "`PERIOD_0_02`"
+      - "`simLoopPeriod`"
+    answer: 1
+    explain: "It says what the value is and its unit, and the `SIM_` prefix marks it as a simulation value. `LOOP` has no unit. Putting the number in the name (`PERIOD_0_02`) breaks as soon as the value changes."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "A teammate sets the target to `LOW_VELOCITY_RPM`, copied from a vendor spec sheet in rotations per minute. The flywheel spins far faster than expected."
+    choices:
+      - "The target was in RPM, but the controller expects RPS, so it is 60 times too large."
+      - "`kP` is too small."
+      - "The current limit is too low."
+      - "The CAN ID is wrong."
+    answer: 0
+    explain: "The controller works in RPS. A value in RPM is 60 times larger as a number, so the wheel is told to spin 60 times faster. The unit in the name is what makes this visible during review."
+  - type: multi
+    prompt: "Which names carry their unit correctly? Select all that apply."
+    choices:
+      - "`FLYWHEEL_SUPPLY_CURRENT_LIMIT_AMPS`"
+      - "`FEEDFORWARD_KS_VOLTS`"
+      - "`ARM_LENGTH`"
+      - "`MEDIUM_VELOCITY_RPS`"
+    answers: [0, 1, 3]
+    explain: "Amps, volts, and RPS are all stated. `ARM_LENGTH` could be meters, inches, or centimeters, so it should be `ARM_LENGTH_METERS`."
+  - type: mcq
+    prompt: "Which declaration matches the team pattern inside `FlywheelConstants`?"
+    choices:
+      - "`double PID_KP = 0.08;`"
+      - "`public static double PID_KP = 0.08;`"
+      - "`public static final double PID_KP = 0.08;`"
+      - "`private final double PID_KP = 0.08;`"
+    answer: 2
+    explain: "`public` lets other classes read it, `static` means one shared copy, and `final` means nobody can reassign it. Without `final`, a bug anywhere could silently change a gain."
+  - type: fill-blank
+    prompt: "Name the feedforward kV constant so its name shows the unit as a ratio."
+    code: |
+      public static final double ____ = 0.12;
+    blanks:
+      - ["FEEDFORWARD_KV_VOLTS_PER_RPS"]
+    explain: "`kV` is volts for each rotation per second, so the name ends in `_VOLTS_PER_RPS`: `FEEDFORWARD_KV_VOLTS_PER_RPS`. A name like `FEEDFORWARD_KV_VOLTS` would hide the per-RPS part."
+  - type: mcq
+    prompt: "A teammate adds a method to `FlywheelConstants` that picks a target speed based on distance. What is the problem?"
+    choices:
+      - "Nothing. Constants can hold any code."
+      - "`Constants.java` should store configuration only. Choosing a target is behavior and belongs in a subsystem or command."
+      - "Methods cannot be `static`."
+      - "The method name needs a unit."
+    answer: 1
+    explain: "Mixing decisions into the constants file makes values hard to audit. Keep names and numbers there; keep logic where the robot acts."

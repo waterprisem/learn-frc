@@ -5,16 +5,96 @@ id: "3.3"
 track: "control"
 session: 4
 isNew: false
-status: stub
+minutes: 20
+prereqs: ["3.2"]
+outcomes:
+  - Describe what P, I, and D each react to
+  - Recognize too much P, I, or D from how a speed graph looks
+  - Explain why P alone leaves a steady error on a velocity loop
+sources:
+  - curriculum: "labs/Session 4 - PID + Feedforward for Velocity Control/LAB_MANUAL.md"
+  - curriculum: "presentations/Session 4 - PID + Feedforward for Velocity Control/raw_data/slides.md"
+  - doc: "https://docs.wpilib.org/en/stable/docs/software/advanced-controls/introduction/introduction-to-pid.html"
+status: review
 sidebar:
   label: "3.3 PID intuition"
   order: 3
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import GoDeeper from '../../../components/lesson/GoDeeper.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
+import FlywheelTuner from '../../../components/playgrounds/FlywheelTuner.tsx';
 
-**What it will cover:** What P, I, and D each do, with a playground.
+<WhyItMatters>
+Once a robot can measure its error, it needs a rule for turning that error into a voltage. PID is the most common rule in FRC.
+It is three small ideas added together, and knowing what each one does tells you which knob to touch when a graph looks wrong.
+</WhyItMatters>
 
-Based on Session 4 of the Orbit Robotics curriculum.
+## Three ways to react to error
+
+Each term of PID looks at the error in a different way. Each is multiplied by its own gain, and the three results are added.
+
+| Term | Reacts to | Like driving toward a stop sign | Too much looks like |
+|---|---|---|---|
+| **P** (proportional), `kP` | The error right now | Press the pedal harder the farther you are | Overshoot and oscillation, a wheel that swings around the target |
+| **I** (integral), `kI` | Error added up over time | Notice you have been slightly short for a while and keep nudging | Slow overshoot and a large swing, called windup |
+| **D** (derivative), `kD` | How fast the error is changing | Ease off because you are closing in quickly | A jittery, noisy output, because sensor noise looks like fast change |
+
+P gives a push in proportion to the error: output = `kP × error`. Double the error and you double the push.
+
+## P alone leaves a gap
+
+Lab 4 uses only P, with `kI` and `kD` both 0. That works well, but only with help.
+
+Think about what P needs to hold a speed. To keep the wheel at 40 RPS you must keep sending several volts to fight friction. But P output is `kP × error`, and it is zero when the error is zero. So P can only supply that holding voltage while some error remains.
+
+The wheel settles where the gap leaves just enough push. That leftover is the **steady-state error**. A bigger `kP` shrinks it, but too big a `kP` starts to oscillate.
+
+Adding `kI` can close the gap, because it keeps growing while any error remains. But the fix is slow and risks windup. The better fix is to give the controller the holding voltage up front. That is **feedforward**, the next lesson.
+
+## Experiment: the P-only gap
+
+This flywheel has only `kP`; feedforward is zero. The gain knobs sit below the graph, with `kI` and `kD` under "More gains".
+
+<FlywheelTuner client:visible guide={false} initialPreset="p-only" />
+
+1. Predict, then do: hold 40 RPS and raise `kP`. Will the steady error shrink or grow? Keep raising it. What happens at the other end?
+2. Predict, then do: set `kP` back to a moderate value where the error is still visible. Add a little `kI`. Will the error close fast or slowly?
+3. Raise `kI` further. What happens to the speed as it nears the target?
+
+<GoDeeper title="why this lab leaves kI and kD at zero">
+With good feedforward, the leftover error is small, so P is enough. `kI` adds windup risk and `kD` amplifies encoder noise on a velocity signal.
+Position loops, like arms, are where `kD` earns its place, and you will meet it again then.
+</GoDeeper>
+
+## Practice
+
+<Practice bank="3-3" />
+
+## Checkpoint
+
+<Checkpoint lesson="3.3">
+
+<details>
+<summary>What does each of P, I, and D react to?</summary>
+P reacts to the error now. I reacts to the error accumulated over time. D reacts to how fast the error is changing.
+</details>
+
+<details>
+<summary>Why does P alone leave a steady error on a velocity loop?</summary>
+Holding a speed needs a steady voltage, but P output is zero when error is zero. So the wheel settles where some error remains to produce that voltage.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- P pushes in proportion to the present error, I to the error added up over time, D to how fast the error is changing.
+- Too much P oscillates, too much I overshoots slowly (windup), and too much D makes a noisy output.
+- Lab 4 uses P only: `kI` and `kD` stay 0.
+- P alone leaves a steady-state error on a velocity loop. Feedforward removes the need for it.
+</RecapCard>

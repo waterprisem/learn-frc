@@ -1,0 +1,52 @@
+lesson: "1.14"
+items:
+  - type: mcq
+    prompt: "In the Driver Station, which key is the emergency stop?"
+    choices:
+      - "Enter"
+      - "Space bar"
+      - "Escape"
+      - "Tab"
+    answer: 1
+    explain: "Space bar is the E-stop. Enter only disables the robot, which can be undone by enabling again."
+  - type: mcq
+    prompt: "After an emergency stop, what must happen before the robot can be enabled?"
+    choices:
+      - "Nothing, press Enable"
+      - "Wait 20 seconds"
+      - "The robot must be restarted"
+      - "Switch to Test mode"
+    answer: 2
+    explain: "An E-stopped robot stays stopped until it is restarted."
+  - type: mcq
+    prompt: "How do you pick up an FRC battery?"
+    choices:
+      - "By the cables"
+      - "By the case"
+      - "By the Anderson connector"
+      - "It does not matter"
+    answer: 1
+    explain: "Cables and connectors can be pulled loose, and a dropped battery is heavy and can leak."
+  - type: multi
+    prompt: "Which of these should happen before you enable the robot? Select all that apply."
+    choices:
+      - "Call out \"ENABLING!\""
+      - "Wait for people nearby to say \"clear\""
+      - "Make sure everyone is out of reach of the mechanisms"
+      - "Turn the main breaker off"
+    answers: [0, 1, 2]
+    explain: "The breaker must be on for the robot to run. It is turned off when you touch wiring or mechanisms, not before enabling."
+  - type: symptom-cause
+    prompt: "What is the right response?"
+    symptom: "A teammate says: \"The elevator motor is in brake mode, so it is fine to reach under the raised carriage.\""
+    choices:
+      - "Agree, brake mode holds it up"
+      - "Disagree, brake mode only helps while the motor is powered and working"
+      - "Agree, as long as the robot is disabled"
+      - "Disagree, but only for arms"
+    answer: 1
+    explain: "Brake mode is not a safety device. Never stand or reach under a raised mechanism."
+  - type: free
+    prompt: "Why do you call out \"ENABLING!\" and wait for \"clear\" instead of just looking around?"
+    modelAnswer: "Someone you cannot see may be near the robot or have a hand in it. Calling out and waiting for an answer gives them a chance to stop you."
+    explain: "A glance only checks what you can see, and an enabled mechanism can move instantly."

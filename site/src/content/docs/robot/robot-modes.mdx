@@ -5,16 +5,104 @@ id: "1.13"
 track: "robot"
 session: null
 isNew: true
-status: stub
+minutes: 15
+prereqs: ["1.12"]
+outcomes:
+  - Name the four robot modes and say who switches between them
+  - Say which Robot.java methods run in each mode
+  - Explain why one line in robotPeriodic makes the command-based framework work
+  - Explain what still runs while the robot is disabled
+sources:
+  - curriculum: "presentations/Session 2 - How 1360 Robot Code Is Organized/raw_data/slides.md"
+  - curriculum: "labs/Session 2 - How 1360 Robot Code Is Organized/solution/src/main/java/frc/robot/Robot.java"
+  - doc: "https://docs.wpilib.org/en/stable/docs/software/commandbased/index.html"
+status: review
 sidebar:
   label: "1.13 Robot modes and lifecycle"
   order: 13
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
+import AnnotatedCode from '../../../components/code/AnnotatedCode.astro';
 
-**What it will cover:** Disabled, autonomous, teleop, and test, and what the code does in each.
+<WhyItMatters>
+The robot is on, the code is running, and the intake still does not spin. Often the robot is simply disabled.
+Knowing the modes, and which code runs in each, tells you what the robot can and cannot do at any moment.
+</WhyItMatters>
 
-This lesson goes beyond the Orbit Robotics curriculum.
+## Four modes
+
+The **Driver Station** (the laptop app that talks to the robot over Wi-Fi) sends the robot its **mode**. Your code does not choose it.
+
+| Mode | What it is for |
+|---|---|
+| Disabled | The robot is on, code is running, and motors are not driven |
+| Autonomous | The robot runs a pre-programmed routine with no driver input |
+| Teleoperated | Drivers control the robot with their controllers |
+| Test | Checks and tuning outside a match |
+
+At a competition, the field system (FMS) controls the Driver Station, so a team cannot enable its robot during a match on its own.
+
+**Motors are only driven while the robot is enabled.** The three enabled modes are autonomous, teleoperated, and test. While disabled, your code still runs, but motor output is blocked.
+
+## Which methods run when
+
+`Robot.java` has a method for each mode, and the **Init** one runs once when the mode starts.
+
+| Mode | Runs once on entry | Runs every ~20 ms |
+|---|---|---|
+| Any mode | | `robotPeriodic()` |
+| Disabled | `disabledInit()` | `disabledPeriodic()` |
+| Autonomous | `autonomousInit()` | `autonomousPeriodic()` |
+| Teleoperated | `teleopInit()` | `teleopPeriodic()` |
+| Test | `testInit()` | `testPeriodic()` |
+
+`robotPeriodic()` runs in every mode, including disabled. Each mode also has an `Exit` method that runs once when the mode ends.
+
+## The one line that makes commands work
+
+In the team's command-based code, most `Periodic` methods are empty. The work happens in one place.
+
+<AnnotatedCode
+  file="lab2-1.13/robot"
+  title="Robot.java"
+  notes={[
+    { lines: '2-4', text: 'The <strong>command scheduler</strong> runs here, every loop, in every mode. Each run it checks button triggers, runs the active commands, and calls every subsystem\'s <code>periodic()</code>.' },
+    { lines: '6-9', text: 'Empty. Nothing mode-specific is needed while disabled.' },
+    { lines: '16-21', text: 'When autonomous starts, ask <code>RobotContainer</code> for the autonomous command and schedule it. The scheduler then runs it each loop.' }
+  ]}
+/>
+
+Because `robotPeriodic()` runs while disabled, subsystems' `periodic()` still runs, so telemetry and logging keep updating. Commands that need a motor to move produce no motion until the robot is enabled.
+
+## Practice
+
+<Practice bank="1-13" />
+
+## Checkpoint
+
+<Checkpoint lesson="1.13">
+
+<details>
+<summary>The robot is disabled. Does your subsystem's `periodic()` still run? Do the motors move?</summary>
+Yes, it still runs, because the scheduler runs from `robotPeriodic()` in every mode. The motors do not move, because output is only driven while enabled.
+</details>
+
+<details>
+<summary>What would happen to your commands if `CommandScheduler.getInstance().run()` were deleted from `Robot.java`?</summary>
+Nothing would run. Triggers would never be checked, commands would never execute, and subsystem `periodic()` methods would never be called.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- The Driver Station sets the mode: Disabled, Autonomous, Teleoperated, or Test.
+- Motors are only driven while enabled. Code, including subsystem `periodic()`, still runs while disabled.
+- `robotPeriodic()` runs in every mode. Each mode adds its own Init (once) and Periodic (every ~20 ms) methods.
+- `CommandScheduler.getInstance().run()` in `robotPeriodic()` is what runs commands.
+</RecapCard>

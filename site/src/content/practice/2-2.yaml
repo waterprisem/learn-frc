@@ -1,0 +1,54 @@
+lesson: "2.2"
+items:
+  - type: mcq
+    prompt: "Why is `flywheelMotor` declared `private`?"
+    choices:
+      - "So only `FlywheelSubsystem` can send commands to that motor."
+      - "So the motor runs faster."
+      - "So NetworkTables can find it."
+      - "Java requires every field to be private."
+    answer: 0
+    explain: "Private means no other class can touch the motor, so every output goes through the subsystem's methods. Java does not require it; it is a design choice that enforces one owner."
+  - type: mcq
+    prompt: "Which method name tells the reader its unit?"
+    choices:
+      - "`getSpeed()`"
+      - "`getFlywheelVelocityRPS()`"
+      - "`getValue()`"
+      - "`flywheelVelocity()`"
+    answer: 1
+    explain: "The `RPS` suffix says rotations per second, so nobody has to guess and mix it up with RPM or radians per second."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "Two commands both create their own `new TalonFX(...)` on the same CAN ID. The flywheel jerks between two different outputs."
+    choices:
+      - "Two owners are sending conflicting outputs; the motor should belong to one subsystem."
+      - "The battery is low."
+      - "The CAN cable is too long."
+      - "The current limit is too high."
+    answer: 0
+    explain: "With no single owner, the scheduler cannot see the conflict and cannot stop it. One subsystem owns the motor, and commands call its methods."
+    source: "Lab 3 slide 10"
+  - type: multi
+    prompt: "What belongs in `FlywheelSubsystem.periodic()`? Select all that apply."
+    choices:
+      - "Publishing velocity to NetworkTables"
+      - "Publishing position to NetworkTables"
+      - "Deciding which button speeds up the flywheel"
+      - "Starting a spin-up sequence"
+    answers: [0, 1]
+    explain: "`periodic()` reports what the mechanism is doing, about every 20 ms. Button decisions belong in `RobotContainer`, and behavior belongs in commands."
+  - type: fill-blank
+    prompt: "Complete the getter so its name and return match the unit."
+    code: |
+      public ___ getFlywheelVelocityRPS() {
+        return flywheelMotor.getVelocity().refresh().___();
+      }
+    blanks:
+      - ["double"]
+      - ["getValueAsDouble"]
+    explain: "The getter returns a plain `double` in rotations per second. The Phoenix 6 signal is unwrapped with `getValueAsDouble()`."
+  - type: free
+    prompt: "A teammate wants a command to call `flywheelMotor.setControl(...)` directly to save time. What do you tell them?"
+    modelAnswer: "Add or use a subsystem method such as setFlywheelVoltage. The command calls that, so the subsystem stays the only owner of the motor."
+    explain: "Bypassing the subsystem breaks the single-owner rule the scheduler relies on."

@@ -5,16 +5,83 @@ id: "1.7"
 track: "robot"
 session: null
 isNew: true
-status: stub
+minutes: 10
+prereqs: ["1.4", "1.6"]
+outcomes:
+  - Name the six common FRC mechanisms and what each one does
+  - Match a mechanism to the kind of control it needs
+  - Say which lesson programs each mechanism
+sources:
+  - curriculum: "labs/Session 9 - Command Composition with Roti-Style Superstructure/LAB_MANUAL.md"
+  - curriculum: "presentations/Session 10 - Arm on Elevator /Raw Data/slides.md"
+status: review
 sidebar:
   label: "1.7 Mechanisms gallery"
   order: 7
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
 
-**What it will cover:** Flywheel, intake, elevator, arm, swerve module, and climber, each with motor, gearing, and sensor labeled.
+<WhyItMatters>
+Almost every FRC robot is a few mechanisms bolted to a swerve drive. Once you can look at one and say what it does, how it is geared, and what sensor it has, you know which kind of code it needs.
+</WhyItMatters>
 
-This lesson goes beyond the Orbit Robotics curriculum.
+## Three kinds of control
+
+Every mechanism is driven in one of three ways. The kind decides which sensor you need and which lessons apply.
+
+- **Voltage:** send a fixed voltage and let the mechanism run. No sensor is needed.
+- **Velocity:** hold a target speed. This needs an encoder that reports speed.
+- **Position:** go to a target height or angle and stay there. This needs a position that is known, which brings back relative encoders and homing from lesson 1.6.
+
+## The six at a glance
+
+| Mechanism | Motors | Gearing | Sensor | Control | Programmed in |
+|---|---|---|---|---|---|
+| Flywheel (shooter) | One or more Krakens | Little or none, because speed matters | Built-in encoder (velocity) | Velocity | Lessons 2.8, 3.5 |
+| Intake rollers | One or two | Light reduction | Usually none | Voltage | Lesson 5.9 |
+| Elevator | One or two | Large reduction, then a drum or sprocket | Built-in encoder, limit switch for homing | Position | Lesson 3.7 |
+| Arm or pivot | One | Very large reduction | Built-in encoder, or a CANcoder | Position | Lesson 3.8 |
+| Swerve module | Two: drive and steer | Reduction on both | CANcoder on the steering, built-in encoders | Velocity (drive), position (steer) | Lesson 6.2 |
+| Climber | One or two | Large reduction | Often a limit switch, or none | Voltage | Not on this site |
+
+## What each one does
+
+- **Flywheel.** A heavy wheel spins fast and throws a game piece. It must hold a constant speed, so it uses velocity control and coasts when stopped. The Lab 4 flywheel is this mechanism.
+- **Intake rollers.** Rollers pull a game piece into the robot. Running them at a fixed voltage is enough, and they only need to be on or off.
+- **Elevator.** A motor winds a belt or chain over a drum, which lifts a carriage in a straight line. Your code works in meters of height. The Lab 6 elevator uses a 10:1 reduction.
+- **Arm.** A pivoting link holds a scoring device at an angle. Gravity pulls on it all the time, so it uses brake mode and extra voltage to hold position. The Lab 7 arm uses a 100:1 reduction and works in degrees.
+- **Swerve module.** One wheel with two motors: one drives the wheel, and one steers it. Four modules let the robot drive and turn in any direction at once.
+- **Climber.** It pulls the robot up at the end of the match. It needs a lot of force and very little speed.
+
+## Practice
+
+<Practice bank="1-7" />
+
+## Checkpoint
+
+<Checkpoint lesson="1.7">
+
+<details>
+<summary>Why does a flywheel use velocity control while an elevator uses position control?</summary>
+A flywheel's job is to hold a speed, so the code compares the target speed to the measured speed. An elevator's job is to reach and stay at a height, so the code compares the target height to the measured height.
+</details>
+
+<details>
+<summary>Why does an arm need a bigger gear reduction than a flywheel?</summary>
+An arm lifts its own weight against gravity, so it needs torque and low speed. A flywheel needs speed, so it uses little or no reduction. Lesson 1.8 shows how the reduction trades one for the other.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- Mechanisms are driven by voltage, velocity or position control.
+- Flywheels want speed with little gearing. Elevators and arms want torque, with a large reduction.
+- Position control needs a known position: an elevator is homed with a limit switch, and a swerve module can use a CANcoder.
+- Each mechanism has its own programming lesson, except the climber.
+</RecapCard>

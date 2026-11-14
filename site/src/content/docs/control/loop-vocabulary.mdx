@@ -5,16 +5,84 @@ id: "3.2"
 track: "control"
 session: 4
 isNew: false
-status: stub
+minutes: 15
+prereqs: ["3.1"]
+outcomes:
+  - Name the setpoint, measurement, error, and output of the flywheel loop, with units
+  - Calculate error using error = setpoint minus measurement
+  - Decide whether the flywheel is at its setpoint using a tolerance
+sources:
+  - curriculum: "labs/Session 4 - PID + Feedforward for Velocity Control/LAB_MANUAL.md"
+  - curriculum: "presentations/Session 4 - PID + Feedforward for Velocity Control/raw_data/slides.md"
+status: review
 sidebar:
   label: "3.2 Setpoint, measurement, error, output"
   order: 2
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
 
-**What it will cover:** The five words every control loop is described with.
+<WhyItMatters>
+Every tuning conversation on the team uses the same four words: "the error is big", "the output is saturated", "the measurement is noisy".
+Learn them once and every graph and every line of control code becomes readable.
+</WhyItMatters>
 
-Based on Session 4 of the Orbit Robotics curriculum.
+## The four words
+
+| Word | Meaning | Flywheel example | Lab 4 topic |
+|---|---|---|---|
+| Setpoint | The value you want | 40 RPS | `/Subsystems/FlywheelSubsystem/Target RPS` |
+| Measurement | What the sensor says right now | 37.5 RPS | `/Subsystems/FlywheelSubsystem/Velocity RPS` |
+| Error | Setpoint minus measurement | 2.5 RPS | `/Subsystems/FlywheelSubsystem/Error RPS` |
+| Output | What the controller sends to the motor | 5.0 V | `/Subsystems/FlywheelSubsystem/Output Voltage` |
+
+The loop in lesson 3.1 is these four in a circle: the setpoint and measurement make the error, the error helps decide the output, and the output changes the next measurement.
+
+## The sign tells you the direction
+
+Always subtract in this order: **error = setpoint − measurement**.
+
+- Wheel too slow: 40 − 37.5 = **+2.5**. Positive error means speed up.
+- Wheel too fast: 40 − 42 = **-2**. Negative error means slow down.
+
+Flip the order and the controller pushes the wheel away from the target. In code, `PIDController.calculate` takes the measurement first and the setpoint second so it does this subtraction for you.
+
+## Tolerance: how close is close enough
+
+A real wheel never sits at exactly 40.000 RPS. So code asks whether the error is small, never whether it is zero.
+
+The **tolerance** is the largest error you accept. The wheel is **at setpoint** while the absolute error is no more than the tolerance. Lab 4 uses 2 RPS, so a 40 RPS target counts as reached anywhere from 38 to 42 RPS.
+
+Other code, such as feeding a note into the shooter, waits for this at-setpoint signal before acting.
+
+## Practice
+
+<Practice bank="3-2" />
+
+## Checkpoint
+
+<Checkpoint lesson="3.2">
+
+<details>
+<summary>Why is a tolerance used instead of checking for error equal to zero?</summary>
+Measurements are noisy and the wheel is always slightly moving, so it almost never reads exactly the target. A tolerance defines a range that is good enough to shoot.
+</details>
+
+<details>
+<summary>What do a positive error and a negative error mean for the flywheel?</summary>
+Positive means the wheel is slower than the setpoint, so the output should rise. Negative means it is faster, so the output should fall.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- Setpoint is what you want, measurement is what you have, error is the gap, output is what you send.
+- Error = setpoint − measurement. Positive means too slow.
+- For the flywheel the units are RPS, RPS, RPS, and volts.
+- At setpoint means the error is within the tolerance (2 RPS in Lab 4), not exactly zero.
+</RecapCard>

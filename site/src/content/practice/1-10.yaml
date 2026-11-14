@@ -1,0 +1,54 @@
+# Practice bank for lesson 1.10 (Follow one button press).
+lesson: "1.10"
+items:
+  - type: mcq
+    prompt: "Put these in order, first to last: (a) the scheduler sees the trigger, (b) the radio forwards the input, (c) the TalonFX switches power to the motor, (d) the command's `execute()` runs."
+    choices:
+      - "b, a, d, c"
+      - "a, b, c, d"
+      - "b, a, c, d"
+      - "a, d, b, c"
+    answer: 0
+    explain: "The input must reach the roboRIO (b) before the scheduler can see it (a). The command's `execute()` (d) then calls the TalonFX, which switches the power (c)."
+  - type: mcq
+    prompt: "Which layer does `flywheelMotor.setControl(new VoltageOut(volts))` hand off to?"
+    choices:
+      - "Phoenix 6, which sends a CAN frame"
+      - "The radio, which sends Wi-Fi"
+      - "The motor, directly"
+      - "The Driver Station"
+    answer: 0
+    explain: "Your code only makes a request. Phoenix 6 turns it into a CAN frame for CAN ID 1, and the TalonFX switches the power. Your code never touches the motor directly."
+  - type: symptom-cause
+    prompt: "Which step is the most likely culprit?"
+    symptom: "You hold A. The Driver Station shows the button pressed, the command runs (you see it in the logs), and `setFlywheelVoltage(6.0)` is called. The wheel does not spin and the velocity graph stays at 0. There is no error."
+    choices:
+      - "The USB cable to the laptop"
+      - "The radio's Wi-Fi"
+      - "The CAN ID in the code does not match the TalonFX"
+      - "The AdvantageScope connection"
+    answer: 2
+    explain: "The press and the command both worked, so the fault is past the subsystem call. A wrong CAN ID gives no error: the frame goes to an ID nobody has. A network fault would have stopped the command; AdvantageScope only affects the graph, not the wheel."
+  - type: symptom-cause
+    prompt: "Which part of the path has failed?"
+    symptom: "The wheel spins up normally when you hold A, but the graph in AdvantageScope stays flat at 0."
+    choices:
+      - "The CAN frame to the TalonFX"
+      - "The binding in `RobotContainer`"
+      - "Reporting back: the encoder reading, `periodic()`, or NetworkTables"
+      - "The controller's USB cable"
+    answer: 2
+    explain: "The wheel moving proves steps 1 to 10 worked. Only the way back to the graph is broken: the CAN report, `periodic()`'s publish, or the topic name AdvantageScope is reading."
+  - type: free
+    prompt: "A teammate says: my code runs the moment I press the button. Which parts of the path make that not quite true?"
+    modelAnswer: "The press travels over USB, Wi-Fi, and Ethernet first, and the Driver Station only sends input about every 20 ms. The scheduler then checks triggers once per 20 ms loop, so the code sees it within a loop or two. The wheel also needs time to speed up."
+    explain: "Nothing is instant. Each layer adds a small wait, and the physical wheel is the slowest part. The wrong idea is that the code and the motor move in the same moment."
+  - type: mcq
+    prompt: "How often does the robot loop run `periodic()` and check triggers?"
+    choices:
+      - "Every 20 ms, 50 times per second"
+      - "Every 2 ms, 500 times per second"
+      - "Every 200 ms, 5 times per second"
+      - "Only when a button is pressed"
+    answer: 0
+    explain: "The loop is 20 ms. It runs all the time, whether or not anything is pressed, so the graph updates even when the robot is idle."

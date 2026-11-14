@@ -1,0 +1,37 @@
+# Practice bank for lesson 3.2 (Setpoint, measurement, error, output).
+lesson: "3.2"
+items:
+  - type: mcq
+    prompt: "The setpoint is 70 RPS and the encoder reads 64 RPS. What is the error?"
+    choices: ["−6 RPS", "+6 RPS", "+134 RPS", "6 V"]
+    answer: 1
+    explain: "70 − 64 = +6 RPS. Positive means the wheel is too slow. Error has the same units as the signals, so RPS, not volts."
+  - type: mcq
+    prompt: "The setpoint is 20 RPS and the encoder reads 23 RPS. What is the error?"
+    choices: ["+3 RPS", "−3 RPS", "−43 RPS", "0 RPS"]
+    answer: 1
+    explain: "20 − 23 = −3 RPS. Negative error means the wheel is faster than the target, so the controller should lower the voltage."
+  - type: mcq
+    prompt: "The tolerance is 2 RPS and the setpoint is 40 RPS. For which reading is the wheel at setpoint?"
+    choices: ["37.0 RPS", "37.9 RPS", "38.4 RPS", "42.6 RPS"]
+    answer: 2
+    explain: "At setpoint needs the absolute error to be at most 2 RPS, so 38 to 42 RPS. 38.4 has error 1.6. 37.9 misses by a hair, and 42.6 is on the high side of the range."
+  - type: multi
+    prompt: "Which of these are measured in volts? Select all that apply."
+    choices: ["Setpoint", "Measurement", "Error", "Output"]
+    answers: [3]
+    explain: "For the flywheel, setpoint, measurement, and error are all speeds in RPS. Only the output is a voltage."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "A teammate swaps the argument order, so the code computes error as measurement minus setpoint. When the wheel is slow, the voltage goes down."
+    choices:
+      - "The error has the wrong sign, so the controller pushes away from the target"
+      - "The tolerance is too small"
+      - "The battery is low"
+      - "The encoder is noisy"
+    answer: 0
+    explain: "Reversing the subtraction flips every correction. Always setpoint minus measurement."
+  - type: free
+    prompt: "Why do we say the wheel is at setpoint when the error is within a tolerance, instead of when the error is zero?"
+    modelAnswer: "The wheel and the measurement both wobble a little, so the error is almost never exactly zero. A tolerance says how close is good enough to use the wheel."
+    explain: "An exact-zero test would almost never be true, so the robot would wait forever."

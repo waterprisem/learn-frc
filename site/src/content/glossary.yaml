@@ -83,10 +83,6 @@ can-bus:
   term: CAN bus
   short: The shared two-wire network that links the roboRIO to motor controllers, sensors and the PDH.
   lessons: ["1.2", "1.5"]
-can-id:
-  term: CAN ID
-  short: A number from 0 to 62 set on a device. Code uses it to say which device it means.
-  lessons: ["1.5"]
 terminating-resistor:
   term: Terminating resistor
   short: A 120 ohm resistor at each end of the CAN chain that stops signals reflecting back.
@@ -99,3 +95,291 @@ imu:
   term: IMU
   short: Inertial measurement unit. Measures the robot's heading (yaw), pitch and roll.
   lessons: ["1.1"]
+trigger:
+  term: Trigger
+  short: A condition, such as a button being held, that the scheduler checks every loop to start or stop a command.
+  lessons:
+    - "1.10"
+vendordep:
+  term: Vendordep
+  short: A vendor library described by a JSON file in the project's vendordeps folder; Gradle downloads it when you build.
+  lessons:
+    - "1.11"
+wpilib:
+  term: WPILib
+  short: The official FRC library and toolset - the robot loop, commands, control math, and the simulator.
+  lessons:
+    - "1.11"
+periodic:
+  term: periodic()
+  short: A method WPILib calls about every 20 ms for as long as the robot code runs.
+  lessons:
+    - "1.12"
+loop-overrun:
+  term: Loop overrun
+  short: A warning that robot code took longer than 20 ms to finish one pass of the loop.
+  lessons:
+    - "1.12"
+abstraction-stack:
+  term: Abstraction stack
+  short: The layers between your Java code and the moving mechanism, each hiding the details of the one below.
+  lessons:
+    - "1.12"
+robot-mode:
+  term: Robot mode
+  short: The state the Driver Station puts the robot in - Disabled, Autonomous, Teleoperated, or Test.
+  lessons:
+    - "1.13"
+command-scheduler:
+  term: Command scheduler
+  short: The WPILib object that, each loop, runs active commands and every subsystem's periodic().
+  lessons:
+    - "1.13"
+e-stop:
+  term: Emergency stop (E-stop)
+  short: Stops the robot immediately; it must be restarted before it can be enabled again.
+  lessons:
+    - "1.14"
+relative-encoder:
+  term: Relative encoder
+  short: An encoder that counts movement from wherever it was at power-on, so it reads 0 there whatever the real position is.
+  lessons:
+    - "1.6"
+absolute-encoder:
+  term: Absolute encoder
+  short: An encoder that reports the true angle of its shaft, even right after power-on. The CANcoder is a magnetic one.
+  lessons:
+    - "1.6"
+homing:
+  term: Homing
+  short: Driving a mechanism slowly to a known place, such as a limit switch, then setting its position to a known value.
+  lessons:
+    - "1.6"
+heading:
+  term: Heading
+  short: Which way the robot faces, measured by the IMU.
+  lessons:
+    - "1.6"
+gear-ratio:
+  term: Gear ratio
+  short: Motor rotations per mechanism rotation. A ratio above 1, such as 10:1, is a reduction that trades speed for torque.
+  lessons:
+    - "1.8"
+reduction:
+  term: Reduction
+  short: Gearing that turns the mechanism slower than the motor, giving more torque. A gear ratio above 1.
+  lessons:
+    - "1.8"
+mechanism-units:
+  term: Mechanism units
+  short: The real units of the mechanism, such as meters of height or degrees of angle, instead of motor rotations.
+  lessons:
+    - "1.8"
+robot-container:
+  term: RobotContainer
+  short: The class that creates the subsystems and controller and wires buttons to commands. Start here to learn what a button does.
+  lessons:
+    - "2.1"
+telemetry:
+  term: Telemetry
+  short: Measurements the robot publishes (speed, position, status) so you can watch them live in a tool such as AdvantageScope.
+  lessons:
+    - "2.2"
+command-lifecycle:
+  term: Command lifecycle
+  short: The four methods the scheduler calls on a command - initialize, execute, isFinished, end.
+  lessons:
+    - "2.3"
+interrupted:
+  term: Interrupted
+  short: The flag passed to end(). True if the command was stopped from outside, false if isFinished() returned true.
+  lessons:
+    - "2.3"
+scheduler:
+  term: Scheduler
+  short: The WPILib CommandScheduler. Once per 20 ms loop it starts, runs, and ends commands and runs every subsystem's periodic().
+  lessons:
+    - "2.4"
+requirement:
+  term: Requirement
+  short: A subsystem a command declares with addRequirements. Only one command at a time may require a given subsystem.
+  lessons:
+    - "2.4"
+binding:
+  term: Binding
+  short: A line of code that ties a trigger to a command, for example controller.a().whileTrue(command).
+  lessons:
+    - "2.5"
+default-command:
+  term: Default command
+  short: The command a subsystem runs whenever no other command requires it.
+  lessons:
+    - "2.5"
+driver-station:
+  term: Driver Station
+  short: The laptop application that enables the robot, picks the mode (Disabled, Teleop, Autonomous, Test), and sends joystick data.
+  lessons:
+    - "2.6"
+networktables:
+  term: NetworkTables
+  short: WPILib's shared table of named values that robot code publishes and tools such as AdvantageScope read.
+  lessons:
+    - "2.6"
+wpilib-simulator:
+  term: WPILib simulator
+  short: Runs the whole robot program on your laptop with a virtual Driver Station, so no robot hardware is needed.
+  lessons:
+    - "2.6"
+control-request:
+  term: Control request
+  short: A Phoenix 6 object that tells a motor controller what to do, such as new VoltageOut(6.0), sent with setControl.
+  lessons:
+    - "2.7"
+status-signal:
+  term: Status signal
+  short: A Phoenix 6 object holding a device reading, such as velocity. Call refresh() then getValueAsDouble().
+  lessons:
+    - "2.7"
+inversion:
+  term: Inversion
+  short: A motor setting that decides which physical spin direction counts as positive.
+  lessons:
+    - "2.7"
+open-loop:
+  term: Open loop
+  short: Control that sends a fixed output and never checks the result. Voltage in, speed whatever it turns out to be.
+  lessons:
+    - "2.8"
+closed-loop:
+  term: Closed loop
+  short: Control that measures the result and adjusts the output to close the gap to the target.
+  lessons:
+    - "3.1"
+follower-motor:
+  term: Follower motor
+  short: A second motor told to copy a leader motor, so two motors drive one mechanism from one set of control code.
+  lessons:
+    - "3.10"
+ka:
+  term: kA
+  short: The feedforward term for acceleration, in volts per unit of acceleration. Helps the mechanism follow speed changes in a profile.
+  lessons:
+    - "3.10"
+    - "3.11"
+sysid:
+  term: SysId
+  short: System identification. Run fixed voltage tests, log the response, and fit feedforward constants (kS, kV, kA, kG) from the data.
+  lessons:
+    - "3.11"
+quasistatic-test:
+  term: Quasistatic test
+  short: A SysId test with a slow voltage ramp, so acceleration is near zero and the result shows friction and speed effects.
+  lessons:
+    - "3.11"
+dynamic-test:
+  term: Dynamic test
+  short: A SysId test with a sudden voltage step, so acceleration is large and the result shows kA.
+  lessons:
+    - "3.11"
+motion-magic:
+  term: Motion Magic
+  short: A CTRE feature that runs a trapezoid motion profile inside the motor controller, using cruise velocity, acceleration, and jerk.
+  lessons:
+    - "3.12"
+on-motor-control:
+  term: On-motor control
+  short: Running PID and feedforward inside the motor controller (about 1 kHz) instead of on the roboRIO (50 Hz).
+  lessons:
+    - "3.12"
+jerk:
+  term: Jerk
+  short: How quickly acceleration changes. Limiting jerk smooths the start and end of a motion.
+  lessons:
+    - "3.12"
+output:
+  term: Output
+  short: What a controller sends to the mechanism, such as a motor voltage.
+  lessons:
+    - "3.2"
+tolerance:
+  term: Tolerance
+  short: The largest error you accept before saying a mechanism is at its setpoint.
+  lessons:
+    - "3.2"
+pid:
+  term: PID
+  short: A feedback rule that adds a push from the present error (P), accumulated error (I), and the error's rate of change (D).
+  lessons:
+    - "3.3"
+steady-state-error:
+  term: Steady-state error
+  short: The error that remains after a mechanism stops changing, because the controller needs some error to produce its output.
+  lessons:
+    - "3.3"
+windup:
+  term: Windup
+  short: Integral term growing too large while the error cannot be removed, causing a big overshoot later.
+  lessons:
+    - "3.3"
+ks:
+  term: kS
+  short: Static-friction feedforward gain, in volts. The small voltage needed to start a mechanism moving.
+  lessons:
+    - "3.4"
+kv:
+  term: kV
+  short: Velocity feedforward gain, in volts per unit of speed. Voltage added for each RPS of target speed.
+  lessons:
+    - "3.4"
+motion-profile:
+  term: Motion profile
+  short: A plan for how a mechanism moves from A to B over time, with limits on speed and acceleration.
+  lessons:
+    - "3.6"
+trapezoid-profile:
+  term: Trapezoid profile
+  short: A motion profile that accelerates at the maximum acceleration, cruises at the maximum velocity, then decelerates. Its speed graph is a trapezoid.
+  lessons:
+    - "3.6"
+goal:
+  term: Goal
+  short: The final position you ask a profiled controller to reach. It can jump instantly; the profiled setpoint follows it gradually.
+  lessons:
+    - "3.6"
+    - "3.7"
+profiled-setpoint:
+  term: Profiled setpoint
+  short: The position and velocity the motion profile wants right now. The PID chases it instead of the far-away goal.
+  lessons:
+    - "3.6"
+    - "3.7"
+profiled-pid-controller:
+  term: ProfiledPIDController
+  short: A WPILib class that combines a PID controller with a trapezoid profile. You give it a goal; it plans the setpoint.
+  lessons:
+    - "3.7"
+kg:
+  term: kG
+  short: Feedforward gain for gravity. On an elevator, the constant voltage that holds the carriage up at any height.
+  lessons:
+    - "3.7"
+arm-feedforward:
+  term: ArmFeedforward
+  short: WPILib feedforward for rotating arms. Its gravity term is kG times the cosine of the angle, so the angle must be in radians.
+  lessons:
+    - "3.8"
+radians-trap:
+  term: Radians trap
+  short: Passing degrees into code that expects radians. It compiles and runs but gives wrong voltages at most angles.
+  lessons:
+    - "3.8"
+at-goal:
+  term: atGoal
+  short: ProfiledPIDController check that the mechanism is within tolerance of the final goal, unlike atSetpoint which checks the profile's current point.
+  lessons:
+    - "3.9"
+race-condition:
+  term: Race condition
+  short: A bug where the result depends on timing, such as a ready signal that is still true for an old goal.
+  lessons:
+    - "3.9"

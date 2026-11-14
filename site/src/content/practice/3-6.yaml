@@ -1,0 +1,48 @@
+# Practice bank for lesson 3.6 (Motion profiles).
+lesson: "3.6"
+items:
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "A plain `PIDController` with `kP` = 18 V per meter is told to move the elevator 1.0 m. The carriage launches at the start, overshoots the goal, and the belt skips."
+    choices:
+      - "The error is large at the start, so the output saturates at full voltage and the mechanism builds up too much speed."
+      - "`kP` is too small to move the carriage."
+      - "The encoder is reporting feet instead of meters."
+      - "The tolerance is too large."
+    answer: 0
+    explain: "18 V per meter times 1.0 m is 18 V, more than the 12 V available, so the motor runs flat out until the carriage is already near the goal and moving too fast. A profile keeps the error small instead."
+  - type: mcq
+    prompt: "Max velocity is 1.0 m/s and max acceleration is 1.0 m/s². The move is 1.0 m. How long does it take?"
+    choices: ["1 s", "1.5 s", "2 s", "3 s"]
+    answer: 2
+    explain: "Accelerating to 1.0 m/s takes 1 s and covers 0.5 m. That is already half the move, so the profile turns around at once: no cruise, 1 s up plus 1 s down is 2 s."
+  - type: mcq
+    prompt: "Max acceleration is 2.0 m/s² and the move is 0.2 m. About how fast does the profile get at its fastest?"
+    choices: ["1.0 m/s", "0.63 m/s", "0.4 m/s", "0.2 m/s"]
+    answer: 1
+    explain: "Each half is 0.1 m, so the peak velocity is the square root of 2.0 × 0.2, about 0.63 m/s. It never reaches a 1.0 m/s maximum, so there is no cruise phase."
+  - type: multi
+    prompt: "Which statements about the goal and the profiled setpoint are true? Select all that apply."
+    choices:
+      - "The goal can change instantly when you press a button."
+      - "The profiled setpoint moves smoothly toward the goal."
+      - "The PID error is measured against the profiled setpoint."
+      - "The profiled setpoint is the final height you want."
+    answers: [0, 1, 2]
+    explain: "The goal is the final height, so it jumps. The setpoint is the plan for this moment and ramps toward the goal. The last statement mixes the two up, which is the most common mistake."
+  - type: fill-blank
+    prompt: "Complete the constraints with the Lab 6 constant names (velocity first)."
+    code: |
+      new TrapezoidProfile.Constraints(
+          ElevatorConstants.____,
+          ElevatorConstants.____);
+    blanks:
+      - ["MAX_VELOCITY_METERS_PER_SECOND"]
+      - ["MAX_ACCELERATION_METERS_PER_SECOND_SQUARED"]
+    explain: "Velocity is the first argument and acceleration is the second. Both are in meters."
+    source: "Lab 6, Step 5"
+  - type: free
+    prompt: "A teammate says the maximum velocity in the constraints is the motor's top speed. Correct them in one or two sentences."
+    modelAnswer: "The constraints are not motor limits. They set how fast the plan is allowed to move. The motor could go faster, but we choose a gentler limit so the move stays smooth and the PID can follow it."
+    explain: "Constraints describe how aggressive the plan is, not what the hardware can do."
+    source: "Lab 6, Step 3"

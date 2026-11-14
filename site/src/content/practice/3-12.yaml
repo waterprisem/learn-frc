@@ -1,0 +1,39 @@
+# Practice bank for lesson 3.12 (Recognizing on-motor control).
+lesson: "3.12"
+items:
+  - type: mcq
+    prompt: "Where does the PID loop run in on-motor control?"
+    choices: ["In `periodic()` on the roboRIO", "Inside the TalonFX", "In the Driver Station", "In AdvantageScope"]
+    answer: 1
+    explain: "The roboRIO only sends the target. The TalonFX computes the voltage itself, about 1000 times a second."
+  - type: mcq
+    prompt: "You see `new PositionVoltage(0).withPosition(2.0)` in someone's code. What is 2.0?"
+    choices: ["Volts", "Rotations", "Meters", "Degrees"]
+    answer: 1
+    explain: "Phoenix 6 position requests are in rotations of the mechanism. If code needs meters or degrees, it converts first."
+  - type: multi
+    prompt: "Which names would you expect in a `Slot0Configs`? Select all that apply."
+    choices: ["`kP`", "`kV`", "`kG`", "`MotionMagicCruiseVelocity`"]
+    answers: [0, 1, 2]
+    explain: "`MotionMagicCruiseVelocity` belongs to `MotionMagicConfigs`, which sets up the profile, not the gains."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "A team copies gains tuned for the roboRIO (volts per RPS) straight into `Slot0Configs`, and the motor behaves wildly."
+    choices:
+      - "On-motor gains use different units (volts per rotation of the mechanism)"
+      - "The roboRIO is too slow"
+      - "Motion Magic is turned off"
+      - "The battery is low"
+    answer: 0
+    explain: "The math looks the same but the units differ, so the numbers are not interchangeable. Re-tune."
+  - type: fill-blank
+    prompt: "Complete the request that moves to 10 rotations along a profile."
+    code: |
+      motor.setControl(new ____(0).withPosition(10.0));
+    blanks:
+      - ["MotionMagicVoltage"]
+    explain: "`MotionMagicVoltage` follows the configured trapezoid profile. `PositionVoltage` would command the position directly with no profile."
+  - type: free
+    prompt: "Give one advantage of on-motor control and one advantage of roboRIO-side control."
+    modelAnswer: "On-motor: faster loop and less code. roboRIO-side: you can see, log, and graph every piece of the loop."
+    explain: "Both are common. The choice is a tradeoff between speed and visibility."

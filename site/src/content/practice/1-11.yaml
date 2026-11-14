@@ -1,0 +1,53 @@
+# Practice bank for lesson 1.11 (Software ecosystem).
+lesson: "1.11"
+items:
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "You copy a working subsystem into a new project. VS Code underlines `TalonFX` in red and says the symbol cannot be found. The same code works in the lab project."
+    choices:
+      - "The Phoenix 6 vendordep is missing from the new project"
+      - "The roboRIO is not connected"
+      - "The radio is not programmed"
+      - "The CAN ID is wrong"
+    answer: 0
+    explain: "`TalonFX` comes from the Phoenix 6 library, not WPILib. The new project needs the Phoenix 6 JSON file in `vendordeps/`. A wrong CAN ID or a missing roboRIO can't cause a compile-time error."
+  - type: mcq
+    prompt: "Where does a project keep the files that describe its vendor libraries?"
+    choices:
+      - "In the `vendordeps/` folder"
+      - "In the roboRIO's memory"
+      - "In the Driver Station"
+      - "In `Constants.java`"
+    answer: 0
+    explain: "Each vendordep is a JSON file in `vendordeps/`. Gradle reads them when you build."
+  - type: multi
+    prompt: "Which of these does WPILib itself provide? Select all that apply."
+    choices:
+      - "The robot loop and the command-based framework"
+      - "The `TalonFX` class"
+      - "The simulator"
+      - "PID control math"
+    answers: [0, 2, 3]
+    explain: "WPILib covers the framework, the simulator, and control math. `TalonFX` belongs to CTRE's Phoenix 6 library."
+  - type: mcq
+    prompt: "Match the library to its job: which one reads AprilTag results from a camera?"
+    choices:
+      - "PhotonLib"
+      - "PathPlannerLib"
+      - "REVLib"
+      - "Phoenix 6"
+    answer: 0
+    explain: "PhotonLib talks to PhotonVision. PathPlannerLib is for autonomous paths, and Phoenix 6 is for CTRE motors and sensors."
+  - type: mcq
+    prompt: "What is the right menu command to add a vendor library in VS Code?"
+    choices:
+      - "WPILib: Manage Vendor Libraries"
+      - "WPILib: Deploy Robot Code"
+      - "WPILib: Start Tool"
+      - "Git: Clone"
+    answer: 0
+    explain: "Manage Vendor Libraries adds the JSON file to `vendordeps/`. Deploy sends code to the robot, which is a later step."
+  - type: free
+    prompt: "Explain in your own words why AdvantageScope is not a vendordep."
+    modelAnswer: "AdvantageScope is an app that runs on your laptop and reads data from the robot. A vendordep is a library that your robot code imports and uses. AdvantageScope is not imported by the code."
+    explain: "The wrong idea is that every named tool in FRC has to be a vendordep. Only libraries your Java code calls are vendordeps; apps are installed separately."

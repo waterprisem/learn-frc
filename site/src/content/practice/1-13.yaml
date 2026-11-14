@@ -1,0 +1,59 @@
+lesson: "1.13"
+items:
+  - type: mcq
+    prompt: "Who decides which mode the robot is in?"
+    choices:
+      - "Your code, in `Robot.java`"
+      - "The Driver Station (and the field system at a match)"
+      - "The roboRIO, based on the battery voltage"
+      - "The motor controllers"
+    answer: 1
+    explain: "The Driver Station sends the mode to the robot. Your code reacts to it but does not pick it."
+  - type: mcq
+    prompt: "Which method runs once, at the moment autonomous begins?"
+    choices:
+      - "`autonomousPeriodic()`"
+      - "`robotPeriodic()`"
+      - "`autonomousInit()`"
+      - "`teleopInit()`"
+    answer: 2
+    explain: "Init methods run once on entry. Periodic methods run about every 20 ms after that."
+  - type: multi
+    prompt: "While the robot is disabled, which of these still happen? Select all that apply."
+    choices:
+      - "`robotPeriodic()` runs"
+      - "Subsystem `periodic()` methods run"
+      - "Motors are driven by the code"
+      - "Telemetry keeps updating"
+    answers: [0, 1, 3]
+    explain: "Code keeps running, so readings and logs stay live. Only motor output is blocked."
+  - type: fill-blank
+    prompt: "Fill in the line that makes the command-based framework run."
+    code: |
+      @Override
+      public void robotPeriodic() {
+        ___.getInstance().run();
+      }
+    blanks:
+      - ["CommandScheduler"]
+    explain: "The scheduler checks triggers, runs active commands, and calls subsystem periodic() methods each loop."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "A button is bound to a command that spins the intake. The code is deployed and the Driver Station shows Disabled. Pressing the button does nothing."
+    choices:
+      - "The CAN ID is wrong"
+      - "The robot is disabled, so motors are not driven"
+      - "The command is not in `Robot.java`"
+      - "The loop is running too fast"
+    answer: 1
+    explain: "Motors are only driven while enabled. A wrong CAN ID would also give no motion, but the Driver Station state is the first and cheapest thing to check."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "Subsystem `periodic()` logs nothing, in any mode. Everything else on the robot is fine, and `Robot.java` has empty Periodic methods."
+    choices:
+      - "`robotPeriodic()` does not call the command scheduler"
+      - "The Driver Station is in Test mode"
+      - "The battery is low"
+      - "`teleopInit()` is missing"
+    answer: 0
+    explain: "Subsystem periodic() is called by the scheduler. Without the run() line in robotPeriodic(), it is never called in any mode."

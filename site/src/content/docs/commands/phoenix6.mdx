@@ -5,16 +5,140 @@ id: "2.7"
 track: "commands"
 session: 3
 isNew: false
-status: stub
+minutes: 25
+prereqs: ["1.3", "1.4", "2.2"]
+outcomes:
+  - Construct a TalonFX from a CAN ID
+  - Build and apply a configuration for inversion, neutral mode, and current limits
+  - Send a VoltageOut control request
+  - Read position and velocity status signals and state their units
+sources:
+  - curriculum: "labs/Session 3 - Open-Loop Flywheel with TalonFX/LAB_MANUAL.md"
+  - curriculum: "labs/Session 3 - Open-Loop Flywheel with TalonFX/solution/src/main/java/frc/robot/subsystems/FlywheelSubsystem.java"
+  - doc: "https://v6.docs.ctr-electronics.com/en/stable/"
+status: review
 sidebar:
   label: "2.7 CTRE Phoenix 6 basics"
   order: 7
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import GoDeeper from '../../../components/lesson/GoDeeper.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
+import AnnotatedCode from '../../../components/code/AnnotatedCode.astro';
 
-**What it will cover:** TalonFX, configs, control requests, and status signals.
+<WhyItMatters>
+A motor that spins the wrong way, or that trips the breaker the first time it stalls, is almost always a missing line of TalonFX setup.
+Phoenix 6 is CTRE's library for Kraken and TalonFX controllers. Four habits cover nearly everything you do with one.
+</WhyItMatters>
 
-Based on Session 3 of the Orbit Robotics curriculum.
+## Four things you do with a TalonFX
+
+Every TalonFX task falls into one of four moves.
+
+1. **Construct** it with its CAN ID, so your code knows which device on the bus to talk to.
+2. **Configure** it once at startup: direction, neutral mode, current limits.
+3. **Control** it by sending a request, such as "apply 6 V".
+4. **Read** its status signals: position and velocity from its built-in encoder.
+
+| What you want | Phoenix 6 class | Example |
+|---|---|---|
+| Reach the device | `TalonFX` | `new TalonFX(1)` |
+| Direction and neutral mode | `MotorOutputConfigs` | `.withNeutralMode(NeutralModeValue.Coast)` |
+| Current limits | `CurrentLimitsConfigs` | `.withStatorCurrentLimit(80.0)` |
+| Send settings to the device | `getConfigurator().apply(...)` | `motor.getConfigurator().apply(cfg)` |
+| Run at a voltage | `VoltageOut` | `motor.setControl(new VoltageOut(6.0))` |
+| Read the encoder | `StatusSignal` | `motor.getVelocity()` |
+
+## 1. Construct it
+
+A CAN ID is the device's address on the CAN bus (lesson 1.2). The lab keeps the number in a constant, and only the subsystem touches the motor (lesson 2.2).
+
+<AnnotatedCode
+  file="lab3-2.7/construct"
+  title="FlywheelSubsystem.java"
+  notes={[
+    { lines: '1-2', text: 'The ID comes from a named constant, <code>FLYWHEEL_MOTOR_CAN_ID = 1</code>. It must match the ID set on the real motor, or the object talks to nothing.' },
+  ]}
+/>
+
+## 2. Configure it
+
+A **configuration** is a bundle of settings you build in code and then apply. It runs once in the constructor, never in `periodic()`.
+
+<AnnotatedCode
+  file="lab3-2.7/configure"
+  title="FlywheelSubsystem.java"
+  notes={[
+    { lines: '3-6', text: '<strong>Inversion</strong> decides which physical spin direction counts as positive. A boolean constant picks between the two <code>InvertedValue</code> options, so one change flips the whole mechanism.' },
+    { lines: '7', text: '<strong>Neutral mode</strong> (lesson 1.4): <code>Coast</code> lets a flywheel spin down slowly at 0 V.' },
+    { lines: '11-14', text: 'Each limit has a value and a separate <code>Enable</code> call. A number without its enable flag protects nothing. Amps are 80 A stator and 40 A supply in this lab.' },
+    { lines: '16-17', text: 'Nothing changes on the motor until <code>apply</code> sends the bundle to the device over CAN.' },
+  ]}
+/>
+
+**Why two current limits?** Stator current protects the motor, and supply current protects the battery side. Lesson 1.3 explains both, so this lesson only shows how to set them.
+
+## 3. Send a control request
+
+A **control request** is an object that says what you want the motor to do. `VoltageOut` means "apply this many volts". The controller keeps doing it until you send a different request.
+
+<AnnotatedCode
+  file="lab3-2.7/control"
+  title="FlywheelSubsystem.java"
+  notes={[
+    { lines: '2', text: '<code>setControl</code> hands the request to the controller. Positive volts spin one way and negative volts the other. This sends a voltage and never checks the speed, which is called open loop (lesson 2.8).' },
+  ]}
+/>
+
+## 4. Read status signals
+
+The TalonFX reports its encoder as **status signals**. A signal is not a plain number. It is an object that holds a value plus when it was measured.
+
+<AnnotatedCode
+  file="lab3-2.7/signals"
+  title="FlywheelSubsystem.java"
+  notes={[
+    { lines: '2', text: '<code>getVelocity()</code> returns a <code>StatusSignal</code>. <code>refresh()</code> fetches the newest value and <code>getValueAsDouble()</code> pulls out the number. The unit is <strong>rotations per second</strong>.' },
+    { lines: '6', text: '<code>getPosition()</code> works the same way. The unit is <strong>rotations</strong>, and it adds up: five forward turns read about 5.' },
+  ]}
+/>
+
+With the built-in sensor and no gear ratio configured, these units are what you get. Names like `getFlywheelVelocityRPS()` carry the unit so nobody has to guess.
+
+<GoDeeper title="why the signals need refresh">
+The controller sends its status over CAN on a schedule, and the library keeps the latest copy. Calling `refresh()` updates your `StatusSignal` from that copy before you read it.
+Without it, you can read a stale value. The method names and units here are the 2026 Phoenix 6 API, and a later season may rename things.
+</GoDeeper>
+
+## Practice
+
+<Practice bank="2-7" />
+
+## Checkpoint
+
+<Checkpoint lesson="2.7">
+
+<details>
+<summary>The code sets <code>withStatorCurrentLimit(80.0)</code> but the motor still draws huge current when stalled. What is missing?</summary>
+The matching `withStatorCurrentLimitEnable(true)`. A limit value does nothing until its enable flag is set.
+</details>
+
+<details>
+<summary>A wheel reads velocity 12.5 and position 40. What do those numbers mean?</summary>
+It is turning at 12.5 rotations per second and has turned 40 rotations in total since the position was zeroed.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- Construct with a CAN ID, configure once, send control requests, read status signals.
+- Inversion, neutral mode, and current limits live in configuration objects that you `apply` to the device.
+- A current limit value needs its enable flag.
+- `VoltageOut` runs the motor at a fixed voltage and never checks speed.
+- Status signals are objects: `refresh()`, then `getValueAsDouble()`. Position is in rotations, velocity in rotations per second.
+</RecapCard>

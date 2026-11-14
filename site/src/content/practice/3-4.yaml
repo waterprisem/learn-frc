@@ -1,0 +1,45 @@
+# Practice bank for lesson 3.4 (Feedforward).
+lesson: "3.4"
+items:
+  - type: mcq
+    prompt: "`kS` is 0.2 V and `kV` is 0.12 V per RPS. What is the feedforward voltage for a 70 RPS target?"
+    choices: ["8.4 V", "8.6 V", "14 V", "0.32 V"]
+    answer: 1
+    explain: "0.2 + 0.12 × 70 = 0.2 + 8.4 = 8.6 V. Forgetting `kS` gives 8.4 V."
+  - type: mcq
+    prompt: "Same gains as above (`kS` 0.2 V, `kV` 0.12 V per RPS). What is the feedforward voltage for a 20 RPS target?"
+    choices: ["2.4 V", "2.6 V", "0.24 V", "2.2 V"]
+    answer: 1
+    explain: "0.2 + 0.12 × 20 = 0.2 + 2.4 = 2.6 V."
+  - type: fill-blank
+    prompt: "Complete the feedforward prediction using the lesson's formula."
+    code: |
+      voltage = ___ + ___ * targetRPS
+    blanks:
+      - ["kS"]
+      - ["kV"]
+    explain: "`kS` is a fixed offset in volts, and `kV` multiplies the target speed to give the speed-dependent part."
+  - type: read-graph
+    preset: "flywheel:kv-low"
+    prompt: "Feedforward is running with a modest `kP`, and the wheel settles below the target. What does this suggest?"
+    choices:
+      - "`kV` is too small"
+      - "`kV` is too large"
+      - "`kS` is exactly right, so nothing is wrong"
+      - "The tolerance is too small"
+    answer: 0
+    explain: "With too little `kV`, the prediction undershoots at every speed, and a modest `kP` cannot close the gap. Too much `kV` would put the speed above the target."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "You set `kS` to 3 V and `kV` to 0, and the wheel jumps to a high speed even for a tiny target."
+    choices:
+      - "`kS` is far too large, because it should only overcome friction"
+      - "`kV` is too small"
+      - "`kP` is too large"
+      - "The battery is low"
+    answer: 0
+    explain: "`kS` is a fixed offset and does not scale with the target. It should be only just enough to start the wheel moving, which is a fraction of a volt here."
+  - type: free
+    prompt: "Why can feedforward start working before the wheel has moved, when PID cannot?"
+    modelAnswer: "Feedforward uses only the target, so it can send the right voltage immediately. PID needs an error, which only appears after the wheel is already off target."
+    explain: "Feedforward predicts, feedback reacts. They are added so each covers the other's weakness."

@@ -1,0 +1,49 @@
+# Practice bank for lesson 1.7 (Mechanisms gallery).
+lesson: "1.7"
+items:
+  - type: mcq
+    prompt: "Which mechanism needs velocity control?"
+    choices:
+      - "A shooter flywheel"
+      - "An elevator"
+      - "An arm holding a scoring device"
+      - "A climber"
+    answer: 0
+    explain: "A flywheel must hold a constant speed. Elevators and arms are told where to go (position), and a climber is just run with voltage."
+  - type: mcq
+    prompt: "An intake only needs to pull a game piece in. What is the simplest control that works?"
+    choices:
+      - "Position control with a limit switch"
+      - "Fixed voltage, on or off"
+      - "Velocity control with a tuned kV"
+      - "A profiled arm controller"
+    answer: 1
+    explain: "The speed of an intake does not need to be exact, so a fixed voltage is enough and no sensor is needed. Velocity or position control would add tuning work for no benefit."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "An arm drifts downward whenever the driver lets go of the controller, even though the code commands 0 volts."
+    choices:
+      - "The motor is in brake mode and gravity is stronger than braking"
+      - "The motor is in coast mode, so nothing holds the arm up"
+      - "The flywheel is running too fast"
+      - "The CAN chain has no terminating resistor"
+    answer: 1
+    explain: "Coast lets the motor spin freely, so gravity pulls the arm down. Brake resists motion and is the usual choice for arms and elevators. Brake only resists, so a loaded arm can still sag slowly."
+  - type: multi
+    prompt: "Which mechanisms use gearing with a large reduction because they need torque more than speed? Select all that apply."
+    choices:
+      - "Elevator"
+      - "Arm"
+      - "Shooter flywheel"
+      - "Climber"
+    answers: [0, 1, 3]
+    explain: "Lifting weight needs torque, and a reduction trades speed for it. A flywheel needs speed, so it uses little or no reduction."
+  - type: mcq
+    prompt: "A swerve module has two motors. What does each one do?"
+    choices:
+      - "One drives the wheel and one steers it"
+      - "One drives forward and one drives backward"
+      - "One spins the wheel and one is a spare"
+      - "One lifts the wheel and one lowers it"
+    answer: 0
+    explain: "The drive motor spins the wheel for speed, and the steer motor turns the whole module to point the wheel. That pair gives each module its own direction and speed."

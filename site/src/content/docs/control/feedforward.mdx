@@ -5,16 +5,99 @@ id: "3.4"
 track: "control"
 session: 4
 isNew: false
-status: stub
+minutes: 20
+prereqs: ["3.3"]
+outcomes:
+  - Calculate the feedforward voltage for a target with kS and kV
+  - Explain what kS and kV each represent, with units
+  - Find kS and then kV from the flywheel graph
+sources:
+  - curriculum: "labs/Session 4 - PID + Feedforward for Velocity Control/LAB_MANUAL.md"
+  - curriculum: "presentations/Session 4 - PID + Feedforward for Velocity Control/raw_data/slides.md"
+  - doc: "https://docs.wpilib.org/en/stable/docs/software/advanced-controls/introduction/introduction-to-feedforward.html"
+status: review
 sidebar:
   label: "3.4 Feedforward"
   order: 4
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
+import AnnotatedCode from '../../../components/code/AnnotatedCode.astro';
+import FlywheelTuner from '../../../components/playgrounds/FlywheelTuner.tsx';
 
-**What it will cover:** Predicting the voltage a mechanism needs with kS and kV.
+<WhyItMatters>
+PID waits for an error before it reacts, so it is always a little late. If you already know a wheel needs about 5 V to spin at 40 RPS,
+you can send that voltage immediately. That prediction is feedforward, and it does most of the work in a velocity loop.
+</WhyItMatters>
 
-Based on Session 4 of the Orbit Robotics curriculum.
+## Predict the voltage
+
+Feedforward uses only the target. It never reads the encoder.
+
+`voltage = kS + kV × target`
+
+- **`kS`** (volts) is the small voltage that overcomes friction. Below it, the wheel does not move at all.
+- **`kV`** (volts per RPS) is the extra voltage for each rotation per second of speed.
+
+With `kS` = 0.2 V and `kV` = 0.12 V per RPS, a 40 RPS target gives 0.2 + 0.12 × 40 = 5.0 V.
+
+Because feedforward acts before any error exists, it removes the gap that P alone left in lesson 3.3. PID is then left to fix only what the prediction missed, such as a sagging battery or a load.
+
+Units matter. `kV` here is per RPS. A value measured per RPM would be off by a factor of 60.
+
+## In the lab code
+
+Lab 4 stores both numbers as constants, and builds a WPILib `SimpleMotorFeedforward` from them.
+
+<AnnotatedCode
+  file="lab4/constants"
+  title="Constants.java"
+  notes={[
+    { lines: '4', text: '<code>kS</code> in volts. Just enough to break static friction.' },
+    { lines: '5', text: '<code>kV</code> in volts per RPS. The name carries the unit, so you cannot mix it with a per-RPM value by accident.' },
+  ]}
+/>
+
+Mechanisms that fight gravity add a third term, `kG`: the voltage needed just to hold the load up. Elevators add it in lesson 3.7, and arms in lesson 3.8.
+
+## Experiment: find kS and kV
+
+Everything starts at zero, so the wheel does not move. Use the "kS" and "kV" knobs, one at a time, with `kP` left at 0.
+
+<FlywheelTuner client:visible guide={false} initialPreset="zero" />
+
+1. Predict, then do: raise `kS` slowly with a target held. The wheel should stay still until `kS` passes a threshold. Which is the largest `kS` where it does not move? Use that value.
+2. Predict, then do: hold 40 RPS and raise `kV`. Will the speed settle below, on, or above 40 RPS as `kV` grows? Find the value where it lands on the target.
+3. Check 20 and 70 RPS. If `kV` is right, all three should land near their targets. If only 40 is right, which gain is wrong?
+
+## Practice
+
+<Practice bank="3-4" />
+
+## Checkpoint
+
+<Checkpoint lesson="3.4">
+
+<details>
+<summary>What does kS compensate for?</summary>
+Static friction: the small voltage needed to get the wheel moving. It is a fixed number of volts, not scaled by speed.
+</details>
+
+<details>
+<summary>Why does kV depend on the speed units?</summary>
+It is volts per unit of speed. If the target is in RPS, kV is volts per RPS, and a value for RPM would be wrong by a factor of 60.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- Feedforward predicts voltage from the target alone: `kS + kV × target`.
+- `kS` is volts to overcome friction. `kV` is volts per RPS.
+- It acts before any error exists, so it removes most of what P alone could not.
+- Find `kS` first, then `kV`, with `kP` at 0.
+</RecapCard>

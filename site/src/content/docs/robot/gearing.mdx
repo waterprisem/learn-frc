@@ -5,16 +5,129 @@ id: "1.8"
 track: "robot"
 session: null
 isNew: true
-status: stub
+minutes: 20
+prereqs: ["1.4", "1.6"]
+outcomes:
+  - Define a gear ratio and say what a reduction trades
+  - Convert motor rotations to elevator meters and to arm degrees
+  - Read the conversion helpers in the Lab 6 and Lab 7 subsystems
+sources:
+  - curriculum: "presentations/Session 6 - ElevatorSubsystem with ProfiledPIDController/Raw Data/slides.md"
+  - curriculum: "presentations/Session 7 - ArmSubsystem with ProfiledPIDController/Raw Data/slides.md"
+  - curriculum: "labs/Session 7 - ArmSubsystem with ProfiledPIDController/solution/src/main/java/frc/robot/subsystems/ArmSubsystem.java"
+  - curriculum: "labs/Session 6 - Profiled Elevator Control/solution/src/main/java/frc/robot/subsystems/ElevatorSubsystem.java"
+status: review
 sidebar:
   label: "1.8 Gearing and motion"
   order: 8
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import GoDeeper from '../../../components/lesson/GoDeeper.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
+import AnnotatedCode from '../../../components/code/AnnotatedCode.astro';
 
-**What it will cover:** How motor rotations become mechanism meters or degrees through gears, sprockets, and pulleys.
+<WhyItMatters>
+A motor reports how far it has turned in rotations. Your elevator needs meters, and your arm needs degrees.
+If you tune against raw rotations, the numbers mean nothing, and a target of "1" could be a centimeter or a collision.
+</WhyItMatters>
 
-This lesson goes beyond the Orbit Robotics curriculum.
+## Gear ratio
+
+**Gear ratio** is the number of motor rotations it takes to turn the mechanism once. A ratio of 10 means 10 motor rotations per mechanism rotation, written 10:1.
+
+A ratio above 1 is a **reduction**. It trades speed for torque (turning force):
+
+- The mechanism turns slower by the ratio. At 10:1, a motor at 100 rotations per second (RPS) turns the mechanism at 10 RPS.
+- The mechanism pushes harder by about the same ratio, before losses.
+
+That is why an arm uses a big reduction and a flywheel uses almost none. The same trade holds for sprockets and pulleys: a small one driving a large one is a reduction.
+
+## Motor rotations to meters
+
+An elevator turns a drum (or sprocket) that pulls a belt. One full turn of the drum lifts the carriage by the drum's **circumference**, which is 2 × π × radius.
+
+`meters = motor rotations ÷ gear ratio × circumference`
+
+**Worked example.** The Lab 6 elevator has a ratio of 10 and a drum radius of 0.022 m.
+
+1. Circumference = 2 × π × 0.022 m = 0.138 m per drum turn.
+2. The motor turns 25 rotations, so the drum turns 25 ÷ 10 = 2.5 rotations.
+3. Height = 2.5 × 0.138 m = **0.346 m**.
+
+<AnnotatedCode
+  file="lab6-1.8/elevator-conversions"
+  title="ElevatorSubsystem.java"
+  notes={[
+    { lines: '1-5', text: 'Meters to motor rotations is the same chain backwards: <strong>divide</strong> by the circumference, then <strong>multiply</strong> by the ratio.' },
+    { lines: '7-11', text: 'The subsystem calls this on every encoder reading, so the rest of the code works in meters (<code>heightMeters</code>). The ratio and radius are constants, not numbers typed here.' },
+  ]}
+/>
+
+## Motor rotations to degrees
+
+An arm's mechanism rotation is a turn of the arm itself, and one full turn is 360 degrees. There is no circumference.
+
+`degrees = motor rotations ÷ gear ratio × 360`
+
+**Worked example.** The Lab 7 arm has a ratio of 100.
+
+1. The motor turns 30 rotations, so the arm turns 30 ÷ 100 = 0.3 rotations.
+2. Angle = 0.3 × 360 = **108 degrees**.
+
+<AnnotatedCode
+  file="lab7-1.8/arm-conversions"
+  title="ArmSubsystem.java"
+  notes={[
+    { lines: '1-7', text: 'These two helpers know nothing about the motor. They only turn a <strong>mechanism</strong> rotation into degrees and back, using 360.' },
+    { lines: '9-15', text: 'The motor versions add the ratio. Dividing by <code>GEAR_RATIO</code> on the way in and multiplying on the way out are the same pair of steps as the elevator.' },
+  ]}
+/>
+
+The Lab 7 constructor does not call the motor helpers on every reading. It hands the ratio to Phoenix 6, and the motor controller does the division for you.
+
+<AnnotatedCode
+  file="lab7-1.8/arm-ratio-config"
+  title="ArmSubsystem.java"
+  notes={[
+    { lines: '1-2', text: '<code>withSensorToMechanismRatio</code> (2026) makes <code>getPosition()</code> report mechanism rotations, not motor rotations.' },
+    { lines: '7', text: 'Setting the starting position also takes rotations, so the starting angle is divided by 360. This is the same relative-position reference as in lesson 1.6.' },
+  ]}
+/>
+
+<GoDeeper title="why the slide's formula looks different">
+The Session 6 slide writes the elevator conversion as "rotations × circumference × gear ratio". That only works if the ratio is written as mechanism turns per motor turn (0.1 here).
+The lab code and this lesson use motor turns per mechanism turn (10), so you divide. Always check which way a ratio is written before using it.
+</GoDeeper>
+
+## Practice
+
+<Practice bank="1-8" />
+
+## Checkpoint
+
+<Checkpoint lesson="1.8">
+
+<details>
+<summary>What does a 10:1 reduction do to speed and to force?</summary>
+The mechanism turns ten times slower than the motor and pushes about ten times harder, before friction and other losses.
+</details>
+
+<details>
+<summary>Why does the arm conversion have no circumference?</summary>
+The arm itself rotates, so one mechanism rotation is a full turn of 360 degrees. An elevator turns a drum into straight-line motion, so it needs the drum's circumference to turn rotations into meters.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- Gear ratio = motor rotations per mechanism rotation. A ratio above 1 trades speed for torque.
+- Elevator: `meters = motor rotations ÷ ratio × 2πr`.
+- Arm: `degrees = motor rotations ÷ ratio × 360`.
+- Put the units in the names and convert once, so the rest of the code works in meters or degrees.
+- Phoenix 6 can do the division in the motor controller with `withSensorToMechanismRatio`.
+</RecapCard>

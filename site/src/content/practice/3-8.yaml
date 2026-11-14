@@ -1,0 +1,66 @@
+# Practice bank for lesson 3.8 (Profiled arm and the radians trap).
+lesson: "3.8"
+items:
+  - type: mcq
+    prompt: "`kG` is 0.16 V. About how much holding voltage does `ArmFeedforward` add at 60° above horizontal?"
+    choices:
+      - "0.16 V"
+      - "0.08 V"
+      - "0.14 V"
+      - "0 V"
+    answer: 1
+    explain: "The gravity term is `kG × cos(angle)`. cos(60°) = 0.5, so the term is 0.08 V. 0.16 V would be the horizontal value, and 0 V is the straight-up value."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "The arm holds `HOME` (0°) perfectly. When you hold a button to lift it, it sags and the output voltage looks wrong, and near 60° it is pushed down instead of held up."
+    choices:
+      - "`kP` is too large."
+      - "Degrees are being passed into `ArmFeedforward` instead of radians."
+      - "The profile's max velocity is too high."
+      - "The tolerance is too small."
+    answer: 1
+    explain: "cos(0) is 1 in both units, so 0° looks right. Away from 0, the cosine of a degree number is nonsense, even negative near 60°. Too-large `kP` would oscillate at every angle, including `HOME`."
+    source: "Lab 7, Experiment 1"
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "After you set `FEEDFORWARD_KG_VOLTS` to 0.0, the arm settles short of the target, and the gap is bigger near horizontal than near straight up."
+    choices:
+      - "Gravity compensation is missing, so the PID has to carry the whole holding load."
+      - "The radians conversion is missing."
+      - "`kI` is too small."
+      - "The trapezoid acceleration limit is too low."
+    answer: 0
+    explain: "Without `kG` nothing predicts the gravity load. It is largest when the arm is horizontal, so the leftover error is too. A missing conversion would give wrong voltages that do not follow this pattern."
+    source: "Lab 7, Experiment 2"
+  - type: mcq
+    prompt: "In the Lab 7 code, where does `Math.toRadians` get called?"
+    choices:
+      - "In `getCurrentAngleDegrees()`, so the whole subsystem works in radians."
+      - "On the target angle before it reaches the PID controller."
+      - "On the profiled setpoint position and velocity, just before they go into `ArmFeedforward`."
+      - "Inside `setArmVoltage()`."
+    answer: 2
+    explain: "The PID, telemetry, and goals stay in degrees. Only `ArmFeedforward` needs radians, so the conversion happens at that one call. Converting elsewhere would break the degree-based PID gains."
+  - type: fill-blank
+    prompt: "Complete the feedforward call so both values are in the units `ArmFeedforward` expects."
+    code: |
+      TrapezoidProfile.State setpoint = armPID.getSetpoint();
+      double feedforwardOutput =
+          armFF.calculate(
+              Math.____(setpoint.position),
+              Math.____(setpoint.velocity));
+    blanks:
+      - ["toRadians"]
+      - ["toRadians"]
+    explain: "`Math.toRadians` converts degrees to radians, and it works for degrees per second to radians per second too. Both position and velocity must be converted."
+    source: "Lab 7, Step 9"
+  - type: mcq
+    prompt: "You lower `MAX_VELOCITY_DEGREES_PER_SECOND` from 120 to 50. What changes on the graph?"
+    choices:
+      - "`Target Degrees` takes longer to reach its value."
+      - "`Profiled Setpoint Degrees` takes longer to reach the target; the target still jumps at once."
+      - "`Angle Degrees` ends at a different final angle."
+      - "`At Target` is never true."
+    answer: 1
+    explain: "The constraint shapes the planned motion, not the goal. The goal jumps when you press the button. The final angle is the same, and `At Target` still turns true once the arm arrives."
+    source: "Lab 7, Experiment 3"

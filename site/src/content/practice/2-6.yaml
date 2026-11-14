@@ -1,0 +1,52 @@
+lesson: "2.6"
+items:
+  - type: mcq
+    prompt: "In simulation, where does your robot code run?"
+    choices:
+      - "On the roboRIO"
+      - "On your laptop"
+      - "On the Driver Station only"
+      - "On the radio"
+    answer: 1
+    explain: "The simulator runs the whole program on your computer. No roboRIO, radio or CAN bus is involved."
+  - type: mcq
+    prompt: "You call `setFlywheelVoltage(6)` in simulation. What happens to the motor?"
+    choices:
+      - "A real motor spins because the laptop is connected."
+      - "Nothing happens; simulation ignores motor calls."
+      - "No hardware moves; the simulation models the physics and feeds encoder values back."
+      - "The program crashes without a roboRIO."
+    answer: 2
+    explain: "The call goes through the same subsystem code. The pre-written simulation helper then updates the simulated motor's encoder values."
+  - type: multi
+    prompt: "What stays the same between the simulator and a real robot? Select all that apply."
+    choices:
+      - "Your subsystem and command code"
+      - "`CommandXboxController` reading the joystick"
+      - "Publishing to NetworkTables"
+      - "Who enables the robot in a match"
+    answers: [0, 1, 2]
+    explain: "Code, controller reads and NetworkTables are identical. In a match the field system (FMS) controls enabling, not you."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "The simulator is running and enabled, but AdvantageScope shows no data."
+    choices:
+      - "AdvantageScope is not connected to the simulator."
+      - "The code has no commands."
+      - "The roboRIO is unplugged."
+      - "The joystick is on the wrong port."
+    answer: 0
+    explain: "AdvantageScope is a separate program. Use File, Connect to Simulator; on a real robot it connects to the roboRIO instead. The roboRIO is not involved in simulation."
+  - type: mcq
+    prompt: "How many places in your subsystem touch the simulation code, per the curriculum policy?"
+    choices:
+      - "None"
+      - "Two: the constructor and `simulationPeriodic()`"
+      - "Every method"
+      - "Only `Robot.java`"
+    answer: 1
+    explain: "The constructor creates the helper only when `RobotBase.isSimulation()` is true, and `simulationPeriodic()` updates it. You never edit the physics."
+  - type: free
+    prompt: "Why should you still check a real robot after the simulator works?"
+    modelAnswer: "The simulation is a model, so real friction, wiring, motor direction and battery behavior can differ. It proves the code logic, not the hardware."
+    explain: "Simulation makes code verifiable, but it cannot confirm inversion, current limits, or real loads."

@@ -1,0 +1,56 @@
+# Practice bank for lesson 1.9 (Networking).
+lesson: "1.9"
+items:
+  - type: mcq
+    prompt: "What is the roboRIO's address for team 4572?"
+    choices:
+      - "10.4.57.2"
+      - "10.45.72.2"
+      - "10.4572.0.2"
+      - "10.45.72.1"
+    answer: 1
+    explain: "Split the four digits into 45 and 72, then end with .2 for the roboRIO. A .1 ending would be the radio."
+  - type: fill-blank
+    prompt: "Fill in the roboRIO address for team 25. Remember to pad the team number to four digits first."
+    code: "10.____.____.2"
+    blanks:
+      - ["0"]
+      - ["25"]
+    explain: "Team 25 is 0025, which splits into 00 and 25. Leading zeros are dropped, so the first number is 0 and the second is 25."
+  - type: mcq
+    prompt: "A roboRIO is at `10.8.12.2`. Which team is it?"
+    choices:
+      - "812"
+      - "8012"
+      - "81"
+      - "1208"
+    answer: 0
+    explain: "The two numbers are the pairs 08 and 12, so the team number is 0812, which is 812. Team 8012 would be 10.80.12.2, so the second option is a different robot."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "The robot is powered, every light is on, and CAN devices respond. The Driver Station shows No Robot Communication."
+    choices:
+      - "A wrong CAN ID in the code"
+      - "The laptop is not connected to the radio, or the radio is not connected to the roboRIO"
+      - "The motor controller is not configured"
+      - "The code has a compile error"
+    answer: 1
+    explain: "The Driver Station talks to the roboRIO over Wi-Fi and Ethernet. A CAN ID problem would leave the link up, and code errors would not stop the link either."
+  - type: mcq
+    prompt: "In the simulator, which address do the robot code and Driver Station use to reach each other?"
+    choices:
+      - "10.TE.AM.2"
+      - "roboRIO-1360-FRC.local"
+      - "localhost"
+      - "10.TE.AM.1"
+    answer: 2
+    explain: "Both programs run on your laptop, so they use `localhost`. No radio or roboRIO is involved."
+  - type: multi
+    prompt: "Which of these need the robot network on a real robot? Select all that apply."
+    choices:
+      - "Deploying code from VS Code"
+      - "Enabling the robot from the Driver Station"
+      - "Running the simulator on your laptop"
+      - "Receiving controller input on the roboRIO"
+    answers: [0, 1, 3]
+    explain: "Deploy, enabling, and controller input all cross the radio. The simulator runs entirely on the laptop."

@@ -5,16 +5,149 @@ id: "3.8"
 track: "control"
 session: 7
 isNew: false
-status: stub
+minutes: 25
+prereqs: ["3.7", "0.8"]
+outcomes:
+  - Explain why an arm needs gravity compensation that changes with angle
+  - Work out the holding voltage at an angle from kG and the cosine
+  - Show where the Lab 7 code converts degrees to radians, and why it must
+  - Recognize the radians bug from how the arm behaves
+sources:
+  - curriculum: "labs/Session 7 - ArmSubsystem with ProfiledPIDController/LAB_MANUAL.md"
+  - curriculum: "presentations/Session 7 - ArmSubsystem with ProfiledPIDController/raw_data/slides.md"
+  - doc: "https://docs.wpilib.org/en/stable/docs/software/advanced-controls/introduction/introduction-to-feedforward.html"
+status: review
 sidebar:
   label: "3.8 Profiled arm and the radians trap"
   order: 8
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import DoItForReal from '../../../components/lesson/DoItForReal.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import GoDeeper from '../../../components/lesson/GoDeeper.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
+import AnnotatedCode from '../../../components/code/AnnotatedCode.astro';
 
-**What it will cover:** ArmFeedforward, angle-dependent gravity, and the most common units bug, with Lab 7.
+<WhyItMatters>
+An arm that holds perfectly at its home position can sag or jump the moment it lifts, with no error message anywhere.
+The usual cause is one wrong unit: angles in degrees going into code that expects radians. The code compiles, runs, and gives wrong voltages.
+</WhyItMatters>
 
-Based on Session 7 of the Orbit Robotics curriculum.
+## Gravity changes with angle
+
+An elevator fights the same weight at every height, so its `kG` is one steady voltage (lesson 3.7).
+An arm does not. Gravity pulls straight down, but only the part of that pull that is **perpendicular to the arm** tries to rotate it.
+That part is largest when the arm is horizontal and zero when it points straight up.
+
+`ArmFeedforward` handles this by multiplying `kG` by the cosine of the angle. It predicts
+`kS` (friction) + `kG × cos(angle)` + `kV × velocity` + `kA × acceleration`, using the profiled setpoint like the elevator did.
+Angle 0 means horizontal. The Lab 7 value is `kG` = 0.16 V.
+
+| Arm angle | cos(angle) | Holding voltage from kG |
+| --- | ---: | ---: |
+| 0° (horizontal) | 1.00 | 0.16 V |
+| 30° | 0.87 | 0.14 V |
+| 60° | 0.50 | 0.08 V |
+| 90° (straight up) | 0.00 | 0.00 V |
+
+## The radians trap
+
+`ArmFeedforward` expects the angle in **radians** and the velocity in radians per second. The rest of the arm code uses degrees, because degrees are easy to read in logs and goals.
+Java will not stop you from passing degrees: both are just a `double`.
+
+The cosine of a degree value, read as radians, is nonsense. At 30° you would get cos(30) = 0.15 instead of 0.87. At 60° it is -0.95, so gravity help points the wrong way.
+At 0° the answer happens to be right, which is why this bug hides at the home position.
+
+| Arm angle | Correct: cos(angle in radians) | Bug: cos(angle in degrees) |
+| --- | ---: | ---: |
+| 0° | 1.00 | 1.00 |
+| 30° | 0.87 | 0.15 |
+| 60° | 0.50 | -0.95 |
+| 90° | 0.00 | -0.45 |
+
+## Where Lab 7 converts
+
+The rule is to convert at the edge. Everything inside the subsystem is in degrees, and the one place that needs radians converts right there.
+
+**1. The sensor edge.** The motor reports mechanism rotations. Helpers turn them into degrees before anything else sees them.
+
+<AnnotatedCode
+  file="lab7-3.8/helpers"
+  title="ArmSubsystem.java"
+  notes={[
+    { lines: '1-3', text: 'One full turn is 360 degrees, so degrees divided by 360 gives rotations. The name says both units.' },
+    { lines: '5-7', text: 'The reverse. <code>getCurrentAngleDegrees()</code> and the velocity getter use this, so the PID and telemetry stay in degrees.' },
+  ]}
+/>
+
+**2. The feedforward edge.** The one conversion to radians happens in `closedLoopCalculate`.
+
+<AnnotatedCode
+  file="lab7-3.8/feedforward"
+  title="ArmSubsystem.java"
+  notes={[
+    { lines: '7', text: 'The PID works in degrees: <code>kP</code> means volts per degree of error. Measurement first, then the goal.' },
+    { lines: '8', text: 'The profiled setpoint comes out in degrees and degrees per second.' },
+    { lines: '9-12', text: 'Both values go through <code>Math.toRadians</code> before <code>ArmFeedforward</code> sees them. Delete these two calls and nothing fails to compile.' },
+  ]}
+/>
+
+<GoDeeper title="the other direction">
+Some code stores angles in radians and converts to degrees for display. The rule is the same: pick one unit for inside the subsystem, put the unit in every name (`targetAngleDegrees`), and convert once at each edge.
+Never convert the same value twice.
+</GoDeeper>
+
+## Practice
+
+<Practice bank="3-8" />
+
+## Do it for real
+
+<DoItForReal tools="WPILib simulator + AdvantageScope">
+This is **Lab 7** in the team curriculum repository.
+
+1. Run the `solution` project in simulation, enable **Teleoperated**, and hold Xbox **A**, **B**, or **Y** (targets -20°, 35°, 95°). With no button the arm holds `HOME`, 0°.
+2. In AdvantageScope, graph these from `/Subsystems/ArmSubsystem/`: `Target Degrees`, `Profiled Setpoint Degrees`, `Angle Degrees`, `Error Degrees`, and `Output Voltage`. Add `At Target` as a boolean.
+3. Run each experiment on its own, restart the simulation, then restore the value.
+
+| What you do | What you see | What it tells you |
+| --- | --- | --- |
+| Remove `Math.toRadians(...)` in the feedforward | Compiles, but the arm holds and moves worse, and the output voltage is wrong at angles away from 0° | The cosine received degrees |
+| `FEEDFORWARD_KG_VOLTS` = 0.0 | Different steady error at different angles, largest near horizontal | Gravity is not equally hard at every angle |
+| `MAX_VELOCITY_DEGREES_PER_SECOND` = 50.0 | Target still jumps at once, Profiled Setpoint takes longer to arrive | The profile limits the motion, not the goal |
+| Raise `PID_KP` in steps | Overshoot, then oscillation | `kP` too large, as in lesson 3.5 |
+
+**You know it worked when** each button brings Angle Degrees to within 2° of the target, Error Degrees settles near 0, and At Target turns true.
+
+**On a real robot, also check**
+
+- Zero position: the code assumes 0° is horizontal. If your arm's zero is somewhere else, the cosine is applied to the wrong angle.
+- The mechanism's min and max angle are set so the arm cannot drive into a hard stop.
+</DoItForReal>
+
+## Checkpoint
+
+<Checkpoint lesson="3.8">
+
+<details>
+<summary>Why does an arm need different gravity compensation at 0 degrees and 90 degrees?</summary>
+At 0° the arm is horizontal and gravity pulls straight across its lever, so it needs the most holding voltage. At 90° the arm points straight up, gravity pulls along it, and no voltage is needed. `ArmFeedforward` models this with `kG × cos(angle)`.
+</details>
+
+<details>
+<summary>Why is there no button binding for HOME?</summary>
+`HOME` is the default command: what the arm does whenever no level button is held. Releasing a `whileTrue` button ends that command and the default takes over.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- Arm gravity voltage is `kG × cos(angle)`: largest horizontal, zero vertical.
+- `ArmFeedforward` takes radians and radians per second. Degrees compile but give wrong voltages.
+- Keep degrees inside the subsystem and convert once, at the feedforward call, with units in every name.
+- The radians bug looks fine at 0° and wrong elsewhere.
+</RecapCard>

@@ -1,0 +1,58 @@
+# Practice bank for lesson 2.5 (Triggers and bindings).
+lesson: "2.5"
+items:
+  - type: mcq
+    prompt: "Which binding should run an intake only while the driver holds a button?"
+    choices:
+      - "`onTrue`"
+      - "`whileTrue`"
+      - "`onFalse`"
+      - "`toggleOnTrue`"
+    answer: 1
+    explain: "`whileTrue` cancels the command when the trigger goes false. `onTrue` would start it and leave it running if the command never finishes, and `toggleOnTrue` needs a second press."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "A driver presses the shooter button and the wheel starts. They release it and the wheel keeps spinning. The command's `isFinished()` always returns `false`."
+    choices:
+      - "The button is bound with `onTrue` instead of `whileTrue`"
+      - "The command is missing `addRequirements`"
+      - "`initialize()` is empty"
+      - "The controller is on the wrong port"
+    answer: 0
+    explain: "`onTrue` ignores the release, and the command never finishes by itself. `whileTrue` would cancel it on release."
+  - type: mcq
+    prompt: "A command is bound with `toggleOnTrue` and is running. The driver presses the button again. What happens?"
+    choices:
+      - "A second copy of the command starts"
+      - "Nothing, the command keeps running"
+      - "The command is cancelled"
+      - "The command restarts"
+    answer: 2
+    explain: "`toggleOnTrue` flips the command on and off: the first press schedules it and the next press cancels it."
+  - type: mcq
+    prompt: "The driver holds A (`whileTrue`) and then releases it. No other buttons are held. Who owns the flywheel now?"
+    choices:
+      - "Nobody, the flywheel is uncontrolled"
+      - "The A command, which is still running"
+      - "The default command"
+      - "The B command"
+    answer: 2
+    explain: "The release cancels the A command. With nothing else requiring the flywheel, the scheduler starts the default command again."
+  - type: fill-blank
+    prompt: "Bind the B button so the reverse command runs only while B is held."
+    code: |
+      driverController.___().___(new SetFlywheelVoltageCommand(
+          flywheelSubsystem, FlywheelConstants.REVERSE_VOLTAGE));
+    blanks:
+      - ["b"]
+      - ["whileTrue"]
+    explain: "`CommandXboxController` gives a Trigger per button, and `whileTrue` is the hold-to-run binding."
+  - type: multi
+    prompt: "Which of these can be a Trigger? Select all that apply."
+    choices:
+      - "A controller button"
+      - "A limit switch reading"
+      - "A boolean condition like `flywheelAtTarget`"
+      - "A motor voltage value, with no condition"
+    answers: [0, 1, 2]
+    explain: "A Trigger wraps any true/false condition. A raw number is not a condition until you compare it to something."

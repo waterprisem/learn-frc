@@ -5,16 +5,100 @@ id: "2.2"
 track: "commands"
 session: 2
 isNew: false
-status: stub
+minutes: 20
+prereqs: ["2.1"]
+outcomes:
+  - Explain why one class owns each mechanism's motors and sensors
+  - Read a subsystem and pick out its hardware, its methods, and its periodic()
+  - Name subsystem methods so their units are clear
+sources:
+  - curriculum: "labs/Session 3 - Open-Loop Flywheel with TalonFX/solution/src/main/java/frc/robot/subsystems/FlywheelSubsystem.java"
+  - curriculum: "presentations/Session 3 - Open-Loop Flywheel with TalonFX/raw_data/slides.md"
+  - doc: "https://docs.wpilib.org/en/stable/docs/software/commandbased/subsystems.html"
+status: review
 sidebar:
   label: "2.2 Subsystems own hardware"
   order: 2
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
+import AnnotatedCode from '../../../components/code/AnnotatedCode.astro';
 
-**What it will cover:** Why each mechanism gets one class that owns its motors and sensors.
+<WhyItMatters>
+Imagine two pieces of code both telling the same shooter motor what to do: one says 6 V, the other says 0 V. The wheel stutters and nobody knows why.
+The fix is a rule: every mechanism has exactly one owner, and everything else asks that owner.
+</WhyItMatters>
 
-Based on Session 2 of the Orbit Robotics curriculum.
+## One mechanism, one owner
+
+A **subsystem** is a class that owns one mechanism: its motors, its sensors, and its configuration. No other class creates or touches that hardware.
+
+Everything else goes through the subsystem's small public methods:
+
+- **Commands** call methods such as `setFlywheelVoltage(6.0)`. They never hold a motor.
+- **Methods are named for what they do, with units in the name**, like `getFlywheelVelocityRPS()`. The name says the unit, so nobody guesses.
+- **`periodic()`** reports what the mechanism is doing. It observes; it does not decide.
+
+<AnnotatedCode
+  file="lab3-2.2/ownership"
+  title="FlywheelSubsystem.java"
+  notes={[
+    { lines: '1-2', text: 'One class for the flywheel. <code>extends SubsystemBase</code> is what lets the scheduler see it and call its <code>periodic()</code>.' },
+    { lines: '3-4', text: 'The motor is <code>private</code>, so no other class can reach it. Its CAN ID comes from a constant.' },
+    { lines: '8-11', text: 'Publishers that send values to NetworkTables. They are created once here, not every loop.' },
+  ]}
+/>
+
+## Why a single owner
+
+When every output to a motor goes through one subsystem, the scheduler knows exactly who is using it. It can then guarantee that two commands never run on the same subsystem at the same time. Lesson 2.4 shows how a command claims a subsystem.
+
+If a command built its own `TalonFX` instead, the scheduler would not know that command was driving the same wheel, and it could not stop the fight.
+
+## The subsystem's methods
+
+The subsystem is the mechanism's interface. Commands send it requests, and `periodic()` publishes the state about every 20 ms as **telemetry**: the live numbers you graph in AdvantageScope.
+
+<AnnotatedCode
+  file="lab3-2.2/methods"
+  title="FlywheelSubsystem.java"
+  notes={[
+    { lines: '1-3', text: 'The only way to drive the motor. Volts is the unit and it is in the signature.' },
+    { lines: '5-11', text: 'Getters return plain numbers in the units named: rotations per second, and rotations.' },
+    { lines: '13-17', text: '<code>periodic()</code> only reads and publishes. It never sets the motor.' },
+  ]}
+/>
+
+Lesson 2.7 covers the Phoenix 6 calls inside these methods.
+
+## Practice
+
+<Practice bank="2-2" />
+
+## Checkpoint
+
+<Checkpoint lesson="2.2">
+
+<details>
+<summary>What state belongs to a subsystem, and what behavior belongs to a command?</summary>
+The subsystem owns the hardware, its configuration and its telemetry. A command owns one behavior, such as holding a voltage while a button is pressed.
+</details>
+
+<details>
+<summary>Why should a command not construct its own TalonFX?</summary>
+It would bypass the mechanism's single owner. The scheduler could no longer tell which commands are using the motor, so it could not prevent two of them from fighting over it.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- One subsystem per mechanism owns its motors and sensors; nothing else touches them.
+- Public methods are the interface, named with units, such as `getFlywheelVelocityRPS()`.
+- `periodic()` reports state and never drives the motor.
+- One owner lets the scheduler prevent two commands from fighting over a motor.
+</RecapCard>

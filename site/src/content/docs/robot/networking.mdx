@@ -5,16 +5,112 @@ id: "1.9"
 track: "robot"
 session: 1
 isNew: false
-status: stub
+minutes: 20
+prereqs: ["1.2"]
+outcomes:
+  - Work out a robot's roboRIO address from its team number
+  - Explain what deploying code and the Driver Station each need from the network
+  - Say what changes on the field network at an event
+  - Explain why the simulator needs no network at all
+sources:
+  - curriculum: "presentations/Session 1 - Ground Zero - Robot Hardware, Systems, and Programming Philosophy/raw_data/slides.md"
+  - curriculum: "misc/v1/frc1360_programming_curriculum_plan.md"
+  - doc: "https://docs.wpilib.org/en/stable/docs/networking/networking-introduction/ip-configurations.html"
+status: review
 sidebar:
   label: "1.9 Networking: IPs, radio, Driver Station"
   order: 9
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import GoDeeper from '../../../components/lesson/GoDeeper.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
+import ComponentCard from '../../../components/hardware/ComponentCard.tsx';
 
-**What it will cover:** LANs, the 10.TE.AM.X scheme, the radio, the Driver Station, and the field network.
+<WhyItMatters>
+Every deploy and every enable crosses a network. When the Driver Station says "No Robot Communication" and every light on the robot is on, the fault is an address, a cable, or the radio, not your code.
+Knowing the address scheme lets you test the link in seconds.
+</WhyItMatters>
 
-Based on Session 1 of the Orbit Robotics curriculum.
+## Every device gets an address
+
+A **LAN** (local area network) is a private network. Each device on it has an **IP address**, four numbers from 0 to 255 separated by dots, like `192.168.1.5`. It works like a phone number: it tells messages where to go.
+
+FRC uses one scheme everywhere: **`10.TE.AM.X`**. Write your team number with four digits, split it into two pairs, and drop each pair in as a number. The last number, `X`, picks the device.
+
+- `X = 1`: the radio
+- `X = 2`: the roboRIO
+- Your laptop: assigned automatically by the radio, so you never set it
+
+| Team | Digits | roboRIO address |
+|---|---|---|
+| 1360 | 13 and 60 | `10.13.60.2` |
+| 254 | 02 and 54 | `10.2.54.2` |
+| 9999 | 99 and 99 | `10.99.99.2` |
+
+Leading zeros are dropped, because `02` is just 2. The roboRIO also answers to a name: `roboRIO-1360-FRC.local`. The name and the address reach the same computer.
+
+## The radio joins the robot to your laptop
+
+The **radio** is a Wi-Fi access point on the robot. Your laptop joins its Wi-Fi network, the radio passes messages over Ethernet to the roboRIO, and everything else follows from that link. The current radio is the **VH-109**. (Older robots used the OpenMesh OM5P, which is retired.)
+
+<ComponentCard id="radio" />
+
+The **Driver Station** (DS) is the program on your laptop that enables and disables the robot and sends it controller input.
+
+<ComponentCard id="ds" />
+
+## Deploy and the Driver Station use the same link
+
+Two different tools depend on this network, and they fail differently.
+
+| Tool | What it does over the network | If the link is down |
+|---|---|---|
+| **Deploy** (VS Code) | Connects to the roboRIO, uploads your program, and restarts it | Deploy fails with a connection error |
+| **Driver Station** | Keeps a constant link to the roboRIO: enable and disable, controller input, battery voltage back | "No Robot Communication", and the robot cannot be enabled |
+
+A direct Ethernet cable from laptop to roboRIO also works, and teams use it in the pit.
+
+## At an event, the field takes over
+
+At a competition, the **field management system** (FMS) runs the network. The field's own access point replaces your radio's role, and the FMS decides when your robot is enabled. Field staff configure your radio for the event before your first match, and your team changes no addresses.
+
+The scheme stays the same, so `10.13.60.2` is still your roboRIO.
+
+<GoDeeper title="why the simulator needs no network">
+In simulation, your robot code and the Driver Station run on the same laptop. They talk to each other through `localhost`, the address every computer uses for itself. No radio, Wi-Fi, or roboRIO is involved, which is why most of this site uses the simulator.
+The cost is that a simulated robot cannot show you a network fault. Those only appear on a real robot.
+</GoDeeper>
+
+## Practice
+
+<Practice bank="1-9" />
+
+## Checkpoint
+
+<Checkpoint lesson="1.9">
+
+<details>
+<summary>What is your roboRIO's IP address, and what else can you type to reach it?</summary>
+`10.13.60.2`, or the name `roboRIO-1360-FRC.local`. Both reach the same roboRIO.
+</details>
+
+<details>
+<summary>The robot is powered and every light is on, but deploy fails. Where do you look?</summary>
+At the network path, not the code: is the laptop on the robot's Wi-Fi or plugged in by Ethernet, is the radio powered, and is the Ethernet cable between the radio and roboRIO seated?
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+
+- Addresses follow `10.TE.AM.X`: radio `.1`, roboRIO `.2`, laptop assigned automatically.
+- Deploy and the Driver Station both reach the roboRIO through the radio.
+- At an event the field network runs the link; your addresses stay the same.
+- The simulator uses `localhost`, so network faults only show up on a real robot.
+
+</RecapCard>

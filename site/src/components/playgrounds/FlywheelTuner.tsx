@@ -29,9 +29,11 @@ interface Props {
   initialPreset?: FlywheelPresetId;
   /** Lesson to mark when the guided steps are finished. */
   lessonId?: string;
+  /** Set to false to show the playground without the guided steps. */
+  guide?: boolean;
 }
 
-export default function FlywheelTuner({ initialPreset = 'zero', lessonId }: Props) {
+export default function FlywheelTuner({ initialPreset = 'zero', lessonId, guide: showGuide = true }: Props) {
   const [gains, setGains] = useState<FlywheelGains>(flywheelPresets[initialPreset].gains);
   const [target, setTarget] = useState<number | null>(null);
   const [load, setLoad] = useState(false);
@@ -122,12 +124,14 @@ export default function FlywheelTuner({ initialPreset = 'zero', lessonId }: Prop
 
   return (
     <div className="lf-playground not-content">
-      <Coach
-        icon={<Compass size={18} aria-hidden="true" />}
-        steps={flywheelGuide}
-        context={guide}
-        onFinish={() => lessonId && updateLesson(lessonId, { guideDone: true })}
-      />
+      {showGuide && (
+        <Coach
+          icon={<Compass size={18} aria-hidden="true" />}
+          steps={flywheelGuide}
+          context={guide}
+          onFinish={() => lessonId && updateLesson(lessonId, { guideDone: true })}
+        />
+      )}
       <div className="lf-pg-top">
         <div className="lf-pg-controls">
           <fieldset>

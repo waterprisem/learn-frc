@@ -1,0 +1,63 @@
+lesson: "1.12"
+items:
+  - type: mcq
+    prompt: "What does a subsystem's `periodic()` method do?"
+    choices:
+      - "It runs once when the robot is enabled"
+      - "It is called about every 20 ms for as long as the robot code runs"
+      - "It runs when the driver presses a button"
+      - "It runs once for every motor on the robot"
+    answer: 1
+    explain: "Robot code is a loop, and periodic() is its tick. The common wrong idea is that it is a one-time setup step."
+  - type: mcq
+    prompt: "A `periodic()` method takes 35 ms to finish. What is the effect?"
+    choices:
+      - "Only that subsystem is slow"
+      - "Nothing, the loop waits quietly"
+      - "Everything in the loop is delayed, and WPILib reports a loop overrun"
+      - "The motors turn off for 15 ms"
+    answer: 2
+    explain: "All of the code shares one loop, so one slow method delays all the others."
+  - type: multi
+    prompt: "Which of these are layers between your Java code and the moving mechanism? Select all that apply."
+    choices:
+      - "A CAN frame on the bus"
+      - "The motor controller"
+      - "The Driver Station laptop screen"
+      - "The motor, turning current into torque"
+    answers: [0, 1, 3]
+    explain: "The stack runs from your code through the API, the CAN frame, the controller and the motor to the mechanism. The laptop screen is not on that path."
+  - type: symptom-cause
+    prompt: "Which layer should you check first?"
+    symptom: "`elevator.setVoltage(6.0)` runs, but the elevator does not move. Phoenix Tuner X does not list the elevator motor at all."
+    choices:
+      - "The elevator's soft limit in code"
+      - "The CAN layer: the ID or the wiring"
+      - "The current limit"
+      - "The encoder"
+    answer: 1
+    explain: "A device that is missing from the bus cannot receive any command. The ID in code may not match the device, or a wire may be broken. A soft limit or current limit would still show a motor."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "The motor is listed on the bus and the command runs, but a log line inside `execute()` never prints."
+    choices:
+      - "The CAN cable is loose"
+      - "The command was never scheduled"
+      - "The current limit is too low"
+      - "The battery is low"
+    answer: 1
+    explain: "If execute() never runs, the command is not scheduled, so no voltage is ever sent. This is a fault in the top layer, not the hardware."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "The elevator moves up a little, then stops, and the motor feels weak. The code and the CAN ID are correct."
+    choices:
+      - "The current limit is set too low"
+      - "The command is not scheduled"
+      - "The CAN ID is wrong"
+      - "The loop runs every 20 ms"
+    answer: 0
+    explain: "A too-low current limit in the device configuration caps the torque, so the motor cannot lift the load. The code asks for 6 V and the device config quietly overrides it."
+  - type: free
+    prompt: "Why does a loose encoder make a position controller drift, even if your code is perfect?"
+    modelAnswer: "The code reads a position that does not match the real mechanism, so it corrects toward the wrong number. A mechanical fault in the bottom layer shows up as a software-looking problem."
+    explain: "Bugs cross layers. The sensor value you read is the top of the stack, and it is only as good as the hardware under it."

@@ -1,0 +1,44 @@
+# Practice bank for lesson 1.6 (Sensors in action).
+lesson: "1.6"
+items:
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "Every time you power on the robot, the elevator reads 0 m. Sometimes it is fully down. Sometimes it is halfway up, and position targets are off by that much."
+    choices:
+      - "The elevator's position is relative and the code never homed it"
+      - "The limit switch is an absolute encoder"
+      - "The CAN cable to the Pigeon 2 is loose"
+      - "The camera lost sight of an AprilTag"
+    answer: 0
+    explain: "A relative position reads 0 wherever the mechanism started. Without homing, the code has no reference. The Pigeon 2 and camera do not measure elevator height."
+  - type: mcq
+    prompt: "Which device is a magnetic absolute encoder?"
+    choices:
+      - "Limit switch"
+      - "CANcoder"
+      - "Pigeon 2"
+      - "PhotonVision camera"
+    answer: 1
+    explain: "The CANcoder reads a magnet and reports the true shaft angle over CAN. The Pigeon 2 measures heading, and the other two do not measure rotation."
+  - type: mcq
+    prompt: "Why is the Kraken's built-in sensor effectively relative once a gear reduction is attached?"
+    choices:
+      - "It only knows the angle within one motor rotation, so it cannot tell where the mechanism is in its travel"
+      - "It stops working when it is geared"
+      - "It only measures speed, never position"
+      - "It forgets its position every 20 ms"
+    answer: 0
+    explain: "Many motor rotations make up one trip through the mechanism's travel, and the sensor does not count them across a power cycle. It does measure position, so the idea that it only measures speed is wrong."
+  - type: free
+    prompt: "In one sentence, why do you drive slowly toward the limit switch when homing?"
+    modelAnswer: "At the start the code does not know where the mechanism is, so a fast move could crash it into the end of travel before the switch can stop it."
+    explain: "Homing begins from an unknown position. Low voltage keeps a surprise at the end of travel from causing damage."
+  - type: multi
+    prompt: "Which jobs are done by the Pigeon 2 or a camera, and not by an encoder? Select all that apply."
+    choices:
+      - "Knowing which way the robot faces"
+      - "Finding AprilTags on the field"
+      - "Counting motor rotations"
+      - "Measuring the angle of a swerve wheel"
+    answers: [0, 1]
+    explain: "The IMU gives heading and the camera sees AprilTags. Encoders, including the CANcoder, measure rotation of a motor or a shaft."

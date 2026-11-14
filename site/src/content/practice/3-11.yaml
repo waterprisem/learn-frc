@@ -1,0 +1,49 @@
+# Practice bank for lesson 3.11 (SysId characterization).
+lesson: "3.11"
+items:
+  - type: mcq
+    prompt: "A quasistatic test ramps the voltage slowly. Why slowly?"
+    choices:
+      - "So the mechanism does not break."
+      - "So acceleration stays near zero and the voltage shows friction and speed effects."
+      - "So the battery lasts longer."
+      - "So the logs are smaller."
+    answer: 1
+    explain: "With almost no acceleration, the `kA` term is out of the picture. The wrong idea is that slow means safe: a ramp keeps rising until the test ends."
+  - type: mcq
+    prompt: "Which test is mainly used to find `kA`?"
+    choices: ["Quasistatic forward", "Quasistatic reverse", "Dynamic (voltage step)", "None of them"]
+    answer: 2
+    explain: "A sudden step makes acceleration large, so the voltage needed for it stands out."
+  - type: multi
+    prompt: "What do you provide to a `SysIdRoutine`? Select all that apply."
+    choices:
+      - "A way to apply a voltage to the motors"
+      - "A way to log voltage, position, and velocity"
+      - "The subsystem that owns the mechanism"
+      - "The final `kP` value"
+    answers: [0, 1, 2]
+    explain: "SysId only fits feedforward constants. `kP` is still tuned afterward with graphs."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "The fitted constants look absurd, and the position log shows the elevator stopped abruptly during a test."
+    choices:
+      - "The mechanism hit a hard stop, which corrupted the data"
+      - "The battery was too full"
+      - "`kP` was too large"
+      - "The routine ran in the wrong order"
+    answer: 0
+    explain: "The fit assumes the voltage moves the mechanism freely. A stop adds a force the model does not know about."
+  - type: mcq
+    prompt: "SysId gives you `kV`. What is the next step?"
+    choices:
+      - "Trust it and never graph again."
+      - "Enter it, graph the mechanism following a target, and adjust if needed."
+      - "Set all other gains to 0."
+      - "Rerun SysId until it says 0."
+    answer: 1
+    explain: "The result is a starting point. Real tuning still happens on graphs."
+  - type: free
+    prompt: "Give two safety rules for running SysId on an elevator."
+    modelAnswer: "Make sure the elevator has room to move and start near the middle of its travel, and keep your hand on the disable key to stop it before it hits a limit."
+    explain: "Both tests keep pushing until they end, so it is your job to leave room and be ready to stop."

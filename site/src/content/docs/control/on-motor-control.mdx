@@ -5,16 +5,109 @@ id: "3.12"
 track: "control"
 session: null
 isNew: true
-status: stub
+minutes: 15
+prereqs: ["3.5", "3.6", "3.7"]
+outcomes:
+  - Say where the loop runs in roboRIO-side and on-motor control
+  - Recognize Slot0Configs gains and the common control requests
+  - Explain what Motion Magic is
+  - Compare the two approaches and say why this training uses roboRIO-side control
+sources:
+  - doc: "https://v6.docs.ctr-electronics.com/en/stable/docs/api-reference/device-specific/talonfx/closed-loop-requests.html"
+  - doc: "https://v6.docs.ctr-electronics.com/en/stable/docs/api-reference/device-specific/talonfx/motion-magic.html"
+status: review
 sidebar:
   label: "3.12 Recognizing on-motor control"
   order: 12
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import GoDeeper from '../../../components/lesson/GoDeeper.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
 
-**What it will cover:** Slot configs and Motion Magic, so you can read other teams’ code.
+<WhyItMatters>
+Open another team's code or a vendor example and the elevator may have no `PIDController` at all. The same PID and feedforward are running inside the motor controller.
+You do not need to master this. You need to recognize it, because you will meet it often.
+</WhyItMatters>
 
-This lesson goes beyond the Orbit Robotics curriculum.
+## Same math, different place
+
+Everything in this track runs on the roboRIO, 50 times a second. The TalonFX can run the same kind of loop itself, about 1000 times a second. You send it a target, and it computes the voltage.
+
+| | On the roboRIO (this site) | On the motor controller |
+|---|---|---|
+| Where the loop runs | Your Java, in `periodic()` or a command | Inside the TalonFX |
+| How often | About 50 Hz (every 20 ms) | About 1 kHz |
+| Gains | Your own units, such as volts per RPS | Volts per rotation (and per rotation per second) of the mechanism, after the configured ratios |
+| How you tune | Edit constants in Java, then redeploy | Edit gains in a config (Phoenix Tuner X can change them live) |
+| What you graph | Your own NetworkTables signals | Signals the device reports, such as position, velocity, and closed-loop error |
+| Pros | You can see and log every piece | Faster, and less code and CAN traffic |
+| Cons | Slower loop, and more code to write | Less visible, and tied to CTRE hardware |
+
+## Reading the configuration
+
+Gains live in a slot, and you can recognize the familiar names.
+
+| Item | Meaning |
+|---|---|
+| `Slot0Configs` | A set of gains: `kP`, `kI`, `kD`, `kS`, `kV`, `kA`, `kG` |
+| `VelocityVoltage` | Request: hold this velocity, in rotations per second |
+| `PositionVoltage` | Request: go to this position, in rotations |
+| `MotionMagicVoltage` | Request: go to this position along a profile |
+
+**Motion Magic** is the on-motor version of lesson 3.6. It builds a trapezoid-shaped profile inside the controller. `MotionMagicConfigs` holds its cruise velocity, acceleration, and jerk (how quickly acceleration may change).
+
+```java
+// 2026: gains and profile go in the configuration, once
+var config = new TalonFXConfiguration();
+config.Slot0.kP = 24.0;
+config.MotionMagic.MotionMagicCruiseVelocity = 80;   // rotations per second
+config.MotionMagic.MotionMagicAcceleration = 160;    // rotations per second squared
+motor.getConfigurator().apply(config);
+
+// then each loop, send only the target
+motor.setControl(new MotionMagicVoltage(0).withPosition(10.0)); // rotations
+```
+
+The numbers are examples only. The code never calculates a voltage. It sets up, then asks.
+
+<GoDeeper title="how mechanism units get there">
+The controller works in motor rotations unless told otherwise. A feedback ratio setting converts motor rotations to mechanism rotations, so gains then refer to the mechanism. Distance-based mechanisms like an elevator still need a conversion from rotations to meters in your own code.
+</GoDeeper>
+
+## Which should you use?
+
+This team's training uses roboRIO-side control, so you can see and graph every piece: the error, the feedforward, the profile. That makes you a better debugger.
+Many competition robots use on-motor control, and the ideas transfer directly: the same gains, the same tuning order, the same graphs. Learn one, and you can read the other.
+
+## Practice
+
+<Practice bank="3-12" />
+
+## Checkpoint
+
+<Checkpoint lesson="3.12">
+
+<details>
+<summary>What does Motion Magic do?</summary>
+It generates a trapezoid motion profile inside the motor controller, using the cruise velocity, acceleration, and jerk you configured, and runs PID and feedforward along it.
+</details>
+
+<details>
+<summary>Why does this training run the loop on the roboRIO?</summary>
+So you can see, log, and graph every piece of the loop while you are learning. The concepts are the same either way.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- On-motor control runs the same PID and feedforward inside the TalonFX, at about 1 kHz.
+- `Slot0Configs` holds `kP` to `kG`; requests like `PositionVoltage` carry the target.
+- Motion Magic is a profile running in the motor controller.
+- Gains are in rotations and volts of the mechanism, not your own units.
+- Both approaches are common. This site teaches roboRIO-side to make everything visible.
+</RecapCard>

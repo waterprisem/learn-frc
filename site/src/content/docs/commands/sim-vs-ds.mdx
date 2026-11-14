@@ -5,16 +5,115 @@ id: "2.6"
 track: "commands"
 session: 2
 isNew: false
-status: stub
+minutes: 15
+prereqs: ["2.1"]
+outcomes:
+  - Say what the WPILib simulator replaces and what stays the same
+  - Enable a simulated robot and drive it with a gamepad or keyboard
+  - Explain why simulation code stays behind two contact points
+sources:
+  - curriculum: "presentations/Session 2 - How 1360 Robot Code Is Organized/raw_data/slides.md"
+  - curriculum: "labs/Session 4 - PID + Feedforward for Velocity Control/LAB_MANUAL.md"
+  - curriculum: "misc/v1/frc1360_programming_curriculum_plan.md"
+  - doc: "https://docs.wpilib.org/en/stable/docs/software/wpilib-tools/robot-simulation/introduction.html"
+status: review
 sidebar:
   label: "2.6 Simulator vs Driver Station"
   order: 6
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import DoItForReal from '../../../components/lesson/DoItForReal.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import GoDeeper from '../../../components/lesson/GoDeeper.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
 
-**What it will cover:** What the simulator replaces, and where AdvantageScope fits.
+<WhyItMatters>
+You can write and test robot code at home with no robot, because the simulator runs your program on your laptop. But it only helps if you know what is real and what is stand-in.
+Otherwise a graph that looks perfect can mislead you about a machine that has real friction.
+</WhyItMatters>
 
-Based on Session 2 of the Orbit Robotics curriculum.
+## What changes and what does not
+
+The **WPILib simulator** runs your whole robot program on your computer. It adds a window with its own virtual **Driver Station** panel (the laptop application that enables the robot and sends joystick data).
+
+| | Simulator | Real robot |
+|---|---|---|
+| Where the code runs | On your laptop | On the roboRIO |
+| Who enables the robot | You, in the panel inside the simulator window | The Driver Station app; in a match, the field system controls timing |
+| Where joystick input comes from | A USB gamepad, the keyboard joystick, or on-screen controls | A controller plugged into the Driver Station laptop |
+| Physics | A pre-written model feeds simulated encoder values back | The real mechanism, friction and battery |
+| Where AdvantageScope connects | The running simulator | The roboRIO, over the robot network |
+
+Your subsystems, commands, and bindings do not change. `CommandXboxController` reads the same data either way, so a button press fires the same trigger-to-command chain. Values still go to **NetworkTables**, the shared table of named values that AdvantageScope reads.
+
+## Simulation as a black box
+
+When you call `setFlywheelVoltage(...)` in simulation, no hardware moves. A pre-written helper models the physics and updates the simulated motor's encoder values.
+
+The curriculum keeps that helper out of your way. You never write or edit it. Your subsystem touches it in exactly two places:
+
+```java
+flywheelSimulation = RobotBase.isSimulation() ? new FlywheelSimulation(flywheelMotor) : null;
+```
+
+```java
+if (flywheelSimulation != null) {
+  flywheelSimulation.update();
+}
+```
+
+The first creates the helper only in simulation, in the constructor. The second runs inside `simulationPeriodic()`, which WPILib calls only in simulation. The same subsystem code then deploys to a real robot unchanged.
+
+<GoDeeper title="what simulation cannot tell you">
+The model proves your code logic: the right button starts the right command, and the graph responds sensibly. It does not know your real friction, wiring, motor direction, current limits, or a low battery.
+Gains tuned in simulation are a starting point, and you still re-check them on the real robot. Each "Do it for real" block lists what to check there.
+</GoDeeper>
+
+## Practice
+
+<Practice bank="2-6" />
+
+## Do it for real
+
+<DoItForReal tools="WPILib simulator">
+This is **Lab 2, Part 1** in the team curriculum repository.
+
+1. Open `labs/Session 2 - How 1360 Robot Code Is Organized/solution` as its own WPILib project and run **WPILib: Simulate Robot Code**.
+2. In the simulator's Robot State panel, choose **Teleoperated** and enable the robot.
+3. Expand **NetworkTables** and find `/TrainingBot/Diagnostics`.
+4. Hold Xbox A, or <kbd>Z</kbd> with the keyboard joystick. The labs' keyboard setup maps <kbd>Z</kbd>, <kbd>X</kbd>, <kbd>C</kbd>, <kbd>V</kbd> to Xbox A, B, X, Y.
+5. Disable, choose **Autonomous**, and enable again.
+
+**You know it worked when** `Self Check Running` is true while A is held, and the autonomous run prints its start and complete messages about one second apart.
+
+**On a real robot, also check**
+
+- The Driver Station shows the controller on port 0 and the robot communicating before you enable.
+</DoItForReal>
+
+## Checkpoint
+
+<Checkpoint lesson="2.6">
+
+<details>
+<summary>What is the difference between the real Driver Station and the simulated one?</summary>
+The real one is a laptop application that talks to the physical robot over the network, and in a match the field system controls enabling. The simulated one is a panel inside the simulator window that you control yourself, for a program running on the same laptop.
+</details>
+
+<details>
+<summary>Where does AdvantageScope get its data in each case?</summary>
+Always from NetworkTables. In simulation it connects to the running simulator; on a real robot it connects to the roboRIO.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- The simulator replaces the roboRIO, the hardware, and the Driver Station; your code, NetworkTables, and AdvantageScope stay the same.
+- Controller input fires the same trigger-to-command chain in both worlds.
+- Simulation physics is a black box with two contact points: the constructor and `simulationPeriodic()`.
+- Simulation checks your logic. Real friction, wiring, and limits still need a real-robot check.
+</RecapCard>

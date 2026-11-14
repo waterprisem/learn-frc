@@ -5,16 +5,97 @@ id: "1.6"
 track: "robot"
 session: 1
 isNew: false
-status: stub
+minutes: 15
+prereqs: ["1.4", "1.5"]
+outcomes:
+  - Explain why a gear-reduced mechanism's position is relative, not absolute
+  - Say what an absolute encoder does differently, and name one
+  - Put the steps of a homing sequence in order
+  - Say what the IMU and a camera tell the robot
+sources:
+  - curriculum: "presentations/Session 1 - Ground Zero - Robot Hardware, Systems, and Programming Philosophy/raw_data/slides.md"
+  - curriculum: "presentations/Session 6 - ElevatorSubsystem with ProfiledPIDController/Raw Data/slides.md"
+status: review
 sidebar:
   label: "1.6 Sensors in action"
   order: 6
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
+import ComponentCard from '../../../components/hardware/ComponentCard.tsx';
 
-**What it will cover:** Encoders (relative vs absolute), limit switches and homing, the IMU, and cameras.
+<WhyItMatters>
+Power on a robot and ask its elevator to go to 1 meter. If the code wrongly believes the elevator is already there, nothing moves. If it believes the elevator is at 0 when it is really at the top, the motor drives it into the frame.
+Position control is only as good as the robot's knowledge of where the mechanism is, and sensors are where that knowledge comes from.
+</WhyItMatters>
 
-Based on Session 1 of the Orbit Robotics curriculum.
+## Relative or absolute
+
+An **encoder** measures rotation. There are two kinds, and the difference decides how you start a mechanism.
+
+- A **relative** encoder counts movement from wherever it was when it powered on. It reads 0 at power-on, whatever the real position is.
+- An **absolute** encoder reports the true angle of its shaft, even right after power-on.
+
+The Kraken's built-in sensor is on the motor's rotor, and it only knows the angle within one motor rotation. Once a gear reduction sits between the motor and the mechanism, the mechanism may be anywhere in its travel while the sensor reads the same thing.
+So the mechanism's position is effectively **relative**: it reads 0 wherever the mechanism happened to be at power-on.
+
+A **CANcoder** is a separate **magnetic absolute** encoder. It reads a magnet on the shaft and reports the angle over CAN, which is why swerve modules use one to know where each wheel points.
+
+<ComponentCard id="cancoder" />
+
+## Homing
+
+A relative position needs a known reference. **Homing** creates one by moving the mechanism to a place whose position you already know, then telling the motor controller "this is position X".
+
+<ComponentCard id="limit-switch" />
+
+1. Drive the mechanism slowly toward the limit switch. Use low voltage so a mistake does not slam it.
+2. Stop when the switch triggers.
+3. Set the motor's position to the known value, such as 0 meters for a fully lowered elevator.
+4. Only now enable position control.
+
+Skip step 3 and every target is measured from wherever the mechanism started. In the simulator the labs skip homing and trust the start position. A real robot cannot.
+
+## Heading and vision
+
+Two more sensors tell the robot about the world, not about one mechanism.
+
+The **IMU** (the Pigeon 2) measures heading: which way the robot faces. Heading is what makes field-relative driving possible, where pushing the stick away from you drives away from you whichever way the robot points.
+A **camera** on a coprocessor finds AprilTags, square markers on the field walls, and reports where they are, so the robot can correct its estimate of where it is on the field. Later lessons use both.
+
+<ComponentCard id="pigeon" />
+
+<ComponentCard id="camera" />
+
+## Practice
+
+<Practice bank="1-6" />
+
+## Checkpoint
+
+<Checkpoint lesson="1.6">
+
+<details>
+<summary>Why can a fresh elevator not be trusted to know its height?</summary>
+Its position is relative. It reads 0 wherever the elevator was at power-on, so the code needs a known reference, which homing provides.
+</details>
+
+<details>
+<summary>What is the difference between a Kraken's built-in sensor and a CANcoder?</summary>
+The built-in sensor only knows the angle within one motor rotation, so after a gear reduction it is effectively relative. A CANcoder is a magnetic absolute encoder on the mechanism's shaft and reports the true angle at power-on.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- A relative encoder counts from where it powered on. An absolute encoder reports the true angle.
+- After a gear reduction, the Kraken's own sensor makes the mechanism position relative.
+- Homing: drive slowly to the limit switch, stop, set the position to a known value, then enable position control.
+- The CANcoder is a magnetic absolute encoder, and the Pigeon 2 gives heading.
+- A camera finds AprilTags to correct the robot's position on the field.
+</RecapCard>

@@ -5,16 +5,112 @@ id: "1.12"
 track: "robot"
 session: 1
 isNew: false
-status: stub
+minutes: 15
+prereqs: ["1.5"]
+outcomes:
+  - Explain why robot code is a loop that never finishes, not a script
+  - Name the layers between your Java code and a moving mechanism
+  - Explain why a bug in one layer can look like a problem in another
+  - Walk down the layers to find why a motor command does nothing
+sources:
+  - curriculum: "presentations/Session 1 - Ground Zero - Robot Hardware, Systems, and Programming Philosophy/raw_data/slides.md"
+status: review
 sidebar:
   label: "1.12 Thinking like a robot programmer"
   order: 12
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import GoDeeper from '../../../components/lesson/GoDeeper.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
 
-**What it will cover:** The 20 ms loop, the abstraction stack, and finding faults layer by layer.
+<WhyItMatters>
+You write `elevator.setVoltage(6.0)` and the elevator does not move. The line is correct, so where is the bug?
+The answer depends on a way of thinking that the rest of this course builds on: robot code is a loop, and your code is only the top of a tall stack.
+</WhyItMatters>
 
-Based on Session 1 of the Orbit Robotics curriculum.
+## Robot code never finishes
+
+A program you have written before runs, does something, and stops. Robot code does not stop. It runs a loop for as long as the robot is on, and you describe what should happen on **each tick** of that loop.
+
+Every WPILib subsystem has a `periodic()` method that is called about every 20 ms (50 times per second).
+
+```java
+@Override
+public void periodic() {
+  // runs ~50 times per second, as long as the robot is on
+  currentVelocityRPS = motor.getVelocity().getValueAsDouble();
+}
+```
+
+You never write "do this once, then stop". You write "given what the robot and the driver are doing right now, what should I do this tick?"
+
+If `periodic()` takes longer than 20 ms, every other part of the loop is delayed. WPILib reports this as a **loop overrun** in the Driver Station console.
+
+## The abstraction stack
+
+Your code never touches hardware directly. Between your Java and the mechanism there are layers, and each one hides the details of the next. This is the **abstraction stack**.
+
+1. Your Java code calls a method.
+2. The WPILib / CTRE Phoenix 6 API turns the call into a message.
+3. A CAN frame (a binary message) travels on the bus.
+4. The motor controller (TalonFX) reads the frame and drives the motor.
+5. The motor turns current into torque and rotation.
+6. The mechanism moves.
+7. The encoder turns the rotation into position and velocity data.
+8. A CAN frame carries that data back to the roboRIO.
+9. Your Java code reads the sensor value.
+
+You write at the top. The hardware works at the bottom. Most of this course teaches you to be fluent in the top two layers.
+
+## Bugs cross layers
+
+A bug in one layer can look like a problem in another. A sign error in code makes a mechanism slam into its end, which looks mechanical. A loose encoder makes position control drift, which looks like bad code.
+
+So when something fails, do not stare at the code. Walk down the stack. Here is the elevator that will not move:
+
+| Layer | What could be wrong | How you would check |
+|---|---|---|
+| Your code | The command is never scheduled | Print or log from `execute()`; check where the command is bound |
+| Your code | The elevator is at a soft limit in code | Log the position and compare it with the limit |
+| Device config | The current limit is set too low | Read the limit in the config and in Phoenix Tuner X |
+| Device config | Neutral mode is Coast with no load | Check the neutral mode; the motor spins but nothing holds |
+| CAN | Wrong CAN ID in code | Compare the ID in `Constants.java` with Phoenix Tuner X |
+| CAN | Bad wiring on the bus | Look for missing devices in the Driver Station and the tuner |
+| Robot state | The motor is not enabled | Check that the Driver Station shows Enabled |
+
+<GoDeeper title="why the stack is worth the trouble">
+Each layer lets you ignore the one below. You can call `setVoltage` without knowing how a CAN frame is built, which is why a beginner can move a motor on day one.
+The cost is that when something breaks, you cannot ignore any layer. Good debugging is a habit of asking "which layer am I looking at?" before changing anything.
+</GoDeeper>
+
+## Practice
+
+<Practice bank="1-12" />
+
+## Checkpoint
+
+<Checkpoint lesson="1.12">
+
+<details>
+<summary>Why can a robot program not be a script that runs once and exits?</summary>
+The robot has to keep reacting to the driver and its sensors. So the code runs as a loop, about every 20 ms, and each pass decides what to do right now.
+</details>
+
+<details>
+<summary>Give one example of a software bug that looks mechanical, and one of a mechanical problem that looks like a software bug.</summary>
+A sign error in code makes a mechanism drive the wrong way and slam, which looks mechanical. A loose encoder makes position control drift, which looks like bad tuning or bad code.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- Robot code is a loop that runs about every 20 ms and never finishes.
+- A slow `periodic()` delays everything and shows up as a loop overrun.
+- Your Java is the top of a stack of layers, down to the mechanism and back up through the encoder.
+- Bugs cross layers. When something fails, walk down the stack one layer at a time.
+</RecapCard>

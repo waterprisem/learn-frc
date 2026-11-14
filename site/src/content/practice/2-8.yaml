@@ -1,0 +1,56 @@
+# Practice bank for lesson 2.8 (Build the open-loop flywheel).
+lesson: "2.8"
+items:
+  - type: mcq
+    prompt: "Why is this flywheel called open loop?"
+    choices:
+      - "It uses coast mode, so the loop is open."
+      - "It sends a fixed voltage and never compares the speed to a target."
+      - "It has no encoder."
+      - "It has no default command."
+    answer: 1
+    explain: "Open loop means no feedback. The wheel does have an encoder, and the lab reads it, but the voltage never depends on what it reads."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "You hold A and the wheel spins. You release A and the wheel keeps driving at 6 V."
+    choices:
+      - "`end()` does not set the voltage to 0"
+      - "The neutral mode is Coast"
+      - "`periodic()` does not publish velocity"
+      - "The CAN ID is wrong"
+    answer: 0
+    explain: "Release interrupts the command and calls `end()`. If `end()` is empty, the last request stays active. Coast mode only changes what happens at 0 V."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "The robot is enabled, but pressing A does nothing, and the code builds with no errors."
+    choices:
+      - "`isFinished()` returns `true`, so the command ends immediately"
+      - "`end()` sets 0 V"
+      - "The binding uses `whileTrue()`"
+      - "The position is published in rotations"
+    answer: 0
+    explain: "A command that finishes at once runs only for one loop, so the wheel barely moves. Returning false lets it run until the button is released."
+  - type: mcq
+    prompt: "You hold A, then also press B. What does the scheduler do?"
+    choices:
+      - "Runs both and adds 6 V and -4 V"
+      - "Ignores B until A is released"
+      - "Interrupts the A command and runs the B command"
+      - "Stops the robot"
+    answer: 2
+    explain: "Both commands require the flywheel, so the scheduler interrupts the older one when the newer one starts. When B is released too, the default command resumes at 0 V."
+  - type: fill-blank
+    prompt: "Complete the command's cleanup."
+    code: |
+      @Override
+      public void ___(boolean interrupted) {
+        flywheelSubsystem.setFlywheelVoltage(___);
+      }
+    blanks:
+      - ["end"]
+      - ["0.0", "0", "0.0d"]
+    explain: "`end(boolean interrupted)` runs on both a normal finish and an interruption, and 0 V leaves the mechanism safe."
+  - type: free
+    prompt: "Which two graphs in AdvantageScope would convince you the reverse test passed, without looking at the animation?"
+    modelAnswer: "`/Subsystems/FlywheelSubsystem/Velocity RPS` goes negative while B is held and decays to 0 after release, and `/Subsystems/FlywheelSubsystem/Position Rotations` falls during that time."
+    explain: "Velocity shows the direction and the coast-down. Position accumulates, so it falling confirms the wheel really turned backward. An animation can look right even when the code is wrong."

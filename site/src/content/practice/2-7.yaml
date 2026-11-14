@@ -1,0 +1,60 @@
+# Practice bank for lesson 2.7 (CTRE Phoenix 6 basics).
+lesson: "2.7"
+items:
+  - type: mcq
+    prompt: "Which Phoenix 6 call runs a motor at 6 V?"
+    choices:
+      - "`motor.getVelocity().refresh()`"
+      - "`motor.setControl(new VoltageOut(6.0))`"
+      - "`new TalonFX(6)`"
+      - "`motor.getConfigurator().apply(new VoltageOut(6.0))`"
+    answer: 1
+    explain: "A control request goes through `setControl`. `getConfigurator().apply` is for settings such as limits and neutral mode. `new TalonFX(6)` would address the device with CAN ID 6, not 6 V."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "You wrote `new CurrentLimitsConfigs().withSupplyCurrentLimit(40.0)` and applied it. Under load the supply current still goes far above 40 A."
+    choices:
+      - "The limit needs `withSupplyCurrentLimitEnable(true)` too"
+      - "Supply limits only work in simulation"
+      - "The CAN ID is wrong, so the limit never arrives"
+      - "The limit should be set in `periodic()`"
+    answer: 0
+    explain: "A limit has a value and a separate enable flag. Without the flag the limit is off. A wrong CAN ID would make everything fail, not just the limit."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "Positive voltage spins the mechanism the wrong way, so a command that should raise it lowers it."
+    choices:
+      - "The neutral mode is `Coast`"
+      - "The inversion setting needs to flip"
+      - "`getValueAsDouble()` was not called"
+      - "The stator limit is too high"
+    answer: 1
+    explain: "Inversion defines which spin direction counts as positive. Flip the one inversion constant instead of adding minus signs in commands."
+  - type: multi
+    prompt: "Which of these are status signals you can read from a TalonFX in this lab? Select all that apply."
+    choices:
+      - "Position, in rotations"
+      - "Velocity, in rotations per second"
+      - "The CAN ID, in volts"
+      - "The neutral mode, in amps"
+    answers: [0, 1]
+    explain: "Position and velocity come from the built-in encoder. The CAN ID and neutral mode are things you set, not signals, and neither has those units."
+  - type: fill-blank
+    prompt: "Complete the velocity getter."
+    code: |
+      public double getFlywheelVelocityRPS() {
+        return flywheelMotor.getVelocity().___().___();
+      }
+    blanks:
+      - ["refresh"]
+      - ["getValueAsDouble"]
+    explain: "`refresh()` updates the `StatusSignal` and `getValueAsDouble()` extracts the number. The result is in rotations per second."
+  - type: mcq
+    prompt: "Where should the motor configuration be applied?"
+    choices:
+      - "In `execute()` of every command"
+      - "In `periodic()`, every 20 ms"
+      - "Once in the subsystem constructor"
+      - "In `Robot.java` only"
+    answer: 2
+    explain: "Settings need to be sent once when the subsystem is created. Sending them every loop wastes CAN bandwidth, and commands should never configure hardware."

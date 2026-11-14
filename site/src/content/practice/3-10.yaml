@@ -1,0 +1,70 @@
+# Practice bank for lesson 3.10 (Enrichment: followers, kA, homing).
+lesson: "3.10"
+items:
+  - type: symptom-cause
+    prompt: "Where do you look first?"
+    symptom: "The elevator's Output Voltage graph stays at 0 V while the button is held."
+    choices:
+      - "The command's `execute()` and what the subsystem calculation returns"
+      - "The max velocity constant"
+      - "The `setTolerance(...)` value"
+      - "Motor inversion"
+    answer: 0
+    explain: "A zero voltage means no voltage reaches the motor: either `execute()` never applies it or the calculation returns 0. Tolerance and inversion only matter once voltage exists."
+    source: "Lab 8, Debugging map"
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "The arm's target changes on the graph, but the profiled setpoint never moves."
+    choices:
+      - "The max velocity or max acceleration constant is 0 or missing"
+      - "The PID argument order is swapped"
+      - "A missing default command"
+      - "A wrong button binding"
+    answer: 0
+    explain: "The target changing proves the button works, so bindings are fine. A profile with zero velocity or acceleration limits cannot move. Swapped PID arguments would show a moving setpoint with the measurement going the wrong way."
+    source: "Lab 8, Debugging map"
+  - type: symptom-cause
+    prompt: "What do you inspect first?"
+    symptom: "The setpoint moves, but the measurement moves the opposite way and the error grows."
+    choices:
+      - "PID argument order, motor inversion, and encoder conversion"
+      - "The tolerance"
+      - "`RobotContainer.java` bindings"
+      - "The default command"
+    answer: 0
+    explain: "Opposite motion means the sign is wrong somewhere in the loop: `calculate(measurement, setpoint)` order, a motor that spins the other way, or an encoder that counts the other way."
+    source: "Lab 8, Debugging map"
+  - type: symptom-cause
+    prompt: "What do you inspect first?"
+    symptom: "The elevator reaches the height and holds it, but At Target never becomes true."
+    choices:
+      - "`setTolerance(...)`, `atGoal()`, and the error graph"
+      - "The follower's CAN ID"
+      - "The feedforward `kV`"
+      - "The unfinished `TODO Step` comments"
+    answer: 0
+    explain: "The mechanism is fine; the readiness check is not. Compare the error on the graph with the tolerance. If the error never gets inside it, the flag cannot turn true."
+    source: "Lab 8, Debugging map"
+  - type: mcq
+    prompt: "A small positive `kA` is added to the elevator. During which part of a profile does it change the voltage?"
+    choices:
+      - "Only while cruising at constant speed"
+      - "While speeding up and slowing down"
+      - "Only when the elevator is stopped"
+      - "All the time by the same amount"
+    answer: 1
+    explain: "`kA` multiplies acceleration. Cruising has acceleration 0, so it adds nothing there. The common wrong idea is that it is another constant offset like `kS`."
+  - type: multi
+    prompt: "Which are steps in a homing routine? Select all that apply."
+    choices:
+      - "Drive slowly toward the limit switch"
+      - "Stop when the switch closes"
+      - "Set the encoder position to the known bottom height"
+      - "Run at full voltage so it finishes quickly"
+    answers: [0, 1, 2]
+    explain: "Homing is slow on purpose, because the mechanism will hit a hard stop if the switch fails. Full voltage risks damage."
+  - type: free
+    prompt: "A follower motor is added to the elevator. Which part of the existing commands has to change?"
+    modelAnswer: "None. The commands still talk to the subsystem, and the subsystem still controls only the leader. The follower copies the leader."
+    explain: "The lab asks you to show the follower does not change the public command API."
+    source: "Lab 8, Enrichment 1"

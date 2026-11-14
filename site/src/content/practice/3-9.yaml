@@ -1,0 +1,55 @@
+# Practice bank for lesson 3.9 (Readiness triggers).
+lesson: "3.9"
+items:
+  - type: mcq
+    prompt: "An arm uses a `ProfiledPIDController`. Which check tells you the arm has actually arrived at the angle you asked for?"
+    choices:
+      - "`atSetpoint()`, because the setpoint is the target."
+      - "`atGoal()`, because the goal is the final angle."
+      - "Either one. They always agree."
+      - "Neither. Only the encoder can tell."
+    answer: 1
+    explain: "The setpoint is the profile's position for right now and starts at the arm's own position, so `atSetpoint()` is true almost immediately. `atGoal()` compares against the final angle."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "The driver moves the arm to a new angle, and the readiness light turns on at once, before the arm has moved. Plain `atSetpoint()` is used."
+    choices:
+      - "The tolerance is too large."
+      - "The profiled setpoint starts at the arm's position, so it is already at the setpoint."
+      - "The motor is inverted."
+      - "`periodic()` is not running."
+    answer: 1
+    explain: "A profile begins where the mechanism is, so the mechanism is at the setpoint almost every loop. Switch to `atGoal()`. A too-large tolerance would also make it early, but only slightly."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "Switching from Intake to Score Amp, the flywheel starts spinning up before the arm has reached the Amp angle. The sequence waits on `armAtTarget`."
+    choices:
+      - "`armAtTarget` is still true for the old Intake goal for a moment."
+      - "The flywheel gains are too high."
+      - "The arm tolerance is negative."
+      - "The default command is missing."
+    answer: 0
+    explain: "The generic trigger means \"at whatever goal I have\". Right after the switch it is still true for the previous goal. This is the Lab 9 race condition."
+    source: "Lab 9, race condition"
+  - type: fill-blank
+    prompt: "Complete the trigger so it is true only when the arm is at the Score Amp angle."
+    code: |
+      public final Trigger armAtScoreAmp =
+          new Trigger(
+              () ->
+                  armPID.getGoal().position == SuperstructureConstants.____
+                      ____ armAtAngle);
+    blanks:
+      - ["SCORE_AMP_ARM_ANGLE_DEGREES"]
+      - ["&&"]
+    explain: "Both conditions must hold: the goal is the Amp angle and the arm is at its goal. `||` would make the trigger true whenever either one is."
+    source: "Lab 9, Step 8"
+  - type: multi
+    prompt: "Which of these does a good readiness trigger do? Select all that apply."
+    choices:
+      - "Uses a tolerance instead of an exact match."
+      - "Is refreshed every loop in `periodic()`."
+      - "Ends the command that is moving the mechanism."
+      - "Says which goal the mechanism is ready for, when the wrong goal could fire an action."
+    answers: [0, 1, 3]
+    explain: "Readiness only answers a question. In these labs `isFinished()` stays false and the command keeps holding the position, so a trigger does not end it."

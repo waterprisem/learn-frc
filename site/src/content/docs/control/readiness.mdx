@@ -5,16 +5,119 @@ id: "3.9"
 track: "control"
 session: 4
 isNew: false
-status: stub
+minutes: 20
+prereqs: ["3.5", "3.8"]
+outcomes:
+  - Explain how a subsystem tells the rest of the robot that it is ready
+  - Say why a profiled controller needs "at goal", not "at setpoint"
+  - Describe the Lab 9 race condition and how a goal-specific trigger fixes it
+sources:
+  - curriculum: "labs/Session 4 - PID + Feedforward for Velocity Control/LAB_MANUAL.md"
+  - curriculum: "labs/Session 9 - Command Composition with Roti-Style Superstructure/LAB_MANUAL.md"
+  - doc: "https://docs.wpilib.org/en/stable/docs/software/commandbased/binding-commands-to-triggers.html"
+status: review
 sidebar:
   label: "3.9 Readiness triggers"
   order: 9
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import GoDeeper from '../../../components/lesson/GoDeeper.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
+import AnnotatedCode from '../../../components/code/AnnotatedCode.astro';
 
-**What it will cover:** Telling the rest of the robot that a mechanism has reached its target.
+<WhyItMatters>
+A shooter should not feed a game piece until the wheel is up to speed, and the arm should be in place before the wheel starts.
+If "ready" is true too early, the robot fires at the wrong moment, and it only happens sometimes.
+</WhyItMatters>
 
-Based on Session 4 of the Orbit Robotics curriculum.
+## The subsystem says when it is ready
+
+Other parts of the robot should not read encoders and compare numbers themselves. The subsystem owns that knowledge and shares one yes-or-no answer.
+In WPILib that answer is a **Trigger**: an object that is true or false and that commands can react to.
+
+The flywheel from Lab 4 shows the pattern.
+
+<AnnotatedCode
+  file="lab4-3.9/trigger"
+  title="FlywheelSubsystem.java"
+  notes={[
+    { lines: '2', text: '<code>flywheelAtTarget</code> is public, so any command can use it. It reads a boolean that <code>periodic()</code> refreshes every loop from <code>flywheelPID.atSetpoint()</code>.' },
+  ]}
+/>
+
+The yes-or-no comes from the controller's **tolerance** (lesson 3.5): the error must be inside 2 RPS, never exactly zero.
+The arm in Lab 7 does the same with `armAtTarget`, with a 2 degree tolerance.
+
+## At setpoint is not at goal
+
+A profiled controller (lessons 3.6 and 3.7) has two targets. The **goal** is where you want to end up. The **setpoint** is where the profile says the mechanism should be right now.
+
+`atSetpoint()` asks whether the mechanism is near the setpoint. The profile starts at the mechanism's position and moves smoothly, so the answer is nearly always yes.
+Your arm would be "ready" the instant you pressed the button, while still far from where you asked it to go.
+
+`atGoal()` asks whether the mechanism is near the **goal** and the profile has finished. That is the question readiness needs. The Lab 7 arm uses it:
+
+```java
+armAtAngle = armPID.atGoal();
+```
+
+| Controller | Ready check |
+| --- | --- |
+| Flywheel (plain PID) | `atSetpoint()` |
+| Arm, elevator (profiled) | `atGoal()` |
+
+## The race condition
+
+"The arm is at its goal" is not enough. The controller already has a goal before your new command runs.
+Say the arm is settled at the Intake angle, so `armAtTarget` is true. The driver switches to Score Amp.
+For a moment `armAtTarget` is still true, for the **old** goal. A wait on it ends at once, and the flywheel starts before the arm has moved.
+
+Lab 9 calls this a race condition. The fix is to make each trigger prove two things: the goal is the one you are waiting for, and the mechanism is there.
+
+<AnnotatedCode
+  file="lab9-3.9/triggers"
+  title="ArmSubsystem.java (Lab 9)"
+  notes={[
+    { lines: '2', text: 'The generic trigger: "at whatever goal I currently have". Fine for lights and telemetry, risky for deciding when to fire.' },
+    { lines: '3-8', text: '<code>armAtScoreSpeaker</code> is true only if the current goal <strong>is</strong> the Score Speaker angle <strong>and</strong> the arm is at its goal. A leftover Intake goal makes it false.' },
+    { lines: '9-13', text: '<code>armAtScoreAmp</code> is the same idea for the Amp angle. The elevator has matching triggers.' },
+  ]}
+/>
+
+<GoDeeper title="comparing doubles with ==">
+Comparing doubles with `==` is usually risky, because calculated values can differ in the last digits. Here the goal is set straight from a named constant and never calculated, so the values match exactly.
+</GoDeeper>
+
+Lesson 5.2 shows how a command sequence waits on these triggers.
+
+## Practice
+
+<Practice bank="3-9" />
+
+## Checkpoint
+
+<Checkpoint lesson="3.9">
+
+<details>
+<summary>Why does a flywheel check use a tolerance instead of an exact match?</summary>
+A real wheel never sits at exactly the target. The check is true while the error is inside the tolerance (2 RPS in Lab 4), so the code compares against a range.
+</details>
+
+<details>
+<summary>Why can a goal-specific trigger be safer than `armAtTarget`?</summary>
+`armAtTarget` can be true for the previous goal. A goal-specific trigger also checks that the goal is the one the sequence needs, so it cannot fire early on a stale goal.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- A subsystem shares readiness as a public `Trigger`, refreshed in `periodic()` from the controller's tolerance.
+- Plain PID uses `atSetpoint()`. Profiled controllers use `atGoal()`, because the setpoint is reached almost at once.
+- A generic "at target" can be true for the old goal. That is the race condition.
+- Make the trigger say what you need: goal equals the wanted constant, and the mechanism is there.
+</RecapCard>

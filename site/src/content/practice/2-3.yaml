@@ -1,0 +1,55 @@
+# Practice bank for lesson 2.3 (Command lifecycle).
+lesson: "2.3"
+items:
+  - type: mcq
+    prompt: "A command is running and `isFinished()` returns `false` on every tick. How many times does `initialize()` run during 100 ticks?"
+    choices:
+      - "100"
+      - "Once"
+      - "Zero"
+      - "Once every time `execute()` finishes"
+    answer: 1
+    explain: "`initialize()` runs once when the command starts. Only `execute()` repeats. A common wrong idea is that the whole command restarts every loop."
+  - type: mcq
+    prompt: "A command starts on tick 10 and `isFinished()` first returns `true` after the `execute()` on tick 14. On which tick does `end()` run?"
+    choices:
+      - "Tick 10"
+      - "Tick 14"
+      - "Tick 15"
+      - "Never. `end()` only runs when interrupted."
+    answer: 1
+    explain: "`isFinished()` is checked right after each `execute()`. When it returns true, the scheduler ends the command on that same tick. `end(false)` runs on tick 14."
+  - type: multi
+    prompt: "For which of these does `end(true)` run? Select all that apply."
+    choices:
+      - "The driver releases a button bound with `whileTrue`"
+      - "Another command that requires the same subsystem is scheduled"
+      - "`isFinished()` returns `true`"
+      - "The command is cancelled by the scheduler"
+    answers: [0, 1, 3]
+    explain: "`interrupted` is true whenever something outside the command stops it. When `isFinished()` returns true the command stops itself, so `end(false)` runs instead."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "A flywheel command sets 6 V in `execute()` and never touches the motor anywhere else. The driver releases the button, but the wheel keeps spinning."
+    choices:
+      - "`initialize()` was left empty"
+      - "`end()` does not set the voltage to 0"
+      - "`isFinished()` should return `true`"
+      - "`execute()` runs too often"
+    answer: 1
+    explain: "When the command stops, the scheduler stops calling `execute()`, but the motor keeps its last requested voltage. `end()` must set 0 V. Making `isFinished()` return true would end the command immediately, which is not what the driver wants."
+  - type: fill-blank
+    prompt: "Complete the command so it requests 0 V when it stops, for any reason."
+    code: |
+      @Override
+      public void ___(boolean interrupted) {
+        flywheelSubsystem.setFlywheelVoltage(___);
+      }
+    blanks:
+      - ["end"]
+      - ["0.0", "0"]
+    explain: "`end(boolean interrupted)` is the only method that takes an argument, and 0 V stops the drive. The argument can be ignored because cleanup is the same either way."
+  - type: free
+    prompt: "A new teammate says: \"I'll call `execute()` from `teleopPeriodic()` myself so it runs every loop.\" What should you tell them?"
+    modelAnswer: "Don't. The scheduler calls the lifecycle methods for you. If you also call `execute()` by hand, the command's timing and ending would no longer be managed, and `end()` would never be guaranteed to run."
+    explain: "Commands are driven by the scheduler, which handles starting, repeating, finishing, and interrupting. Calling methods by hand bypasses all of that."

@@ -5,16 +5,146 @@ id: "4.2"
 track: "quality"
 session: 5
 isNew: false
-status: stub
+status: review
+minutes: 15
+prereqs: ["3.5"]
+outcomes:
+  - Explain NetworkTables as a shared table of named, typed values
+  - Split a topic path into its table and its topic name
+  - Create publishers once, as fields, and say why
+  - Read the topic tree the flywheel publishes
+sources:
+  - curriculum: "labs/Session 5 - Constants, Logging, and Code Review/LAB_MANUAL.md"
+  - curriculum: "presentations/Session 5 - Constants, Logging, and Code Review/raw_data/slides.md"
+  - doc: "https://docs.wpilib.org/en/stable/docs/software/networktables/networktables-intro.html"
 sidebar:
   label: "4.2 NetworkTables"
   order: 2
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import DoItForReal from '../../../components/lesson/DoItForReal.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import GoDeeper from '../../../components/lesson/GoDeeper.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
+import AnnotatedCode from '../../../components/code/AnnotatedCode.astro';
 
-**What it will cover:** Tables, topics, publishers, and subscribers, with a live tree explorer.
+<WhyItMatters>
+The robot code runs on the roboRIO, and you sit at a laptop. When the shooter misses, you cannot attach a debugger to a spinning wheel in the pit.
+NetworkTables is how the robot sends its numbers to your laptop so you can graph them while it runs.
+</WhyItMatters>
 
-Based on Session 5 of the Orbit Robotics curriculum.
+## A shared table of named values
+
+**NetworkTables** (NT) is a shared, typed key-value store: a list of named values that the robot and the tools on your laptop can both read and write.
+On a real robot the values travel over the robot network. In simulation the connection stays on your own computer.
+
+The current version, NT4, arrived with WPILib 2023. Its values are **typed**, so a number is a `double` and a flag is a `boolean`, and it reconnects on its own after a dropped connection.
+
+## Tables and topics
+
+Each value is a **topic**, named by a path. Take one from the flywheel:
+
+```text
+/Subsystems/FlywheelSubsystem/Tuning/kP
+```
+
+- `Subsystems/FlywheelSubsystem` is the **table**, the folder this subsystem owns.
+- `Tuning/kP` is the topic name inside that table.
+- The value is a `double`.
+
+## Publishers and subscribers
+
+- A **publisher** writes a value to a topic. The robot publishes velocity, target, and error.
+- A **subscriber** reads the latest value from a topic, or a default you supply if none exists yet. AdvantageScope subscribes to what the robot publishes.
+
+Both sides name the topic by its exact text. One changed character makes a different topic, and Java does not report an error.
+
+## The flywheel's topic tree
+
+This is every topic the Lab 5 flywheel publishes. The last five are used for tuning in lesson 4.3.
+
+```text
+/Subsystems
+  /FlywheelSubsystem
+    Velocity RPS        double
+    Target RPS          double
+    Error RPS           double
+    Output Voltage      double
+    At Target           boolean
+    /Tuning
+      kP                double
+      kI                double
+      kD                double
+      kS Volts          double
+      kV Volts per RPS  double
+```
+
+Notice the names. `Velocity RPS` tells a debugger six months from now what was measured and in which unit. A topic called `Speed` would not.
+
+## The publisher setup
+
+<AnnotatedCode
+  file="lab5-4.2/publishers"
+  title="FlywheelSubsystem.java"
+  notes={[
+    { lines: '1-2', text: '<code>getDefault()</code> is the one connection shared by WPILib and the dashboards. Never create a second one. <code>LOGGING_TABLE</code> is the constant <code>"Subsystems/FlywheelSubsystem"</code>.' },
+    { lines: '3-4', text: 'A <code>DoublePublisher</code> for one topic, named by the table it lives in plus the topic name <code>"Velocity RPS"</code>.' },
+    { lines: '11-12', text: 'Readiness is a <code>BooleanPublisher</code>. Numbers and flags use different types, which tells tools what to expect.' },
+  ]}
+/>
+
+Why are these **fields** rather than local variables in `periodic()`? The robot calls `periodic()` about every 20 milliseconds, so a publisher created there would be built roughly 50 times a second.
+Create each publisher once as a field and reuse it. The same rule applies to motors and controllers.
+
+<GoDeeper title="why not SmartDashboard.putNumber()">
+`SmartDashboard.putNumber()` also goes through NetworkTables, so older code still works. Publishers make the table, the topic, and the type explicit, and they keep the topic organized in a named tree in AdvantageScope's source list.
+</GoDeeper>
+
+## Practice
+
+<Practice bank="4-2" />
+
+## Do it for real
+
+<DoItForReal tools="WPILib simulator + AdvantageScope">
+This is **Lab 5, Step 1: Inspect the existing telemetry**.
+
+1. Open the Lab 5 project and run **WPILib: Simulate Robot Code**.
+2. Open AdvantageScope and choose **File → Connect to Simulator**.
+3. In the source list, expand `Subsystems/FlywheelSubsystem` and compare it with the tree above.
+4. In `FlywheelSubsystem.java`, find `loggingTable` and the five publishers. For each, write down its Java type, its topic name, the value passed to `accept()` in `periodic()`, and the unit.
+
+**You know it worked when** every publisher in the code matches one topic in AdvantageScope, with the same name and a matching type.
+
+**On a real robot, also check**
+
+- Connect AdvantageScope to the robot's address instead of the simulator and confirm the same tree appears.
+- A missing topic usually means the robot code did not deploy or the laptop is not on the robot network.
+</DoItForReal>
+
+## Checkpoint
+
+<Checkpoint lesson="4.2">
+
+<details>
+<summary>What is the difference between a NetworkTable and a topic?</summary>
+The table is the path that groups values, such as `Subsystems/FlywheelSubsystem`. A topic is one named, typed value inside it, such as `Velocity RPS`.
+</details>
+
+<details>
+<summary>Why are publishers fields rather than variables in `periodic()`?</summary>
+`periodic()` runs about 50 times a second. A publisher built there would be allocated again every loop. Building it once as a field and reusing it avoids that.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- NetworkTables is a shared, typed list of named values between the robot and your tools. NT4 arrived with WPILib 2023.
+- A topic path is a table plus a topic name: `/Subsystems/FlywheelSubsystem/` plus `Velocity RPS`.
+- Publishers write, subscribers read the latest value or a default.
+- Always use `NetworkTableInstance.getDefault()`, and build publishers once as fields.
+</RecapCard>

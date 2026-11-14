@@ -5,16 +5,102 @@ id: "4.4"
 track: "quality"
 session: 5
 isNew: false
-status: stub
+minutes: 20
+prereqs: ["3.5", "4.3"]
+outcomes:
+  - Name the five signals that diagnose a mechanism and what each one answers
+  - Follow a repeatable routine for any tuning or debugging session
+  - Match a graph pattern to its likely cause and next step
+sources:
+  - curriculum: "labs/Session 5 - Constants, Logging, and Code Review/LAB_MANUAL.md"
+  - curriculum: "labs/Session 4 - PID + Feedforward for Velocity Control/LAB_MANUAL.md"
+  - curriculum: "presentations/Session 5 - Constants, Logging, and Code Review/raw_data/slides.md"
+  - doc: "https://docs.advantagescope.org/"
+status: review
 sidebar:
   label: "4.4 AdvantageScope workflow"
   order: 4
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import GoDeeper from '../../../components/lesson/GoDeeper.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
 
-**What it will cover:** The signals to graph and how to read them.
+<WhyItMatters>
+When a mechanism misbehaves, guessing at gains wastes the few minutes you have between matches.
+A graph tells you which part is wrong before you touch anything, so one change fixes it instead of five.
+</WhyItMatters>
 
-Based on Session 5 of the Orbit Robotics curriculum.
+## One graph, five signals
+
+Put these on a single time graph, all under `/Subsystems/FlywheelSubsystem/`. Every mechanism you build later publishes the same kinds of signals.
+
+| Signal | The question it answers |
+|---|---|
+| `Target RPS` | Did anything request a speed? |
+| `Velocity RPS` | What did the mechanism actually do? |
+| `Error RPS` | How far off is it right now? |
+| `Output Voltage` | What did the controller ask the motor for? |
+| `At Target` | Did the code decide it is ready? Plot it as a boolean. |
+
+Together they split a problem into two halves. If the output is wrong, the code is the problem. If the output looks reasonable but the velocity is wrong, look at the mechanism or the wiring.
+
+## The routine
+
+1. **Hold the same test every time.** For the flywheel: hold A, then B, then Y (20, 40, 70 RPS), release between each.
+2. **Read the graph before you touch a gain.** Say what you see in one sentence.
+3. **Change one thing**, by a clear amount.
+4. **Run the same test** and compare with the previous graph.
+5. **Restore the known good values** when an experiment is over.
+
+A changed test is the easiest way to fool yourself: if you also pressed different buttons, you cannot tell which change helped.
+
+## What the graph shows
+
+These patterns come from the Lab 4 and Lab 5 deliberate experiments.
+
+| The graph shows | It means | Do this |
+|---|---|---|
+| Velocity settles below the target; `Error RPS` stays positive; voltage is steady | `kV` is too small, so feedforward under-predicts and PID cannot close the gap | Raise `kV` |
+| Velocity settles above the target; error stays negative | `kV` is too large | Lower `kV` |
+| Velocity crosses the target again and again; voltage swings hard | `kP` is too large | Lower `kP` in small steps |
+| A load drags the speed down and the voltage stays flat | `kP` is 0 or tiny, so nothing reads the measurement | Add a modest `kP` |
+| Target is positive but velocity and voltage stay at 0 | No command is driving it, or the gains are all 0 | Check the command and the constants first |
+| Velocity is on target but `At Target` never turns true | The error is outside the tolerance, or the ready flag is not updated | Read `Error RPS` against the tolerance |
+
+<GoDeeper title="where the tools are covered">
+Opening AdvantageScope, connecting to the simulator, and dragging signals onto a graph are walked through click by click in lesson R.3.
+In this lesson the layout is what matters: one line graph for the four numbers, `At Target` on its own boolean row, same time axis.
+</GoDeeper>
+
+## Practice
+
+<Practice bank="4-4" />
+
+## Checkpoint
+
+<Checkpoint lesson="4.4">
+
+<details>
+<summary>From one graph, what five questions can you answer?</summary>
+Was a target requested? Did measured velocity approach it? How large was the error? What voltage did the controller request? Did readiness ever become true?
+</details>
+
+<details>
+<summary>Why change only one gain between runs?</summary>
+With two changes you cannot tell which one caused the new behavior. Changing one thing and repeating the same test makes the graph a fair comparison.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- Graph target, measurement, error, output, and the ready flag together.
+- Hold the same test each time and change one thing.
+- Read the graph and say what you see before touching a gain.
+- Steady error means feedforward is off; swinging means `kP` is too large.
+- Restore the known good values when you finish an experiment.
+</RecapCard>

@@ -1,0 +1,49 @@
+# Practice bank for lesson 4.2 (NetworkTables).
+lesson: "4.2"
+items:
+  - type: mcq
+    prompt: "In the path `/Subsystems/FlywheelSubsystem/Velocity RPS`, which part is the topic name?"
+    choices:
+      - "`Subsystems`"
+      - "`Subsystems/FlywheelSubsystem`"
+      - "`Velocity RPS`"
+      - "The whole path"
+    answer: 2
+    explain: "The table is the path `Subsystems/FlywheelSubsystem`. The topic name is the leaf inside it, `Velocity RPS`. Together they make the full topic path."
+  - type: mcq
+    prompt: "Which type does the code use to publish the `At Target` topic?"
+    choices: ["`DoublePublisher`", "`BooleanPublisher`", "`StringPublisher`", "`DoubleSubscriber`"]
+    answer: 1
+    explain: "At Target is a true/false flag, so it uses a `BooleanPublisher`. Numeric measurements use `DoublePublisher`. A subscriber reads; it does not publish."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "A subscriber for `Tuning/kP` always returns its default value, even after you edit `Tuning/kp` in the dashboard. The code builds and runs without errors."
+    choices:
+      - "The topic names differ in capitalization, so they are two different topics."
+      - "NetworkTables cannot store doubles."
+      - "The subscriber must be created inside `periodic()`."
+      - "The roboRIO is out of memory."
+    answer: 0
+    explain: "Topic names must match exactly. `kP` and `kp` are different topics, and Java reports no error because both are just strings."
+  - type: multi
+    prompt: "Which are true about publishers and subscribers? Select all that apply."
+    choices:
+      - "A publisher writes a value to a topic."
+      - "A subscriber returns a default value when the topic has no value yet."
+      - "Each `periodic()` call should create a fresh publisher."
+      - "Tools like AdvantageScope read what the robot publishes."
+    answers: [0, 1, 3]
+    explain: "Publishers write; subscribers read the latest value or a default. Creating a publisher every loop wastes work about 50 times a second, so build them once as fields."
+  - type: fill-blank
+    prompt: "Complete the field that publishes the flywheel's velocity."
+    code: |
+      private final ____ velocityPublisher =
+          loggingTable.getDoubleTopic("Velocity RPS").publish();
+    blanks:
+      - ["DoublePublisher"]
+    explain: "`getDoubleTopic(...).publish()` returns a `DoublePublisher`. The type of the publisher follows the type of the topic."
+    source: "Lab 5, Step 1"
+  - type: free
+    prompt: "Give one reason `Velocity RPS` is a better topic name than `Speed`."
+    modelAnswer: "It says what was measured (velocity) and the unit (RPS), so someone debugging months later does not have to guess. `Speed` could mean RPM, meters per second, or a motor percentage."
+    explain: "Topic names are read by people long after the code was written, so they should carry the measurement and unit just as constant names do."

@@ -5,16 +5,114 @@ id: "2.5"
 track: "commands"
 session: 3
 isNew: false
-status: stub
+minutes: 20
+prereqs: ["2.3", "2.4"]
+outcomes:
+  - Explain what a Trigger is and how the scheduler uses it
+  - Choose between onTrue, whileTrue, toggleOnTrue, and onFalse
+  - Read the Lab 3 bindings and say which command owns the flywheel at each moment
+  - Say what a default command does
+sources:
+  - curriculum: "presentations/Session 3 - Open-Loop Flywheel with TalonFX/raw_data/slides.md"
+  - curriculum: "labs/Session 3 - Open-Loop Flywheel with TalonFX/LAB_MANUAL.md"
+  - doc: "https://docs.wpilib.org/en/stable/docs/software/commandbased/binding-commands-to-triggers.html"
+status: review
 sidebar:
   label: "2.5 Triggers and bindings"
   order: 5
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import DoItForReal from '../../../components/lesson/DoItForReal.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
+import AnnotatedCode from '../../../components/code/AnnotatedCode.astro';
 
-**What it will cover:** onTrue, whileTrue, toggleOnTrue, and default commands.
+<WhyItMatters>
+A driver taps a button to fire once, holds a button to run the intake, and presses another to turn a mode on and off.
+Each of those is the same button hardware wired to the same scheduler with a different binding. Picking the wrong one means a shooter that never stops or a mechanism that stops too soon.
+</WhyItMatters>
 
-Based on Session 3 of the Orbit Robotics curriculum.
+## A trigger is a condition
+
+A **Trigger** is a true/false condition the scheduler checks every loop. A button is a trigger. So is a sensor reading or `flywheelAtTarget`.
+
+A **binding** ties a trigger to a command. The scheduler watches for the trigger to change, not for it to be true. Going from false to true is the "press" edge. Going from true to false is the "release" edge.
+
+`CommandXboxController` gives you triggers for every button: `controller.a()`, `controller.b()`, `controller.leftBumper()`, and so on.
+
+## Which binding to use
+
+| Binding | Starts when | Ends when |
+|---|---|---|
+| `onTrue(cmd)` | Trigger becomes true | The command finishes on its own. Release does nothing. |
+| `whileTrue(cmd)` | Trigger becomes true | Trigger becomes false (`end(true)`), or the command finishes |
+| `toggleOnTrue(cmd)` | Trigger becomes true while the command is off | The next press, or the command finishes |
+| `onFalse(cmd)` | Trigger becomes false | The command finishes on its own |
+
+Use `whileTrue` for "run while I hold it", like a flywheel or intake. Use `onTrue` for one-shot actions that finish themselves. A command that never finishes, bound with `onTrue`, never stops on its own.
+
+## Default commands
+
+A **default command** runs on a subsystem whenever no other command requires it. When a button's command takes over, the default is interrupted. When that command ends, the default starts again. Lesson 5.4 covers them in depth.
+
+## The code
+
+These are the Lab 3 bindings.
+
+<AnnotatedCode
+  file="lab3-2.5/bindings"
+  title="RobotContainer.java"
+  notes={[
+    { lines: '2-6', text: 'While A is held, run the flywheel at <code>FORWARD_VOLTAGE</code>. Releasing A cancels the command, so <code>end(true)</code> sets 0 V.' },
+    { lines: '7-11', text: 'Same shape on B, with <code>REVERSE_VOLTAGE</code>. Both commands require the flywheel, so holding both lets the newest win (lesson 2.4).' },
+    { lines: '13-14', text: 'The default command asks for 0 V. It owns the flywheel whenever neither button is held, so the idle state is always safe.' },
+  ]}
+/>
+
+## Practice
+
+<Practice bank="2-5" />
+
+## Do it for real
+
+<DoItForReal tools="WPILib simulator">
+In the **Lab 3** solution, change one binding and watch the difference.
+
+1. Open `labs/Session 3 - Open-Loop Flywheel with TalonFX/solution` and find `configureBindings()` in `RobotContainer.java`.
+2. Change the A binding from `whileTrue` to `onTrue`.
+3. Run **WPILib: Simulate Robot Code**, set the Driver Station to **Teleoperated**, and tap keyboard <kbd>Z</kbd> (Xbox **A**).
+4. Change it to `toggleOnTrue` and try again. Put it back to `whileTrue` when done.
+
+**You know it worked when** with `onTrue` the wheel keeps spinning after you release A, because this command never finishes. With `toggleOnTrue` a second tap stops it.
+
+**On a real robot, also check**
+
+- Anything you bind with `onTrue` or `toggleOnTrue` has a way to stop (a finish condition, a second press, or another command).
+</DoItForReal>
+
+## Checkpoint
+
+<Checkpoint lesson="2.5">
+
+<details>
+<summary>Why does the lab use whileTrue and not onTrue for the A button?</summary>
+`whileTrue` cancels the command when A is released, which runs `end(true)` and sets 0 V. This command never finishes on its own, so with `onTrue` the wheel would keep spinning after release.
+</details>
+
+<details>
+<summary>What does the default command do in Lab 3?</summary>
+It requests 0 V whenever no button command owns the flywheel, so the idle state is always safe.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- A Trigger is a true/false condition; a binding ties it to a command.
+- `onTrue` starts on press, `whileTrue` also cancels on release, `toggleOnTrue` flips on each press, `onFalse` starts on release.
+- Use `whileTrue` for hold-to-run commands that never finish on their own.
+- A default command runs whenever nothing else requires the subsystem.
+</RecapCard>
