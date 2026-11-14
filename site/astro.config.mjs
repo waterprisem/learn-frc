@@ -16,6 +16,7 @@ export default defineConfig({
         './src/styles/tokens.css',
         './src/styles/components.css',
         './src/styles/playgrounds-b.css',
+        './src/styles/playgrounds-c.css',
       ],
       components: {
         ThemeSelect: './src/components/ThemeSelect.astro',
