@@ -120,3 +120,39 @@
 .lf-enc-dial .reading.bad { color: var(--sig-error); }
 .lf-enc-status { font-size: var(--sl-text-sm); color: var(--sl-color-gray-2); }
 @media (prefers-reduced-motion: reduce) { .lf-enc-dial .shaft { transition: none; } }
+
+/* ---------- Mechanism gallery (1.7) ---------- */
+.lf-mech-body { display: grid; grid-template-columns: minmax(9rem, 12rem) minmax(0, 1fr); gap: 1rem; align-items: start; }
+@media (max-width: 36rem) { .lf-mech-body { grid-template-columns: 1fr; } }
+.lf-mech-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.4rem; }
+@media (max-width: 36rem) { .lf-mech-list { flex-direction: row; flex-wrap: wrap; } }
+.lf-mech-list li { margin: 0; }
+.lf-mech-list button { width: 100%; justify-content: flex-start; }
+.lf-mech-list button[aria-pressed='true'] { border-color: var(--sig-measurement); box-shadow: inset 0 0 0 1px var(--sig-measurement); }
+.lf-mech-stage svg { width: 100%; max-width: 22rem; display: block; margin-inline: auto; }
+.lf-mech-label { display: flex; align-items: center; gap: 0.5rem; justify-content: center; margin-top: 0.3rem; }
+.lf-mech .m-body { fill: var(--sl-color-gray-6); stroke: var(--sl-color-gray-4); stroke-width: 2; }
+.lf-mech .m-hub { fill: var(--sl-color-gray-3); }
+
+.lf-mech .m-spin { animation: lf-mech-spin 1.2s linear infinite; }
+.lf-mech .m-spin.m-rev { animation-direction: reverse; }
+.lf-mech .m-ball { animation: lf-mech-ball 2.4s ease-in-out infinite; }
+.lf-mech .m-lift { animation: lf-mech-lift 3s ease-in-out infinite alternate; transform: translateY(45px); }
+.lf-mech .m-swing { animation: lf-mech-swing 3s ease-in-out infinite alternate; transform: rotate(-35deg); }
+.lf-mech .m-steer { animation: lf-mech-steer 3.2s ease-in-out infinite alternate; transform: rotate(25deg); }
+.lf-mech .m-tread { animation: lf-mech-tread 0.6s linear infinite; }
+.lf-mech .m-rope { animation: lf-mech-rope 3.5s ease-in-out infinite alternate; transform-origin: 100px 16px; transform: scaleY(0.65); }
+.lf-mech .m-hoist { animation: lf-mech-hoist 3.5s ease-in-out infinite alternate; transform: translateY(-35px); }
+
+@keyframes lf-mech-spin { to { transform: rotate(360deg); } }
+@keyframes lf-mech-ball { 0% { transform: translateX(-110px); } 60%, 100% { transform: translateX(0); } }
+@keyframes lf-mech-lift { from { transform: translateY(90px); } to { transform: translateY(0); } }
+@keyframes lf-mech-swing { from { transform: rotate(0deg); } to { transform: rotate(-70deg); } }
+@keyframes lf-mech-steer { from { transform: rotate(-35deg); } to { transform: rotate(35deg); } }
+@keyframes lf-mech-tread { to { stroke-dashoffset: -12; } }
+@keyframes lf-mech-rope { from { transform: scaleY(1); } to { transform: scaleY(0.3); } }
+@keyframes lf-mech-hoist { from { transform: translateY(0); } to { transform: translateY(-70px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .lf-mech .m-spin, .lf-mech .m-ball, .lf-mech .m-lift, .lf-mech .m-swing, .lf-mech .m-steer, .lf-mech .m-tread, .lf-mech .m-rope, .lf-mech .m-hoist { animation: none; }
+}

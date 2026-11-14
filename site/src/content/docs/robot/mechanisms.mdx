@@ -24,6 +24,7 @@ import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
 import RecapCard from '../../../components/lesson/RecapCard.astro';
 import Checkpoint from '../../../components/lesson/Checkpoint.astro';
 import Practice from '../../../components/practice/Practice.astro';
+import MechanismGallery from '../../../components/playgrounds/MechanismGallery';
 
 <WhyItMatters>
 Almost every FRC robot is a few mechanisms bolted to a swerve drive. Once you can look at one and say what it does, how it is geared, and what sensor it has, you know which kind of code it needs.
@@ -56,6 +57,10 @@ Every mechanism is driven in one of three ways. The kind decides which sensor yo
 - **Arm.** A pivoting link holds a scoring device at an angle. Gravity pulls on it all the time, so it uses brake mode and extra voltage to hold position. The Lab 7 arm uses a 100:1 reduction and works in degrees.
 - **Swerve module.** One wheel with two motors: one drives the wheel, and one steers it. Four modules let the robot drive and turn in any direction at once.
 - **Climber.** It pulls the robot up at the end of the match. It needs a lot of force and very little speed.
+
+## Try it: the mechanisms in motion
+
+<MechanismGallery client:visible lessonId="1.7" />
 
 ## Practice
 
