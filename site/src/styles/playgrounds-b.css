@@ -59,3 +59,14 @@
 .lf-stack .lf-card p { margin: 0 0 0.3rem; }
 .lf-stack .lf-card ul { margin: 0 0 0.3rem; padding-inline-start: 1.1rem; }
 .lf-stack .lf-card .check { font-size: var(--sl-text-sm); color: var(--sl-color-gray-2); margin: 0; }
+
+.lf-ticker-map { width: 100%; display: block; }
+.lf-ticker-map .grid { stroke: var(--sl-color-gray-5); stroke-dasharray: 3 4; }
+.lf-ticker-map .now { stroke: var(--sig-setpoint); stroke-width: 2; }
+.lf-ticker-map .work { fill: var(--sig-measurement); }
+.lf-ticker-map .work.over { fill: var(--danger); }
+.lf-ticker-read { display: flex; flex-wrap: wrap; gap: 0.5rem 1.25rem; align-items: center; font-size: var(--sl-text-sm); margin-top: 0.4rem; }
+.lf-ticker-read b { font-variant-numeric: tabular-nums; }
+.lf-ticker-read b.bad { color: var(--danger); }
+.lf-ticker-read .call { font-family: var(--sl-font-mono); padding: 0.1rem 0.5rem; border: 1px solid var(--sl-color-gray-4); border-radius: 0.3rem; transition: background 0.15s; }
+.lf-ticker-read .call.hot { background: var(--sig-measurement); border-color: var(--sig-measurement); color: var(--sl-color-bg); }

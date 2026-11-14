@@ -25,6 +25,7 @@ import RecapCard from '../../../components/lesson/RecapCard.astro';
 import GoDeeper from '../../../components/lesson/GoDeeper.astro';
 import Checkpoint from '../../../components/lesson/Checkpoint.astro';
 import Practice from '../../../components/practice/Practice.astro';
+import LoopTicker from '../../../components/playgrounds/LoopTicker.tsx';
 import AbstractionStack from '../../../components/playgrounds/AbstractionStack.tsx';
 
 <WhyItMatters>
@@ -49,6 +50,10 @@ public void periodic() {
 You never write "do this once, then stop". You write "given what the robot and the driver are doing right now, what should I do this tick?"
 
 If `periodic()` takes longer than 20 ms, every other part of the loop is delayed. WPILib reports this as a **loop overrun** in the Driver Station console.
+
+## Try it: the 20 ms loop
+
+<LoopTicker client:visible lessonId="1.12" />
 
 ## The abstraction stack
 
