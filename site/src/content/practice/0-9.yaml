@@ -1,0 +1,47 @@
+# Practice bank for lesson 0.9 (Physics for robots).
+lesson: "0.9"
+items:
+  - type: mcq
+    prompt: "Which quantity does your robot code command directly to a motor?"
+    choices: ["Current in amps", "Voltage in volts", "Torque", "Friction"]
+    answer: 1
+    explain: "Code requests an output voltage. The resulting current depends on what the motor is doing, and torque follows the current."
+  - type: mcq
+    prompt: "A flywheel needs about 6 V to hold 50 rotations per second. Treating it as a simple ratio, what is `kV` in volts per rotation per second?"
+    choices: ["0.12", "0.5", "8.3", "300"]
+    answer: 0
+    explain: "kV is volts per unit of speed: 6 V / 50 RPS = 0.12. Inverting it (50 / 6 = 8.3) gives units of speed per volt, which is the opposite quantity."
+  - type: symptom-cause
+    prompt: "Which constant is most likely too small?"
+    symptom: "You command a tiny voltage and the mechanism does not move at all, but at a slightly larger voltage it jumps."
+    choices: ["kS (friction)", "kG (gravity)", "kA (inertia)", "kP"]
+    answer: 0
+    explain: "A voltage that does nothing is only fighting friction. kS is the small constant that overcomes it. kG matters when gravity is pulling on the mechanism, and kA matters only while speed is changing."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "An elevator carriage slowly sinks when you command 0 V, whatever height it starts at."
+    choices: ["Gravity, which needs a constant kG voltage", "The battery sag", "Too much kS", "Too little kA"]
+    answer: 0
+    explain: "Gravity pulls the same at every height on an elevator, so the fix is a constant voltage, kG. kA only matters during speed changes."
+  - type: mcq
+    prompt: "An arm has `kG` = 0.16 V and is held 60 degrees above horizontal. About how much voltage does gravity need?"
+    choices: ["0.16 V", "0.08 V", "0.14 V", "0 V"]
+    answer: 1
+    explain: "Arm gravity voltage is kG × cos(angle) = 0.16 × 0.5 = 0.08 V. The full 0.16 V is only needed when the arm is flat."
+  - type: mcq
+    prompt: "A heavy flywheel reaches its target speed slowly even though it holds that speed easily. Which effect explains this?"
+    choices: ["Friction", "Gravity", "Inertia", "Voltage sag"]
+    answer: 2
+    explain: "Inertia resists changes in speed, so speeding up takes extra effort that holding speed does not (that is what kA pays for). Friction affects both."
+  - type: mcq
+    prompt: "A motor is driving a mechanism through a 10:1 reduction. Compared with the motor itself, the mechanism has..."
+    choices: ["More speed and more torque", "Less speed and more torque", "More speed and less torque", "The same speed and torque"]
+    answer: 1
+    explain: "A reduction trades speed for torque: about one tenth the speed and up to ten times the torque, before losses. More of both would be free energy."
+  - type: fill-blank
+    prompt: "Complete the arm gravity term. The angle is in radians."
+    code: |
+      double gravityVolts = kG * Math.____(angleRadians);
+    blanks:
+      - ["cos"]
+    explain: "The gravity effort on an arm follows the cosine of its angle from horizontal: full at 0, none at 90 degrees. Sine would be backwards, with no effort when flat."

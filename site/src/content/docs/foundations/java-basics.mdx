@@ -5,16 +5,187 @@ id: "0.2"
 track: "foundations"
 session: null
 isNew: true
-status: stub
+minutes: 35
+prereqs: ["0.1"]
+outcomes:
+  - Pick the right type (double, int, boolean, String) for a robot value
+  - Name a variable so its units are obvious
+  - Read a method signature and a method call
+  - Read a small if/else and a whole method from the lab line by line
+sources:
+  - curriculum: "labs/Session 3 - Open-Loop Flywheel with TalonFX/solution/src/main/java/frc/robot/subsystems/FlywheelSubsystem.java"
+  - curriculum: "labs/Session 4 - PID + Feedforward for Velocity Control/solution/src/main/java/frc/robot/Constants.java"
+  - doc: "https://docs.oracle.com/javase/tutorial/java/nutsandbolts/index.html"
+status: review
 sidebar:
   label: "0.2 Java I: variables, types, methods"
   order: 2
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import GoDeeper from '../../../components/lesson/GoDeeper.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
+import AnnotatedCode from '../../../components/code/AnnotatedCode.astro';
 
-**What it will cover:** Variables, types, methods, and control flow, taught through robot-code examples.
+<WhyItMatters>
+Every robot behavior is a few lines of Java: read a number, decide something, tell a motor what to do.
+You do not need all of Java for that. This lesson covers the small part you will see in every file of the team's code.
+</WhyItMatters>
 
-This lesson goes beyond the Orbit Robotics curriculum.
+## Statements and comments
+
+A **statement** is one instruction. It ends with a semicolon, like a full stop.
+Text after `//` is a **comment**: the computer ignores it, and it is there for people.
+
+```java
+// Spin the wheel at 6 volts
+flywheelMotor.setControl(new VoltageOut(6.0));
+```
+
+On the robot, this one statement is what makes the wheel move. A missing `;` is the most common beginner error, and the compiler tells you the line.
+
+## Variables and types
+
+A **variable** is a named box that holds one value. Its **type** says what kind of value fits. Robot code uses four types almost everywhere.
+
+| Type | Holds | Robot example |
+|---|---|---|
+| `double` | a number with a decimal point | volts, rotations per second, meters |
+| `int` | a whole number | CAN ID, controller port |
+| `boolean` | `true` or `false` | "is the wheel at target?" |
+| `String` | text in quotes | a name for a log table |
+
+These are real lines from the team's `Constants` file:
+
+```java
+public static final int FLYWHEEL_MOTOR_CAN_ID = 1;
+public static final boolean FLYWHEEL_MOTOR_INVERTED = false;
+public static final double FLYWHEEL_STATOR_CURRENT_LIMIT_AMPS = 80.0;
+public static final String LOGGING_TABLE = "Subsystems/FlywheelSubsystem";
+```
+
+Read each as: (some keywords lesson 0.4 explains), then type, then name, then `=`, then value.
+So the motor controller has CAN ID `1`, is not inverted, and may draw at most `80.0` amps.
+
+Create your own the same way, and change it later with `=` (no type the second time):
+
+```java
+double targetRPS = 40.0;
+targetRPS = 70.0;
+```
+
+<GoDeeper title="int and double mix-ups">
+`int` cannot hold a decimal: `int canId = 5.5;` will not compile. Writing `6.0` for a double (not `6`) makes the intent obvious, and the team does it everywhere.
+Also beware: dividing two ints drops the decimal, so `7 / 2` is `3`, not `3.5`. Use doubles for measurements.
+</GoDeeper>
+
+## Names that carry units
+
+Java style is **camelCase** for variables and methods: first word lowercase, later words capitalized (`targetRPS`, `flywheelMotor`).
+Constants use `UPPER_SNAKE_CASE` (`PID_KP`).
+
+Put the **unit in the name**. A unit mix-up between meters and inches is cheap to prevent and painful to debug.
+
+```java
+double heightMeters = 0.5;    // clear
+double height = 0.5;          // meters? inches? feet?
+```
+
+`VELOCITY_TOLERANCE_RPS` and `FLYWHEEL_SUPPLY_CURRENT_LIMIT_AMPS` in the lab tell you the unit before you read a single comment.
+
+## Arithmetic and comparison
+
+Math works as expected: `+ - * /`. Comparisons give a `boolean`.
+
+```java
+double errorRPS = targetRPS - measuredRPS;    // 40.0 - 37.5 = 2.5
+boolean atTarget = Math.abs(errorRPS) < 2.0;  // false: 2.5 is not less than 2.0
+```
+
+Comparisons are `<  >  <=  >=  ==` (equal) and `!=` (not equal). A single `=` stores a value; a double `==` asks a question.
+`&&` means "and", `||` means "or", `!` means "not". On the robot, `atTarget` is exactly the kind of flag that decides whether a shot is allowed.
+
+## Methods
+
+A **method** is a named group of statements you can run by name. **Calling** one means writing its name with parentheses and the values to hand it, called **arguments**.
+
+```java
+flywheelMotor.setControl(new VoltageOut(6.0));
+```
+
+The part before the dot (`flywheelMotor`) is the thing; after it is what to ask it to do. That call tells the motor controller to apply 6 volts.
+
+**Defining** a method needs four parts: a **return type**, a name, **parameters** in parentheses (the inputs, each with a type), and a body in braces.
+
+```java
+public double doubleIt(double valueRPS) {
+  return valueRPS * 2.0;
+}
+```
+
+`double` before the name is the type of answer it sends back, and `return` sends it. Use `void` when a method does something but gives nothing back, like setting a voltage.
+
+## Decisions and loops
+
+`if` runs a block only when its condition is true. `else` runs when it is not. This is real lab code from the flywheel subsystem:
+
+```java
+if (flywheelSimulation != null) {
+  flywheelSimulation.update();
+}
+```
+
+It means: only update the simulation when one exists (the `null` check; on a real robot there is none). The condition goes in parentheses and the block in braces.
+
+Java also has loops (`for`, `while`) that repeat code. Robot code almost never writes them. The framework already calls `periodic()` and `execute()` every 20 milliseconds, so the "loop" is built in: each call does one small step and returns.
+
+<GoDeeper title="why a while loop can freeze the robot">
+A `while (true)` inside `execute()` never returns, so the scheduler never gets control back. Motors keep their last command, the watchdog complains, and nothing else runs. Write one step per call.
+</GoDeeper>
+
+## Read a whole method
+
+Two small methods from `FlywheelSubsystem`. Open the notes and read them line by line.
+
+<AnnotatedCode
+  file="lab3-0.2/methods"
+  title="FlywheelSubsystem.java"
+  notes={[
+    { lines: '1', text: '<code>public</code> lets other files call it. <code>void</code>: no answer comes back. <code>double volts</code>: the one input, a decimal number of volts.' },
+    { lines: '2', text: 'Asks the motor to apply <code>volts</code>. <code>new VoltageOut(volts)</code> wraps the number in a request object; lesson 0.3 explains <code>new</code>.' },
+    { lines: '5', text: 'No inputs. <code>double</code> means it answers with a decimal number: the wheel speed in rotations per second.' },
+    { lines: '6', text: '<code>return</code> sends the answer back. The chain of dots (reading the speed signal, refreshing it) is method chaining; lesson 0.4 explains it.' },
+  ]}
+/>
+
+## Practice
+
+<Practice bank="0-2" />
+
+## Checkpoint
+
+<Checkpoint lesson="0.2">
+
+<details>
+<summary>Which type would you use for a CAN ID, a wheel speed in RPS, and "the arm is at its goal"?</summary>
+`int` for the CAN ID (a whole number), `double` for the speed (a decimal), `boolean` for the goal check (true or false).
+</details>
+
+<details>
+<summary>Why does robot code rarely contain loops?</summary>
+`periodic()` and `execute()` are called every 20 ms by the framework, so each call does one step and returns. A loop that never returns would block everything else.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- A statement ends with `;`. Comments start with `//`.
+- Use `double` for measurements, `int` for IDs and ports, `boolean` for yes/no, `String` for text.
+- camelCase for variables and methods; put the unit in the name.
+- A method has a return type, a name, parameters, and a body; `void` returns nothing.
+- `if` / `else` decides. The framework is the loop, so you rarely write one.
+</RecapCard>

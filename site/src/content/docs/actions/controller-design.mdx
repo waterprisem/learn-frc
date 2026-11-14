@@ -5,16 +5,117 @@ id: "5.3"
 track: "actions"
 session: 9
 isNew: false
-status: stub
+minutes: 20
+prereqs: ["5.1", "2.5"]
+outcomes:
+  - Design a button map from what the driver does, not from a list of commands
+  - Choose whileTrue or onTrue for each action
+  - Explain how the Lab 11 active-side toggle lets one controller cover two sides
+  - Say why one button should carry one intention
+sources:
+  - curriculum: "presentations/Session 9 - Advanced Command Composition & Single-Controller Design/Raw Data/slides.md"
+  - curriculum: "labs/Session 9 - Command Composition with Roti-Style Superstructure/LAB_MANUAL.md"
+  - curriculum: "labs/Session 11 - Mini Scorer Challenge/LAB_MANUAL.md"
+  - curriculum: "labs/Session 11 - Mini Scorer Challenge/solution/src/main/java/frc/robot/RobotContainer.java"
+  - doc: "https://docs.wpilib.org/en/stable/docs/software/commandbased/binding-commands-to-triggers.html"
+status: review
 sidebar:
   label: "5.3 Single-controller design"
   order: 3
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import GoDeeper from '../../../components/lesson/GoDeeper.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
+import AnnotatedCode from '../../../components/code/AnnotatedCode.astro';
 
-**What it will cover:** Designing bindings around the driver, including mode toggles.
+<WhyItMatters>
+In a match the driver has seconds to react and one pair of hands. If three similar buttons do three subtly different things, the wrong one gets pressed under pressure.
+Team 1360 runs a robot from one Xbox controller, so every button has to earn its place.
+</WhyItMatters>
 
-Based on Session 9 of the Orbit Robotics curriculum.
+## Start from the driver's flow
+
+Do not start from the list of commands you wrote. Picture a cycle: drive to the game piece, pick it up, move to score, score, return. Each step the driver takes becomes **one intention**, and each intention becomes one named action from lesson 5.1.
+
+Lab 9 shows the smallest version. `Home` is not a button at all, because it is what the robot does when the driver is not asking for anything (lesson 5.4). Three held buttons cover the rest: A for Intake, X for Score Speaker, Y for Score Amp.
+
+## The control map
+
+This is the Lab 11 solution map. Compare how each binding type matches how the driver uses it.
+
+| Button | Action | Binding |
+|---|---|---|
+| A | Intake on the active side | `whileTrue` |
+| Y | Switch active side, then intake on it | `whileTrue` |
+| X | Score on the active side | `whileTrue` |
+| B | Safe stow | `onTrue` |
+| Right bumper | Score burst | `whileTrue` |
+| Left bumper | Home on the active side | `whileTrue` |
+
+Use `whileTrue` for something the driver holds and wants to stop by letting go. Use `onTrue` for a one-shot sequence that finishes on its own, like the stow.
+
+## One button, one intention
+
+Each button above answers a single question the driver asks: "intake", "score", "stow". The side is not a separate button. It is **state** that every action reads, so the same A button works on both sides of the robot.
+
+The Y button comes closest to doing two things: it flips the side and intakes. The lab keeps it as one intention, "intake from the other side". If you added a separate side-toggle button, the driver would have to remember to press it first, and forgetting it would send the robot to the wrong side.
+
+## The mode toggle in code
+
+<AnnotatedCode
+  file="lab11-5.3/reverse-side"
+  title="RobotContainer.java (Lab 11)"
+  notes={[
+    { lines: '2', text: '<code>Commands.defer</code> builds the command each time Y is pressed, so the decision happens at press time instead of at robot start-up.' },
+    { lines: '4-6', text: 'Flip the <code>isFrontIntake</code> field and publish the side name. The field stays flipped after Y is released, so the arm stays on that side.' },
+    { lines: '7-12', text: 'Return the intake command for the new side.' },
+    { lines: '15', text: 'The requirements must be declared up front because the command does not exist until it is built. List every subsystem it might use.' },
+  ]}
+/>
+
+The other actions read `isFrontIntake` through `() -> isFrontIntake` and use `Commands.either` to choose the front or back version. The arm and elevator default commands also read it, so the robot rests on whichever side is active.
+
+## Practice
+
+<Practice bank="5-3" />
+
+## Checkpoint
+
+<Checkpoint lesson="5.3">
+
+<details>
+<summary>Why is the stow bound with `onTrue` and intake with `whileTrue`?</summary>
+Intake should only run while the driver holds the button, so releasing cancels it. Stow is a sequence that finishes on its own, so one tap is enough.
+</details>
+
+<details>
+<summary>How does `Commands.defer` let Y toggle the side each time?</summary>
+It runs the lambda every time the command is scheduled, so each press flips the field and builds the command for the new side. A normal command would be built once and could not change.
+</details>
+
+<details>
+<summary>Why not give the active side its own button?</summary>
+A separate button adds a step the driver has to remember. Keeping side selection inside the intake intention means one fewer thing to get wrong.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+
+- Design bindings from the driver's flow, one intention per button.
+- `whileTrue` for held actions, `onTrue` for one-shots that finish themselves.
+- Keep mode in a field that every action reads, so the same button works in either mode.
+- `Commands.defer` builds a command at press time when it depends on state.
+
+</RecapCard>
+
+<GoDeeper title="the plan's version of this layout">
+
+The curriculum slides sketch a different layout: A intake, B stow, right bumper score low, right trigger above 0.8 score high, and left bumper as a mode toggle combined with triggers using `and` and `negate()`. The Lab 11 code uses the layout in the table above instead, so that is the one to trust when running the lab. The idea is the same: a mode multiplies what a few buttons can do.
+
+</GoDeeper>

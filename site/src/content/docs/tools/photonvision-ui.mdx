@@ -5,16 +5,95 @@ id: "R.8"
 track: "tools"
 session: 15
 isNew: false
-status: stub
+minutes: 12
+prereqs: ["1.2"]
+outcomes:
+  - Open the PhotonVision web UI in a browser
+  - Select the AprilTag pipeline and check tag family and 3D mode
+  - Read the target list and match the camera name to your code
+  - Set the team number
+sources:
+  - doc: "https://docs.photonvision.org/en/latest/docs/quick-start/networking.html"
+  - doc: "https://docs.photonvision.org/en/latest/docs/apriltag-pipelines/2D-tracking-tuning.html"
+  - doc: "https://docs.photonvision.org/en/latest/docs/programming/photonlib/getting-target-data.html"
+status: review
 sidebar:
   label: "R.8 PhotonVision web UI"
   order: 8
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import Practice from '../../../components/practice/Practice.astro';
 
-**What it will cover:** View camera pipelines and AprilTag detections.
+<WhyItMatters>
+Your robot code can only use AprilTag data if the camera is set up to produce it, under the right name, on the right network.
+The web UI is where you check all of that in a few minutes, before you suspect the code.
+</WhyItMatters>
 
-Based on Session 15 of the Orbit Robotics curriculum.
+## Before you start
+
+- A coprocessor running PhotonVision with a camera attached.
+- The coprocessor and your laptop on the robot network (radio Wi-Fi or Ethernet).
+- The camera name your code uses with `PhotonCamera`.
+
+## Open the UI
+
+1. Open a browser and go to `http://photonvision.local:5800`.
+2. If that name does not resolve, use the coprocessor's static address, `10.TE.AM.xx:5800`, where TE.AM is your team number.
+
+## Set up AprilTag detection
+
+1. Pick your camera at the top of the page.
+2. In the top-right card, switch the pipeline type to **AprilTag**.
+3. Check the tag **family** matches the field's tags. The official docs say the 2026 game uses 36h11.
+4. For robot-relative pose you need 3D mode on, and the camera must be calibrated. Calibration is done once per camera and resolution, so follow the official calibration guide rather than guessing.
+
+## Read the target list
+
+With a tag in view, the UI lists each detected target. Look for the tag ID, the pose, and the ambiguity. Ambiguity says how uncertain the pose is, since a flat tag can look like two different poses. Lower is better.
+
+## Match names and settings
+
+1. Set the camera's name in the camera settings. It must equal the string you pass to `new PhotonCamera("...")` in code. Names must be unique across all your cameras.
+2. Open the **Settings** tab, then the **Networking** section, and enter your team number so the coprocessor publishes to the right robot.
+
+## If something goes wrong
+
+| What you see | Likely cause | Fix |
+| --- | --- | --- |
+| Page will not load | Not on the robot network, or wrong address | Join the robot network. Try the static `10.TE.AM.xx:5800` address |
+| Camera works in the UI, no data in code | Camera name differs from the code's | Make the UI name and the code string identical |
+| Tags detected, but no robot pose | 3D mode off or camera not calibrated | Calibrate for the resolution you use, then turn 3D on |
+| No tags detected | Wrong pipeline type or tag family | Switch to **AprilTag** and check the family |
+| UI works but robot never sees data | Team number not set | Enter it in **Settings**, **Networking** |
+
+## Practice
+
+<Practice bank="R-8" />
+
+## Checkpoint
+
+<Checkpoint lesson="R.8">
+
+<details>
+<summary>What address and port reach the web UI?</summary>
+The coprocessor's address on port 5800, for example `http://photonvision.local:5800`.
+</details>
+
+<details>
+<summary>Name two things that must match between the UI and your code or robot.</summary>
+The camera name must match the string in `PhotonCamera`, and the team number must match your robot so the data reaches its NetworkTables.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- The UI lives on port 5800 of the coprocessor.
+- Use the **AprilTag** pipeline, the field's tag family, and 3D mode after a one-time calibration.
+- Each target shows an ID, pose, and ambiguity.
+- Camera name and team number must match your code and robot.
+</RecapCard>

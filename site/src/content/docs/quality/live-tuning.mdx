@@ -5,16 +5,151 @@ id: "4.3"
 track: "quality"
 session: 5
 isNew: false
-status: stub
+status: review
+minutes: 20
+prereqs: ["3.5", "4.1", "4.2"]
+outcomes:
+  - Explain how a subscriber lets you change a gain without redeploying
+  - Read the Lab 5 code that publishes, reads, and applies the five gains
+  - Follow the live tuning workflow and copy final values back to Constants.java
+  - Say why tuning code is removed or guarded before competition
+sources:
+  - curriculum: "labs/Session 5 - Constants, Logging, and Code Review/LAB_MANUAL.md"
+  - curriculum: "presentations/Session 5 - Constants, Logging, and Code Review/raw_data/slides.md"
 sidebar:
   label: "4.3 Live tuning"
   order: 3
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import DoItForReal from '../../../components/lesson/DoItForReal.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import GoDeeper from '../../../components/lesson/GoDeeper.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
+import AnnotatedCode from '../../../components/code/AnnotatedCode.astro';
 
-**What it will cover:** Changing gains while the robot runs.
+<WhyItMatters>
+In lesson 3.5 every gain change meant editing Java, building, and redeploying, which takes a minute or more while the practice field clock runs.
+With live tuning you change `kP` while the wheel is spinning and watch the graph react within a loop or two.
+</WhyItMatters>
 
-Based on Session 5 of the Orbit Robotics curriculum.
+## The idea
+
+The robot publishes its five gains as NetworkTables topics. A tool on your laptop edits a topic. The robot code reads the topic again every loop and gives the new number to the controller.
+
+1. The robot publishes the starting gains from `Constants.java`, once.
+2. You change a value in the tool.
+3. A subscriber in `periodic()` reads it and updates the PID and feedforward.
+4. You watch the graph, then repeat.
+
+## The workflow
+
+Live tuning is a loop with one final step you must not skip.
+
+1. Hold a target and open the graph from lesson 3.5.
+2. Change one gain in AdvantageScope or your dashboard.
+3. Watch the graph and decide whether it improved.
+4. Repeat until the response is good.
+5. **Copy the final values into `Constants.java`** and redeploy.
+
+Step 5 matters because live values exist only in the running program. When the robot restarts, the code publishes the old constants again and your tuning is gone.
+
+## The code
+
+**1. Publishers and subscribers as fields.** Each gain has a publisher and a subscriber on the same topic.
+
+<AnnotatedCode
+  file="lab5-4.3/tuning-fields"
+  title="FlywheelSubsystem.java"
+  notes={[
+    { lines: '1-6', text: 'One publisher per gain, in the <code>Tuning</code> folder of the flywheel table. The kS and kV topic names include their units.' },
+    { lines: '7-8', text: 'The subscriber reads the same topic text. The value in <code>subscribe(...)</code> is the default, taken from <code>Constants.java</code>, used until the topic has a value.' },
+  ]}
+/>
+
+Lab 5 repeats the subscriber for `kI`, `kD`, `kS`, and `kV`.
+
+**2. Publish the starting values once.** This runs in the constructor.
+
+<AnnotatedCode
+  file="lab5-4.3/publish-once"
+  title="FlywheelSubsystem.java"
+  notes={[
+    { lines: '1-5', text: 'These give AdvantageScope a starting value. Publish them once. If this ran every loop, it would overwrite your edit 50 times a second and the gain would snap back.' },
+  ]}
+/>
+
+**3. Read and apply every loop.**
+
+<AnnotatedCode
+  file="lab5-4.3/grab"
+  title="FlywheelSubsystem.java"
+  notes={[
+    { lines: '3', text: '<code>get()</code> returns the latest value of each topic. <code>setPID</code> updates all three feedback gains together.' },
+    { lines: '4-5', text: 'The feedforward has a setter for each of its gains.' },
+    { lines: '9-10', text: 'Calling it at the start of <code>periodic()</code> means an edit reaches the controller within one 20 ms loop. The method changes settings only; the command still chooses the target and applies the voltage.' },
+  ]}
+/>
+
+## Before competition
+
+Anything on the robot network can write these topics. A stray edit during a match, or a gain left at an experimental value, would change how the shooter behaves with no code change.
+
+- Remove the tuning topics, or guard them so they only run in a test mode you enable on purpose.
+- Make sure the values in `Constants.java` are the final tuned ones.
+
+The lab does not set a guard. Where your team draws the line is a decision for you and your mentor.
+
+<GoDeeper title="why the subscriber default matters">
+Until a topic has a value, `get()` returns the default you gave `subscribe(...)`. Using the matching constant means a missing or unpublished topic leaves the robot on its known-good gains instead of zero.
+</GoDeeper>
+
+## Practice
+
+<Practice bank="4-3" />
+
+## Do it for real
+
+<DoItForReal tools="WPILib simulator + AdvantageScope">
+This follows **Lab 5, Steps 3 to 6**. Open the Lab 5 `assignment` project.
+
+1. **Step 3.** Import `DoubleSubscriber`. Add a publisher and a subscriber field for each gain, using the topics `Tuning/kP`, `Tuning/kI`, `Tuning/kD`, `Tuning/kS Volts`, and `Tuning/kV Volts per RPS`. Pass the matching constant as each subscriber's default.
+2. **Step 4.** In the constructor, call `accept(...)` on each publisher with its constant.
+3. **Step 5.** Complete `grabConstantsFromNetworkTables()` with `setPID(...)`, `setKs(...)`, and `setKv(...)`.
+4. **Step 6.** Call `grabConstantsFromNetworkTables()` at the start of `periodic()`.
+5. Build, run **WPILib: Simulate Robot Code**, and connect AdvantageScope to the simulator. Hold <kbd>Y</kbd> for 70 RPS, then raise `kP` and later lower `kV`, then restore the lab values.
+
+**You know it worked when** all five topics appear under `Subsystems/FlywheelSubsystem/Tuning`, and an edit changes the flywheel graph without a redeploy. Restore `kP` = 0.08, `kV` = 0.12, `kS` = 0.20, `kI` and `kD` = 0.
+
+**On a real robot, also check**
+
+- Make small edits while the mechanism is safe to move, and keep a hand near the disable.
+- Write the final tuned values into `Constants.java` before you power off.
+- If an edit has no effect, confirm the publisher and subscriber topic names match exactly. If it snaps back, look for a publisher call inside `periodic()`.
+</DoItForReal>
+
+## Checkpoint
+
+<Checkpoint lesson="4.3">
+
+<details>
+<summary>Why is changing a live gain faster than redeploying?</summary>
+A redeploy means editing Java, building, and copying the program to the robot. A live edit only writes a number to NetworkTables, and the subscriber applies it on the next loop.
+</details>
+
+<details>
+<summary>What could go wrong if a live tuning value is never copied back into `Constants.java`?</summary>
+The next restart publishes the old constants and the tuning is lost. The robot performs worse than it did during practice and no one knows why.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- A subscriber reads a NetworkTables value every loop, so a gain can change while the robot runs.
+- Publish the starting values once. Read and apply them at the start of `periodic()`.
+- Workflow: edit live, watch the graph, repeat, then copy the final values into `Constants.java`.
+- Live values vanish on restart. Remove or guard tuning code before competition.
+</RecapCard>

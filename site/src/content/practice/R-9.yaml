@@ -1,0 +1,41 @@
+# Practice bank for guide R.9 (Git in VS Code).
+lesson: "R.9"
+items:
+  - type: mcq
+    prompt: "You clicked Commit. Where is your work now?"
+    choices:
+      - "On GitHub, visible to the team"
+      - "As a saved snapshot on your laptop only"
+      - "Deployed to the robot"
+      - "Nowhere until you save the file"
+    answer: 1
+    explain: "A commit is local history. Sync Changes or a push is what shares it."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "You click Sync Changes and it is rejected, saying the remote has changes you do not have."
+    choices:
+      - "A teammate pushed to the same branch first"
+      - "Your commit message was too short"
+      - "The robot is disabled"
+      - "VS Code needs an update"
+    answer: 0
+    explain: "Your branch is behind the remote. Pull first, resolve any conflicts, then sync again."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "You try to switch branches and VS Code refuses because of uncommitted changes."
+    choices:
+      - "The branch does not exist"
+      - "Your edits would be overwritten, so Git blocks the switch"
+      - "You are not signed in"
+      - "The repository is read-only"
+    answer: 1
+    explain: "Git protects unsaved work. Commit your changes first, then switch."
+  - type: multi
+    prompt: "Which are actions offered above a merge conflict in the editor? Select all that apply."
+    choices:
+      - "Accept Current Change"
+      - "Accept Incoming Change"
+      - "Accept Both Changes"
+      - "Deploy Robot Code"
+    answers: [0, 1, 2]
+    explain: "These three choose which version of the lines to keep. Deploying is unrelated to resolving a conflict."

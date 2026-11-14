@@ -5,16 +5,117 @@ id: "0.9"
 track: "foundations"
 session: null
 isNew: true
-status: stub
+minutes: 20
+prereqs: ["0.8"]
+outcomes:
+  - Tell voltage (the push) from current (the flow) and say which one your code commands
+  - Explain why a motor needs voltage to hold still or to start moving
+  - Name the physical effect behind kS, kG, kV, and kA
+  - Use the effect-to-constant table to guess which constant is wrong from a symptom
+sources:
+  - curriculum: "labs/Session 3 - Open-Loop Flywheel with TalonFX/LAB_MANUAL.md"
+  - curriculum: "presentations/Session 4 - PID + Feedforward for Velocity Control/raw_data/slides.md"
+  - curriculum: "presentations/Session 6 - Profiled Elevator Control/raw_data/slides.md"
+  - doc: "https://docs.wpilib.org/en/stable/docs/software/advanced-controls/introduction/introduction-to-feedforward.html"
+status: review
 sidebar:
   label: "0.9 Physics for robots"
   order: 9
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import GoDeeper from '../../../components/lesson/GoDeeper.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
 
-**What it will cover:** Voltage, current, torque, gravity, friction, and inertia, and why the tuning constants exist.
+<WhyItMatters>
+Tuning constants such as `kS`, `kG`, `kV`, and `kA` look like magic numbers until you know what each one pays for.
+Each is the voltage that cancels one physical effect. Knowing the effect tells you which constant to change when the robot misbehaves.
+</WhyItMatters>
 
-This lesson goes beyond the Orbit Robotics curriculum.
+## Voltage and current
+
+Think of water in a pipe. **Voltage** is the pressure, the push. **Current** is the flow, measured in amps (A).
+
+Your code commands voltage. A motor controller applies it, and a fresh battery gives about 12 V. How much current flows then depends on what the motor is doing: a motor held still draws a lot, a spinning one draws less.
+
+Current is what makes **torque** (turning force) and heat. Lesson 1.3 covers current limits and battery sag, so this lesson stays on what voltage does.
+
+## Voltage sets speed, current sets torque
+
+For a motor, two rules of thumb carry most of the weight:
+
+- Speed follows voltage. Double the voltage and the free-spinning speed roughly doubles.
+- Torque follows current. Double the current and the turning force roughly doubles.
+
+That is why `kV` is **volts per unit of speed**. If a flywheel needs about 5 V to hold 40 rotations per second, then each rotation per second costs about 0.12 V.
+
+## Friction
+
+Rub your hand across a table and it resists before it ever moves. Gears, bearings, and belts do the same. A very small voltage produces no motion because it is only fighting friction.
+
+`kS` is that threshold, a small constant voltage added so the mechanism actually starts moving. Too little and small commands do nothing. Too much and it jumps.
+
+## Gravity
+
+A raised elevator carriage wants to fall. Even standing still, the motor must push up with a constant effort, so you add a constant voltage: `kG`. In the Lab 6 elevator it is 0.55 V.
+
+An arm is different, because gravity pulls less as the arm rises. Its holding voltage is `kG × cos(angle)`, using the cosine from lesson 0.8. In Lab 7, `kG` is 0.16 V: full at flat, half at 60 degrees, zero straight up.
+
+## Inertia
+
+Heavy things resist changes in speed. That is **inertia**. Pushing a loaded shopping cart takes more effort to start than to keep rolling.
+
+Holding a steady speed needs `kV`. Changing speed needs extra voltage on top, and that is `kA`, volts per unit of acceleration. A flywheel has lots of inertia, so it takes noticeable time to spin up, even at full voltage.
+
+## Torque versus speed
+
+Gearing trades one for the other. A reduction gives the mechanism more torque and less speed, and that is why arms use big ratios (lesson 1.8).
+
+## The summary table
+
+| Physical effect | What you see on the robot | Constant | Lesson |
+|---|---|---|---|
+| Friction | Small commands do nothing, then it jumps | `kS` | 3.4 |
+| Gravity (elevator) | Carriage sags with no command | `kG` | 3.7 |
+| Gravity (arm) | Holds at some angles, droops at others | `kG` times cosine | 3.8 |
+| Speed needs voltage | Steady speed settles too low or too high | `kV` | 3.5 |
+| Inertia | Lags behind during speed changes | `kA` | 3.10 |
+
+<GoDeeper title="why feedback still matters">
+These constants are a prediction made from a model of the mechanism. A battery sags, a game piece adds weight, and friction changes as parts wear.
+PID feedback measures what really happened and corrects the leftover error, which is why robots use both.
+</GoDeeper>
+
+## Practice
+
+<Practice bank="0-9" />
+
+## Checkpoint
+
+<Checkpoint lesson="0.9">
+
+<details>
+<summary>An elevator drifts down when you command 0 V, but an arm held straight up does not. What explains the difference?</summary>
+
+The elevator fights gravity at every height, so it needs a constant `kG`. The arm's gravity effort follows the cosine of its angle, and cosine of 90 degrees is 0.
+
+</details>
+
+<details>
+<summary>Why can a flywheel hold 40 rotations per second with a small voltage but still take a while to reach it?</summary>
+
+Holding speed only has to beat friction and drag, which `kS` and `kV` cover. Reaching speed means changing it, and inertia resists that change. That resistance is what `kA` pays for.
+
+</details>
+
+</Checkpoint>
+
+<RecapCard>
+- Voltage is the push your code commands; current is the flow that makes torque and heat.
+- Speed roughly follows voltage, so `kV` is volts per unit of speed.
+- Friction explains `kS`, gravity explains `kG`, and inertia explains `kA`.
+- An arm's gravity effort is `kG` times the cosine of its angle; an elevator's is constant.
+- Gearing trades speed for torque.
+</RecapCard>

@@ -1,0 +1,49 @@
+# Practice bank for lesson 4.7 (Unit tests for robot code).
+lesson: "4.7"
+items:
+  - type: mcq
+    prompt: "What does the flywheel test in `MiniScorerSimulationTest` check?"
+    choices:
+      - "That the real flywheel is wired correctly."
+      - "That, over 150 simulated loops, the flywheel's velocity comes within 4 RPS of the scoring target."
+      - "That the code compiles."
+      - "That the battery voltage is 12 V."
+    answer: 1
+    explain: "It runs the subsystem in the simulator and asserts on the best error. It cannot see real wiring, and compiling is a separate step."
+  - type: mcq
+    prompt: "Which command runs the project's tests from a terminal?"
+    choices: ["`./gradlew test`", "`./gradlew deploy`", "`git test`", "`./gradlew simulateJava`"]
+    answer: 0
+    explain: "`test` runs the tests. `deploy` sends code to a robot. In VS Code the WPILib command **Test Robot Code** does the same job."
+  - type: symptom-cause
+    prompt: "What is the most useful first move?"
+    symptom: "After lowering `PID_KP`, the flywheel test fails with: Flywheel should reach target velocity within tolerance. Best error: 11.3"
+    choices:
+      - "Delete the test."
+      - "Raise the allowed error in the test until it passes."
+      - "Look at whether the lower `PID_KP` made the flywheel too slow to reach the target in 150 loops."
+      - "Run the test again until it passes."
+    answer: 2
+    explain: "The test used the real constants and caught a real change in behavior. Loosening or deleting it hides the problem. Decide whether the new gain is acceptable and fix the gain or, if the requirement changed, the test."
+  - type: multi
+    prompt: "A simulation test passes. What can you still not conclude? Select all that apply."
+    choices:
+      - "The motor is wired in the right direction."
+      - "The code behaves as expected inside the model."
+      - "A belt on the real mechanism is tight."
+      - "The mechanism is safe at full speed with a person near."
+    answers: [0, 2, 3]
+    explain: "A simulation does not include wiring, loose parts, or safety. It only says the code does what it should in the model."
+  - type: fill-blank
+    prompt: "Complete the assertion so the test fails unless the best error is under 4 RPS."
+    code: |
+      ____(
+          bestError < 4.0,
+          "Flywheel should reach target velocity within tolerance. Best error: " + bestError);
+    blanks:
+      - ["assertTrue"]
+    explain: "`assertTrue(condition, message)` fails when the condition is false and shows the message. The message should include the actual number so a failure explains itself."
+  - type: free
+    prompt: "Why is the failure message in an assertion worth writing carefully?"
+    modelAnswer: "When the test fails you may only see that message. It should say what was expected and include the actual value, so you can tell what went wrong without a debugger."
+    explain: "A message like 'failed' costs time; one with the number saves it."

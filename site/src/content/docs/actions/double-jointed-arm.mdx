@@ -5,16 +5,82 @@ id: "5.8"
 track: "actions"
 session: null
 isNew: true
-status: stub
+minutes: 15
+prereqs: ["5.5", "5.6"]
+outcomes:
+  - Explain why a double-jointed arm is harder than two independent arms
+  - Separate joint-level control from pose-level goals
+  - Say what to log to find which joint causes an error
+sources:
+  - curriculum: "misc/v0/frc1360_programming_curriculum_plan.md"
+status: review
 sidebar:
   label: "5.8 Double-jointed arm"
   order: 8
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
 
-**What it will cover:** Why two joints are harder than two arms, and how to structure the code.
+<WhyItMatters>
+A two-joint arm can reach over a bumper, down into a low scoring spot, and back inside the frame perimeter. It can also fold into the robot if the joints move independently.
+This lesson is concept-level: the labs do not build one, and it follows an early draft of the team's curriculum plan.
+</WhyItMatters>
 
-This lesson goes beyond the Orbit Robotics curriculum.
+## Why two joints are not two arms
+
+Picture a **shoulder** joint fixed to the robot and an **elbow** joint at the end of the first link. Three things make it harder than two separate arms.
+
+- **Gravity load depends on both angles.** The elbow motor holds up the second link, whose pull depends on the elbow's angle relative to the ground. That angle is the shoulder angle plus the elbow angle, so the elbow's gravity feedforward has to use both. The shoulder also carries the second link's weight.
+- **The reachable space is not a rectangle.** Two limits do not give a box of positions. The tip can reach an area bounded by the link lengths and joint limits, and some points can be reached in more than one way.
+- **The joints must move together.** Each joint alone might take a safe path while their combination sweeps the second link through the robot.
+
+## Frames and angles
+
+To describe a pose you need to be clear about **which angle you mean**. A **relative** angle is measured from the previous link. An **absolute** angle is measured from the ground. The elbow is usually a relative angle, and the tip's position depends on both joints.
+
+Going from a wanted tip position to the two joint angles is called **inverse kinematics**. At the concept level, think of it as a helper: you give it a target and it gives back joint angles. The plan's guidance is to provide math helpers, and not to make students derive the math.
+
+## Structure the code in layers
+
+The plan separates two jobs.
+
+| Layer | Job | Example idea |
+|---|---|---|
+| Joint control (low level) | Move one joint to its angle with a profile | A shoulder goal and an elbow goal |
+| Pose goals (high level) | Say where the whole arm should be | A named pose such as stow, pickup, or score |
+
+Whether this is **one subsystem or two** is a design choice. Two joint subsystems keep each joint simple, and a coordinating layer above them handles safety. One coordinated subsystem keeps everything in one place but grows large. Either way, the safety rules that couple the joints belong in the layer above, just as in lesson 5.6, and the plan includes a safe stow or intermediate pose between far-apart poses.
+
+Log four things so you can tell which joint is at fault: the joint goals, the joint setpoints, the end-effector target, and the actual pose.
+
+## Practice
+
+<Practice bank="5-8" />
+
+## Checkpoint
+
+<Checkpoint lesson="5.8">
+
+<details>
+<summary>Name a case where independent joint commands would be unsafe.</summary>
+Moving from a folded pose to a far one by sending both joints straight to their goals can sweep the second link through the robot, even if each joint is within its own limits.
+</details>
+
+<details>
+<summary>Does your design use one subsystem or two, and why?</summary>
+Either can be right. Two subsystems keep each joint simple and put coupling safety in a layer above; one subsystem keeps the coordination together but grows larger.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- The second joint's gravity load depends on both angles, the reachable space is not a box, and the joints must be coordinated.
+- Know whether an angle is relative to the previous link or absolute to the ground.
+- Keep joint control separate from pose goals, and put coupling safety in the higher layer.
+- Log goals, setpoints, the end-effector target, and the actual pose.
+</RecapCard>

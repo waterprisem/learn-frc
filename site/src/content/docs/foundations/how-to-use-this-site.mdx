@@ -5,16 +5,83 @@ id: "0.1"
 track: "foundations"
 session: null
 isNew: true
-status: stub
+minutes: 5
+prereqs: []
+outcomes:
+  - Follow the path from lesson to lesson
+  - Know what each part of a lesson is for
+  - Track your progress and change the page's look
+  - Explain why browser playgrounds do not replace the real tools
+sources: []
+status: review
 sidebar:
   label: "0.1 How to use this site"
   order: 1
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
 
-**What it will cover:** How lessons, playgrounds, practice, and real-tool missions fit together.
+<WhyItMatters>
+Robot programming is a skill you build by doing, not by reading. This site is arranged so every idea is something you see, try, and then do on the real tools your team uses.
+Knowing the layout first saves you from skipping the parts that matter.
+</WhyItMatters>
 
-This lesson goes beyond the Orbit Robotics curriculum.
+## The path
+
+Work through tracks 0 to 9, then the Real Tools track, in order. Each track assumes the ones before it. The home page shows a **Continue** button that takes you to the next lesson you have not finished.
+
+## What every lesson contains
+
+1. **Why it matters**: a real robot problem this lesson solves.
+2. **A concept with a visual**: one idea at a time.
+3. **A playground or code walkthrough**: something to play with, or real team code you can click through.
+4. **Practice**: short questions with instant feedback.
+5. **Do it for real**: the same task in the real tools.
+6. **Checkpoint**: questions you answer in your head, then compare with a model answer and rate yourself.
+7. **Recap**: the few points to remember.
+
+Not every lesson has every part. The ones that do appear in this order.
+
+## Progress and settings
+
+The checklist on the right side of each lesson ticks itself as you finish sections. You can tick or un-tick any box by hand. Progress is saved in this browser only, so a different browser or device starts fresh.
+
+The menus in the header change the theme (light or dark) and the page width.
+
+## Practice, not replacement
+
+A browser playground is the fastest way to build intuition. It is not the robot. Every lesson sends you to the real tools for the same job.
+
+| | Browser playground | WPILib simulator | Real robot |
+|---|---|---|---|
+| Your Java code | Shown and explained | Runs on your laptop | Runs on the roboRIO |
+| Physics | A simple model | A simulated mechanism | Real motors and gravity |
+| Inputs | On-screen controls | Keyboard or gamepad | Driver Station and Xbox controller |
+| Graphs | Built-in graph | AdvantageScope on your laptop | AdvantageScope connected to the robot |
+
+## Practice
+
+<Practice bank="0-1" />
+
+## Checkpoint
+
+<Checkpoint lesson="0.1">
+
+<details>
+<summary>Why does every lesson end by sending you to a real tool?</summary>
+The playground is a model, so it can hide details the real tools show, such as wiring, timing, and mistakes in your own code. Doing the task in the WPILib simulator, AdvantageScope, or the robot is what the playground was practice for.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- Follow the tracks in order; **Continue** on the home page finds your place.
+- Learn the idea, try it, practice it, then do it for real.
+- Tick boxes by hand if the site gets it wrong. Progress lives in this browser only.
+- Playgrounds are practice for the real tools, not a replacement.
+</RecapCard>

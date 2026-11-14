@@ -1,0 +1,40 @@
+lesson: "R.4"
+items:
+  - type: mcq
+    prompt: "Where does the FRC Driver Station come from?"
+    choices:
+      - "The FRC Game Tools from National Instruments, on Windows"
+      - "The WPILib installer, on any system"
+      - "AdvantageScope"
+      - "The roboRIO"
+    answer: 0
+    explain: "WPILib does not install the Driver Station, and it runs on Windows only. The simulator has its own virtual panel."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "Communications is green and Robot Code is red."
+    choices:
+      - "No program is running on the roboRIO"
+      - "The radio is unplugged"
+      - "The team number is wrong"
+      - "The controller is missing"
+    answer: 0
+    explain: "Green Communications means the laptop reaches the roboRIO, so the network is fine. Missing code, or a program that crashed, is left."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "The Joysticks light is red, but Communications and Robot Code are green."
+    choices:
+      - "No controller is detected"
+      - "The battery is dead"
+      - "The CAN chain is broken"
+      - "The code did not build"
+    answer: 0
+    explain: "That light only reports controllers. Replug the controller and check the USB Devices tab."
+  - type: mcq
+    prompt: "You press Space during testing. What must you do before enabling again?"
+    choices:
+      - "Press Enter"
+      - "Reboot the roboRIO"
+      - "Change the mode"
+      - "Nothing"
+    answer: 1
+    explain: "Space is an emergency stop. Enter only disables and can be undone by clicking Enable."

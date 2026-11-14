@@ -5,16 +5,131 @@ id: "5.1"
 track: "actions"
 session: 9
 isNew: false
-status: stub
+minutes: 25
+prereqs: ["2.5", "3.9"]
+outcomes:
+  - Choose sequence, parallel, race, or deadline from "what should end the group"
+  - Read a composed command and say which part is running at each stage
+  - Explain why a composition requires every subsystem its parts require
+  - Read Score Speaker from the Lab 9 solution line by line
+sources:
+  - curriculum: "presentations/Session 9 - Advanced Command Composition & Single-Controller Design/Raw Data/slides.md"
+  - curriculum: "labs/Session 9 - Command Composition with Roti-Style Superstructure/LAB_MANUAL.md"
+  - curriculum: "labs/Session 9 - Command Composition with Roti-Style Superstructure/solution/src/main/java/frc/robot/commands/SuperstructureCommands.java"
+  - doc: "https://docs.wpilib.org/en/stable/docs/software/commandbased/command-groups.html"
+status: review
 sidebar:
   label: "5.1 Command composition"
   order: 1
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import GoDeeper from '../../../components/lesson/GoDeeper.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
+import AnnotatedCode from '../../../components/code/AnnotatedCode.astro';
 
-**What it will cover:** sequence, parallel, race, deadline, either, until, and timeout, with a builder.
+<WhyItMatters>
+Your robot now has an elevator, an arm, and a flywheel, each with a command that moves it to a setpoint. A driver does not think "elevator, then arm, then flywheel". They think "score".
+**Command composition** snaps small commands into one **named action** that a single button can start.
+</WhyItMatters>
 
-Based on Session 9 of the Orbit Robotics curriculum.
+## Four ways to combine commands
+
+Each way answers one question: when is the group finished?
+
+| Composition | Runs | Ends when |
+|---|---|---|
+| `Commands.sequence(a, b)` or `a.andThen(b)` | `a`, then `b` | `b` ends |
+| `Commands.parallel(a, b)` or `a.alongWith(b)` | `a` and `b` together | **all** have ended |
+| `Commands.race(a, b)` or `a.raceWith(b)` | `a` and `b` together | the **first** one ends; the others are cancelled |
+| `Commands.deadline(main, a, b)` | `main`, `a`, `b` together | `main` ends; the others are cancelled |
+
+Pick **parallel** when the parts cannot get in each other's way. Pick **sequence** when order matters. Use **deadline** when one command is the clock and the others only need to keep running while it counts down.
+
+## The rule that makes it safe
+
+A composed command **requires every subsystem its parts require**. Put the elevator, arm, and flywheel commands in one group and the group owns all three. While it runs, no other command can take them, and the scheduler hands them back only when the whole group ends.
+
+A group also cannot contain two parts that need the same subsystem at the same time. That is why Score Speaker below uses a fresh elevator command in each stage instead of running one for the whole action.
+
+## Decorators on one command
+
+Decorators are methods you chain onto a command to change when it ends.
+
+| Decorator | Effect |
+|---|---|
+| `.until(condition)` | Ends the command when the condition becomes true |
+| `.withTimeout(seconds)` | Cancels the command after that many seconds |
+| `Commands.either(a, b, condition)` | Chooses `a` or `b` when it starts |
+| `.withName("Score Speaker")` | Labels the command for logs and the scheduler view |
+
+Lesson 5.2 uses `until` and `withTimeout` in the lab code. Lesson 5.3 uses `either`.
+
+## Worked example: Score Speaker
+
+Lab 9 builds Score Speaker as a strict sequence, so you can see each stage. A mechanism command like `SetElevatorHeightCommand` never finishes on its own. A `deadline` ends it by pairing it with a command that does finish.
+
+<AnnotatedCode
+  file="lab9-5.1/score-speaker"
+  title="SuperstructureCommands.java"
+  notes={[
+    { lines: '1', text: '<code>sequence</code> runs its parts one at a time. <code>withName</code> on the last line gives the whole action a readable name.' },
+    { lines: '2-6', text: 'Stage 1: <code>deadline</code> holds the elevator at the Speaker height while <code>waitUntil</code> watches the readiness trigger. When the wait ends, the stage ends.' },
+    { lines: '7-13', text: 'Stage 2: keep the elevator there, add the arm, and wait for the arm to be ready. The elevator is a new command object because each stage is its own group.' },
+    { lines: '14-22', text: 'Stage 3: a <code>parallel</code> of all three. Nothing in it ever finishes, so the action runs until the driver releases the button.' },
+  ]}
+/>
+
+Which command is running when:
+
+| Stage | Running | Stage ends when |
+|---|---|---|
+| 1 | elevator to Speaker height, `waitUntil(elevatorAtScoreSpeaker)` | the elevator is ready |
+| 2 | elevator hold, arm to Speaker angle, `waitUntil(armAtScoreSpeaker)` | the arm is ready |
+| 3 | elevator hold, arm hold, flywheel at Speaker velocity | never; button release cancels it |
+
+The group stays scheduled between stages, so a default command never sneaks in and moves a mechanism.
+
+## Practice
+
+<Practice bank="5-1" />
+
+## Checkpoint
+
+<Checkpoint lesson="5.1">
+
+<details>
+<summary>Why is Score Speaker a sequence while Intake is a parallel?</summary>
+Intake moves the elevator, arm, and flywheel to positions that are safe to reach in any order, so they can run together. Speaker is deliberately serial in the lab: elevator first, then arm, then flywheel, so you can see each stage and so the flywheel only spins once the others are ready.
+</details>
+
+<details>
+<summary>What does `Commands.deadline(Commands.waitUntil(t), moveCommand)` do?</summary>
+The move command runs while the wait command decides when the stage ends. When the trigger becomes true, the wait ends, so the deadline ends and cancels the move command.
+</details>
+
+<details>
+<summary>The group contains elevator, arm, and flywheel commands. Which subsystems does it require?</summary>
+All three. A composition requires the union of its parts' requirements, so no other command can use any of them until the group ends.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+
+- Sequence runs in order, parallel ends when all end, race ends when the first ends, deadline ends when its main command ends.
+- A composition requires every subsystem its parts require.
+- `until`, `withTimeout`, and `either` change when or what a command runs.
+- Name every action with `withName` so you can read it in logs.
+
+</RecapCard>
+
+<GoDeeper title="decorators and the factory methods are the same thing">
+
+`a.andThen(b)` and `Commands.sequence(a, b)` build the same kind of group, and so do `alongWith` and `Commands.parallel`, and `raceWith` and `Commands.race`. The Lab 9 solution uses the `Commands` factory form for the groups and `andThen` once, inside Score Amp. Choose the form that reads best. The factory form is easier to read when there are three or more parts.
+
+</GoDeeper>

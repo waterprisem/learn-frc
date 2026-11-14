@@ -1,0 +1,63 @@
+# Practice bank for lesson 4.5 (Code review).
+lesson: "4.5"
+items:
+  - type: mcq
+    prompt: "A method reads `if (Math.abs(error) < 2.0)` in the middle of a subsystem. What should a reviewer flag?"
+    choices:
+      - "Nothing. 2.0 is a small number."
+      - "A magic number: move it into `Constants.java` with a name that says what it is and its unit."
+      - "The use of `Math.abs`."
+      - "The `if` statement should be a loop."
+    answer: 1
+    explain: "A bare number hides its meaning and its unit, and anyone tuning it has to hunt through the code. A named constant fixes both."
+  - type: mcq
+    prompt: "A subsystem method is `setTarget(double speed)` and the body passes it to a velocity controller. What is the most useful comment?"
+    choices:
+      - "Looks good."
+      - "Rename `speed` to include a unit, such as `targetRPS`, so callers do not pass RPM by mistake."
+      - "I prefer `velocity` over `speed`."
+      - "Delete the method."
+    answer: 1
+    explain: "It names the problem (no unit), the place, and the impact. Choice 3 is only taste, and choice 1 gives the author nothing to act on."
+  - type: symptom-cause
+    prompt: "What did the reviewer most likely spot in the new command?"
+    symptom: "A new command spins the flywheel. While it runs, a second command that also sets the flywheel voltage is scheduled and the two seem to fight each other."
+    choices:
+      - "A magic number in the voltage."
+      - "A missing `addRequirements(flywheelSubsystem)` in the command's constructor."
+      - "A `kP` that is too large."
+      - "A missing JavaDoc comment."
+    answer: 1
+    explain: "Requirements tell the scheduler which subsystem a command uses. Without them, two commands can drive it at once instead of one cancelling the other."
+  - type: mcq
+    prompt: "In review you see a NetworkTables publisher being created inside `periodic()`. What should the comment say?"
+    choices:
+      - "Create the publisher once, in the constructor or as a field, then only send values in `periodic()`."
+      - "Create the publisher every loop so it is always fresh."
+      - "Move `periodic()` into `Robot.java`."
+      - "Nothing; it is fine."
+    answer: 0
+    explain: "`periodic()` runs 50 times a second. Creating a publisher each time repeats setup work and can hide mistakes; set it up once and reuse it. Lab 5 calls this publisher scope."
+    source: "Lab 5, Step 1 and Step 3"
+  - type: mcq
+    prompt: "A reviewer reads `flywheelPID.calculate(targetRPS, getFlywheelVelocityRPS())`. What should they flag?"
+    choices:
+      - "The measurement and setpoint are swapped: the measurement comes first."
+      - "Nothing. Argument order does not matter."
+      - "The method name is too long."
+      - "It should use RPM."
+    answer: 0
+    explain: "`calculate(measurement, setpoint)` takes the measurement first. Swapped, the error flips sign and the wheel is driven away from the target. This is a correctness bug, not style."
+  - type: multi
+    prompt: "Which are useful review comments? Select all that apply."
+    choices:
+      - "Looks good."
+      - "`periodic()` sets the motor voltage; move that into a command so it only runs when requested."
+      - "I would have written this differently."
+      - "`closedLoopCalculate` takes `target` with no unit; rename it `targetRPS` so a caller cannot pass RPM."
+    answers: [1, 3]
+    explain: "Useful comments say where the problem is and why it matters. 'Looks good' and 'I would have written this differently' give the author nothing to act on."
+  - type: free
+    prompt: "Rewrite this comment so it is useful: \"Constants are messy.\""
+    modelAnswer: "In Constants.java, a constant named only LIMIT does not say what it limits or in what unit. Rename it to include both, such as a name ending in AMPS, so nobody mixes it up with a speed limit."
+    explain: "It says where, what is wrong, and why it matters."

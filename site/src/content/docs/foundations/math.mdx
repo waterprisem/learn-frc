@@ -5,16 +5,143 @@ id: "0.8"
 track: "foundations"
 session: null
 isNew: true
-status: stub
+minutes: 25
+prereqs: ["0.1"]
+outcomes:
+  - Convert between rotations, degrees, and radians, and between seconds and minutes, by multiplying by a fraction equal to 1
+  - Use sine and cosine to find the vertical or horizontal part of something that points at an angle
+  - Describe a vector as a speed and a direction, or as an x part and a y part
+  - Read velocity and acceleration off a position graph by looking at slope
+sources:
+  - curriculum: "labs/Session 7 - ArmSubsystem with ProfiledPIDController/solution/src/main/java/frc/robot/subsystems/ArmSubsystem.java"
+  - doc: "https://docs.wpilib.org/en/stable/docs/software/basic-programming/java-units.html"
+status: review
 sidebar:
   label: "0.8 Math for robots"
   order: 8
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import GoDeeper from '../../../components/lesson/GoDeeper.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
 
-**What it will cover:** Units, gear ratios, radians, trigonometry, vectors, and reading position/velocity graphs.
+<WhyItMatters>
+An arm holds still at 0 degrees and swings wildly at 60 degrees, because code that wanted radians was handed degrees. It compiles, it runs, and the numbers are just wrong.
+This lesson covers the small amount of math that robot code uses, and the later lesson that needs each piece.
+</WhyItMatters>
 
-This lesson goes beyond the Orbit Robotics curriculum.
+## Units come first
+
+A bare number like `40` means nothing to a robot. Forty what? Rotations per second, degrees per second, and meters per second all look the same in code, and mixing them up is the most common bug in robot programming.
+
+That is why the labs put units in names: `targetRPS`, `heightMeters`, `MAX_VELOCITY_DEGREES_PER_SECOND`.
+
+To change units, multiply by a fraction that equals 1. The unit you want to remove goes on the bottom so it cancels.
+
+| Start | Multiply by | Result |
+|---|---|---|
+| 40 rotations per second | 60 seconds / 1 minute | 2400 rotations per minute |
+| 0.25 rotations | 360 degrees / 1 rotation | 90 degrees |
+| 90 degrees | 1 rotation / 360 degrees | 0.25 rotations |
+
+If the units do not cancel to what you wanted, the arithmetic is wrong. Lesson 1.8 does this for gear ratios.
+
+## Radians
+
+A full turn is 360 degrees, or 1 rotation, or 2π radians (about 6.28). One radian is the angle where the arc along the edge is as long as the radius. Mathematicians prefer radians because the formulas get simpler.
+
+Same fraction trick: degrees × π / 180 gives radians.
+
+| Degrees | Rotations | Radians |
+|---|---|---|
+| 360 | 1 | 6.28 (2π) |
+| 180 | 0.5 | 3.14 (π) |
+| 90 | 0.25 | 1.57 (π / 2) |
+| 57.3 | 0.16 | 1 |
+
+WPILib's trig and `ArmFeedforward` expect radians. Lab 7's arm keeps its angles in degrees, so the code converts at the last moment:
+
+```java
+armFF.calculate(Math.toRadians(setpoint.position), Math.toRadians(setpoint.velocity));
+```
+
+`Units.degreesToRadians` does the same thing. Skipping the conversion is the "radians trap" you will meet in lesson 3.8.
+
+## Sine and cosine
+
+Picture a stick pointing at an angle. Cosine says how much of it is horizontal, and sine says how much is vertical, each as a fraction of the stick's full length.
+
+For an arm, the angle is measured up from horizontal. Gravity pulls hardest on a horizontal arm and not at all on a straight-up one, so the holding effort follows the cosine of the angle:
+
+| Arm angle | cos(angle) | Gravity effort vs. flat |
+|---|---|---|
+| 0 degrees | 1 | full |
+| 60 degrees | 0.5 | half |
+| 90 degrees | 0 | none |
+
+Calculators and `Math.cos` need radians, so convert first. Lesson 3.8 uses this exact table.
+
+## Vectors
+
+A **vector** is a quantity with a direction. You can write it two ways: as a speed and a direction, or as an x part and a y part.
+
+| Speed and direction | x part (forward) | y part (left) |
+|---|---|---|
+| 2 m/s straight ahead | 2 | 0 |
+| 2 m/s, 90 degrees left | 0 | 2 |
+| 2 m/s, 45 degrees left | 1.41 | 1.41 |
+
+Cosine gives the x part and sine gives the y part. A swerve robot needs exactly this to turn a joystick push into a speed and angle for each wheel (lesson 6.2).
+
+## Position, velocity, acceleration
+
+These are three views of one motion. **Velocity** is how fast position changes. **Acceleration** is how fast velocity changes.
+
+On a graph of position over time, velocity is the slope: steep means fast, flat means stopped. On a velocity graph, acceleration is the slope.
+
+| Elevator moment | Position graph | Velocity | Acceleration |
+|---|---|---|---|
+| Speeding up | curving steeper | rising | positive |
+| Cruising | straight slanted line | constant | zero |
+| Slowing to a stop | flattening out | falling to 0 | negative |
+
+A motion profile (lesson 3.6) is a plan for exactly these three moments, so the elevator starts and stops smoothly.
+
+<GoDeeper title="why units libraries exist">
+WPILib has a units library with types such as `Distance` and `AngularVelocity`, so the compiler can refuse to add meters to degrees.
+The labs use plain `double` values with units in the names instead, which is simpler to start with. The naming habit gives you most of the protection.
+</GoDeeper>
+
+## Practice
+
+<Practice bank="0-8" />
+
+## Checkpoint
+
+<Checkpoint lesson="0.8">
+
+<details>
+<summary>A mechanism moves 3 rotations in 2 seconds. How do you find its speed in degrees per second?</summary>
+
+Speed is 1.5 rotations per second. Multiply by 360 degrees per rotation to get 540 degrees per second.
+
+</details>
+
+<details>
+<summary>On a position graph, what does a flat section mean, and what does a steepening curve mean?</summary>
+
+Flat means velocity is zero, so the mechanism is stopped. A steepening curve means velocity is increasing, so the mechanism is accelerating.
+
+</details>
+
+</Checkpoint>
+
+<RecapCard>
+- Every number needs a unit, and the unit goes in the name.
+- Convert units by multiplying by a fraction equal to 1 so the old unit cancels.
+- Degrees times π over 180 gives radians; WPILib trig and `ArmFeedforward` want radians.
+- Cosine is the horizontal part and sine the vertical part; arm gravity follows the cosine of the angle from horizontal.
+- Velocity is the slope of position, and acceleration is the slope of velocity.
+</RecapCard>

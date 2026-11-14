@@ -5,16 +5,120 @@ id: "5.10"
 track: "actions"
 session: 12
 isNew: false
-status: stub
+minutes: 40
+prereqs: ["5.9"]
+outcomes:
+  - Know what the real checkpoint asks and how it is rated
+  - Find your weak topics with a mixed question set
+  - Answer the mentor oral questions in your own words
+  - Pick the right lessons to review
+sources:
+  - curriculum: "misc/v1/frc1360_programming_curriculum_plan.md"
+  - curriculum: "labs/Session 11 - Mini Scorer Challenge/LAB_MANUAL.md"
+status: review
 sidebar:
   label: "5.10 Week 6 checkpoint"
   order: 10
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
 
-**What it will cover:** A mock checkpoint with the mentor questions and a self-assessment.
+<WhyItMatters>
+Week 6 is the team's formal stopping point. If you pass, you can take scoped build-season tasks: write a subsystem, add a command, tune a loop.
+This lesson is a rehearsal, so you find your gaps while nothing depends on the answer.
+</WhyItMatters>
 
-Based on Session 12 of the Orbit Robotics curriculum.
+## What the real checkpoint is
+
+In the real checkpoint you finish the Mini Scorer and give a mentor demo. Then:
+
+1. You answer the mentor's oral questions about your own code.
+2. You write a two-sentence self-assessment: what feels solid, and what feels unclear.
+3. You name three things you would change before running the code on a real robot.
+
+Passing means you are ready for tasks like these. Swerve setup, vision integration, and autonomous wiring still need a senior student or mentor nearby.
+
+## How you are rated
+
+| Rating | Meaning |
+|---|---|
+| Green | You can demo working behavior and explain why the code does what it does. Ready for scoped build-season tasks. |
+| Yellow | The demo works with hints, but you cannot explain the mechanism or find bugs on your own. You will be paired with someone. |
+| Red | You cannot demo the behavior, or you are blocked without a mentor. Keep drilling the basics before touching competition hardware. |
+
+The difference between green and yellow is **explaining**, not demoing. Working code you cannot explain is yellow.
+
+## Practice
+
+Do this set without notes first. Fourteen questions cover tracks 1 to 5, in order.
+
+<Practice bank="5-10" />
+
+## Checkpoint
+
+Say each answer out loud before you open it. These are the mentor's oral questions, from Lab 11 and Session 12.
+
+<Checkpoint lesson="5.10">
+
+<details>
+<summary>Why must `ArmFeedforward` receive angles in radians rather than degrees?</summary>
+The gravity term uses the cosine of the angle, and Java's math functions work in radians. With degrees, the code does not fail, it silently computes the wrong cosine and the wrong gravity voltage. The lab converts with `Math.toRadians` for both the position and the velocity.
+</details>
+
+<details>
+<summary>What would happen mechanically if `safeStow` lowered the elevator before folding the arm?</summary>
+The arm would still be pitched out while the carriage drops, so the arm or the game piece could hit the chassis or the floor. That is why the arm folds first, until it is inside its tolerance, and only then does the elevator lower.
+</details>
+
+<details>
+<summary>How does `Commands.defer` let the Y button toggle sides each time it is pressed?</summary>
+`defer` runs its lambda every time the command is scheduled, not once at robot start. Each press flips `isFrontIntake`, updates the published side, and returns the front or back intake command for the new side.
+</details>
+
+<details>
+<summary>What does `addRequirements` prevent?</summary>
+Two commands using the same subsystem at the same time. If a new command needs a subsystem that is busy, the scheduler interrupts the old one, so two commands never fight over one motor.
+</details>
+
+<details>
+<summary>How do you know the arm is at its target?</summary>
+The `armAtTarget` trigger is true when the profiled controller's `atGoal()` is true, meaning the arm is inside its tolerance of the goal. You can also see the measured angle meet the goal on the AdvantageScope graph.
+</details>
+
+<details>
+<summary>What would you change if the elevator oscillates?</summary>
+Open the graph first. Swinging around the goal usually means `kP` is too large, so lower it. Also check that the feedforward and the profile constraints are sensible. Change one value at a time and re-check the graph.
+</details>
+
+</Checkpoint>
+
+## What to review
+
+If you rated yourself yellow or red on a topic, go back to these lessons.
+
+| Topic | Lessons |
+|---|---|
+| Robot hardware, power, CAN, and the robot loop | 1.2 to 1.5, 1.12 |
+| Project layout, subsystems, and the command lifecycle | 2.1 to 2.3 |
+| Scheduler, requirements, triggers, and bindings | 2.4, 2.5 |
+| Setpoint, measurement, error, and PID | 3.2, 3.3 |
+| Feedforward and velocity tuning from graphs | 3.4, 3.5 |
+| Profiled elevator and arm, radians | 3.6 to 3.8 |
+| Readiness triggers | 3.9 |
+| Constants, units, logging, and graphs | 4.1, 4.4, 4.6 |
+| Unit tests | 4.7 |
+| Command composition and waiting | 5.1, 5.2 |
+| Single-controller bindings and default commands | 5.3, 5.4 |
+| Coupled mechanisms and arm-on-elevator safety | 5.5, 5.6 |
+| Reading an unfamiliar project | 5.9 |
+
+## Recap
+
+<RecapCard>
+- The checkpoint is a demo plus explanations. Green needs both.
+- Yellow means paired support; red means more drill on the basics.
+- Review the lessons in the table for any topic you could not explain out loud.
+</RecapCard>

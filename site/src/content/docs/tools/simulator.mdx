@@ -5,16 +5,119 @@ id: "R.2"
 track: "tools"
 session: 2
 isNew: false
-status: stub
+minutes: 15
+prereqs: ["R.1"]
+outcomes:
+  - Start the simulator from a lab project
+  - Put the robot in Teleoperated mode and enable it
+  - Drive the robot code with the keyboard or a gamepad
+  - Stop and restart after a code change
+sources:
+  - curriculum: "labs/Session 2 - How 1360 Robot Code Is Organized/LAB_MANUAL.md"
+  - curriculum: "labs/Session 4 - PID + Feedforward for Velocity Control/LAB_MANUAL.md"
+  - doc: "https://docs.wpilib.org/en/stable/docs/software/wpilib-tools/robot-simulation/simulation-gui.html"
+status: review
 sidebar:
   label: "R.2 Run the simulator"
   order: 2
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
 
-**What it will cover:** Start the simulator, enable teleop, and use a keyboard or gamepad as the joystick.
+<WhyItMatters>
+The simulator runs your robot code on your laptop with no robot attached, so you can test a button press or a motor command in seconds.
+It is the tool most labs use to check your work.
+</WhyItMatters>
 
-Based on Session 2 of the Orbit Robotics curriculum.
+## Before you start
+
+- A lab project open in the WPILib VS Code (lesson R.1).
+- Optional: a USB gamepad. Without one, you use the keyboard.
+
+## Start the simulator
+
+1. Open the command palette with <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> (<kbd>Cmd</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> on macOS).
+2. Choose **WPILib: Simulate Robot Code**.
+3. In the dialog, leave **Sim GUI** selected and press **Ok**.
+4. Wait for the simulator window to open. The first run builds the project first.
+
+Use this command rather than the Run button next to the WPILib button in the top right of VS Code. The Run button does not set up the simulation correctly.
+
+## Enable the robot
+
+The **Robot State** panel lists the robot modes.
+
+1. In **Robot State**, click **Teleoperated**.
+2. Click **Enable**. The robot code now runs its teleop behavior.
+
+Click **Disable** to stop the motors. The mode names are the same ones the real Driver Station uses (lesson R.4).
+
+## Add a joystick
+
+Robot code reads controller 0 and nothing else, so something must be dropped onto that slot.
+
+1. Find the **System Joysticks** panel. It lists the keyboards and any gamepad plugged in.
+2. Drag **Keyboard 0** (or your gamepad) onto the first slot, Joystick[0], in the **Joysticks** panel.
+3. Press the keys while the simulator window has focus.
+
+The labs ship a `simgui-ds.json` file next to `build.gradle` that sets up Keyboard 0 for you. The first four buttons use these keys:
+
+| Key | Xbox button |
+|---|---|
+| <kbd>Z</kbd> | A |
+| <kbd>X</kbd> | B |
+| <kbd>C</kbd> | X |
+| <kbd>V</kbd> | Y |
+
+Keyboard 0 also drives the first axes with <kbd>A</kbd>/<kbd>D</kbd> and <kbd>W</kbd>/<kbd>S</kbd>. To change a mapping, open the **DS** menu in the simulator's menu bar and choose **Keyboard 0 Settings**.
+With a real gamepad, turn on the **Map gamepad** toggle under the **Joysticks** menu if its buttons do not respond.
+
+## Stop and restart after a change
+
+1. Close the simulator window.
+2. Edit and save your code.
+3. Run **WPILib: Simulate Robot Code** again. It rebuilds first.
+
+Stop the simulator before opening a different project, so two projects never run at once.
+
+## If something goes wrong
+
+| What you see | Likely cause | Fix |
+|---|---|---|
+| Pressing keys does nothing | No joystick is on Joystick[0], or the window does not have focus | Drag Keyboard 0 onto Joystick[0] and click the simulator window |
+| Buttons work but the robot does not move | The robot is Disabled or in the wrong mode | Choose **Teleoperated** and click **Enable** |
+| The simulator window never opens | The build failed | Read the terminal for the first error, fix it, run again |
+| Your edit has no effect | The old simulation is still running | Close the window and start it again |
+| A real gamepad's buttons are wrong | Gamepad mapping is off | Turn on **Map gamepad** |
+
+## Practice
+
+<Practice bank="R-2" />
+
+## Checkpoint
+
+<Checkpoint lesson="R.2">
+
+<details>
+<summary>Which keys press Xbox A and Xbox B on the lab keyboard joystick?</summary>
+<kbd>Z</kbd> is A and <kbd>X</kbd> is B. <kbd>C</kbd> and <kbd>V</kbd> are X and Y.
+</details>
+
+<details>
+<summary>You changed a constant and saved. What must you do to see the effect?</summary>
+Close the simulator and run **WPILib: Simulate Robot Code** again. The running simulation uses the old code.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- Start with **WPILib: Simulate Robot Code** and the **Sim GUI** option.
+- Choose **Teleoperated** and **Enable** in **Robot State**.
+- Drag **Keyboard 0** onto Joystick[0]; <kbd>Z</kbd>/<kbd>X</kbd>/<kbd>C</kbd>/<kbd>V</kbd> are A/B/X/Y.
+- After a code change, close and restart the simulator.
+</RecapCard>

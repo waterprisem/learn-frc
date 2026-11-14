@@ -5,16 +5,127 @@ id: "0.6"
 track: "foundations"
 session: null
 isNew: true
-status: stub
+minutes: 25
+prereqs: ["0.2"]
+outcomes:
+  - Open commands from the WPILib VS Code command palette
+  - Explain what build, deploy, and simulate each do
+  - Find the file, line, and message in a compiler error
+  - Read a stack trace to the first line in your own code
+sources:
+  - curriculum: "labs/Session 2 - How 1360 Robot Code Is Organized/LAB_MANUAL.md"
+  - curriculum: "labs/Session 3 - Open-Loop Flywheel with TalonFX/LAB_MANUAL.md"
+  - curriculum: "labs/Session 4 - PID + Feedforward for Velocity Control/LAB_MANUAL.md"
+  - doc: "https://docs.wpilib.org/en/stable/docs/software/vscode-overview/index.html"
+status: review
 sidebar:
   label: "0.6 Tools: VS Code, Gradle, reading errors"
   order: 6
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import DoItForReal from '../../../components/lesson/DoItForReal.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
 
-**What it will cover:** The WPILib VS Code, build vs deploy, and how to read compiler errors and stack traces.
+<WhyItMatters>
+Every programmer spends more time fixing code than writing it, and the red text on your screen is the best clue you will get.
+Students who can read an error fix it in a minute. Students who cannot wait for a mentor.
+</WhyItMatters>
 
-This lesson goes beyond the Orbit Robotics curriculum.
+## WPILib VS Code
+
+You write robot code in a copy of VS Code that comes with WPILib. Most actions start from the **command palette**: press Ctrl+Shift+P (Cmd+Shift+P on Mac) and type what you want, such as `WPILib: Build Robot Code`.
+The WPILib **"W" button** in the top-right corner opens the same palette already filtered to WPILib commands.
+
+## What Gradle does
+
+**Gradle** is the tool behind those commands. It reads your project, then runs the steps in order.
+
+| Command | What happens |
+|---|---|
+| Build | Compile your Java and check it for errors. Nothing runs. |
+| Deploy | Build, then copy the program to the robot. |
+| Simulate | Build, then run the program on your laptop. |
+
+Because deploy and simulate both build first, a code error stops them before anything starts. A **compiler** is the program that translates your Java into something the computer can run, and it refuses code that breaks the language's rules.
+
+## Reading a compiler error
+
+Every compiler error has three parts: the file, the line number, and a message. Fix the **first** error first. Later ones are often side effects of it.
+
+```text
+src/main/java/frc/robot/subsystems/FlywheelSubsystem.java:42: error: ';' expected
+        double voltage = kS + kV * targetRPS
+                                            ^
+1 error
+```
+
+Read it from the left. The file is `FlywheelSubsystem.java`, the line is 42, and the message says a semicolon is missing. The `^` marks where the compiler noticed. When the message is about a missing `;`, look at the end of that line or the one before.
+
+A second common one is a wrong type:
+
+```text
+FlywheelSubsystem.java:57: error: incompatible types: String cannot be converted to double
+        double speedRPS = "40";
+                          ^
+```
+
+## Reading a stack trace
+
+A compiler error stops you before the robot runs. A **stack trace** appears while it runs, when the code crashes. It lists the chain of method calls that led to the crash, newest first.
+
+```text
+java.lang.NullPointerException: Cannot invoke "frc.robot.subsystems.FlywheelSubsystem.setVoltage(double)" because "this.flywheel" is null
+    at frc.robot.commands.SetFlywheelVoltageCommand.execute(SetFlywheelVoltageCommand.java:28)
+    at edu.wpi.first.wpilibj2.command.CommandScheduler.run(CommandScheduler.java:287)
+    at frc.robot.Robot.robotPeriodic(Robot.java:41)
+```
+
+1. **First line**: what went wrong. A `NullPointerException` means you used an object that was never created. The message names it: `this.flywheel` is null.
+2. **First line that starts with `frc.robot`**: where in your code. Here it is line 28 of `SetFlywheelVoltageCommand.java`. Lines starting with `edu.wpi` are WPILib's code; the mistake is almost never there.
+
+## Move around the code
+
+To follow what a method does, right-click it and choose **Go to Definition**. To see everything that uses it, choose **Find All References**. Lab 2 uses both to trace a button press from `RobotContainer` down to `DiagnosticsSubsystem`.
+
+## Practice
+
+<Practice bank="0-6" />
+
+## Do it for real
+
+<DoItForReal tools="WPILib VS Code">
+
+1. Open any lab project in WPILib VS Code.
+2. In the command palette run `WPILib: Build Robot Code` and wait for `BUILD SUCCESSFUL`.
+3. Delete one semicolon in a file, then build again. Find the file, line, and message in the output.
+4. Put the semicolon back and build again.
+
+**You know it worked when** the error pointed to the line you changed and the second build passed.
+
+**On a real robot, also check**
+- Deploy only after a clean build, and read the output for `BUILD SUCCESSFUL` before assuming the robot has your code.
+
+</DoItForReal>
+
+## Checkpoint
+
+<Checkpoint lesson="0.6">
+
+<details>
+<summary>The lab manual says "work from the first compiler error, not the last". Why?</summary>
+One mistake, such as a missing brace, can make the compiler report many more errors after it. Fixing the first often clears the rest.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- Build checks the code, deploy builds then copies to the robot, simulate builds then runs on your laptop.
+- A compiler error gives file, line, and message. Fix the first one first.
+- In a stack trace, read the first line for what went wrong, then find the first `frc.robot` line.
+- Go to Definition and Find All References let you follow code you did not write.
+</RecapCard>

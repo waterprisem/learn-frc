@@ -5,16 +5,80 @@ id: "4.5"
 track: "quality"
 session: 5
 isNew: false
-status: stub
+minutes: 15
+prereqs: ["4.1"]
+outcomes:
+  - Review a subsystem with the three-question peer-review checklist
+  - Write a comment that is specific, about the code, and says why
+  - Spot common robot-code problems in a short description of the code
+sources:
+  - curriculum: "labs/Session 5 - Constants, Logging, and Code Review/LAB_MANUAL.md"
+  - curriculum: "presentations/Session 5 - Constants, Logging, and Code Review/raw_data/slides.md"
+status: review
 sidebar:
   label: "4.5 Code review"
   order: 5
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
 
-**What it will cover:** A short checklist, practiced on real snippets.
+<WhyItMatters>
+Robot code gets read under pressure: between matches, by someone who did not write it.
+A second pair of eyes catches the unit mix-up or the missing line before it reaches the field.
+</WhyItMatters>
 
-Based on Session 5 of the Orbit Robotics curriculum.
+## The checklist
+
+In Lab 5 you swap `FlywheelSubsystem.java` and `Constants.java` with another pair and answer three questions. The aim is correctness and clarity, not rewriting clear code to match your taste.
+
+| Question | What to look for |
+|---|---|
+| Is every tunable value in `Constants.java`, with a name that includes its unit? | Bare numbers in methods; names like `speed` or `limit` with no unit |
+| Are sensor units clear from names, variables, or JavaDoc? | A parameter named `target`; a method that does not say if it returns RPS, RPM, or degrees |
+| Is there behavior in `periodic()` that belongs in a command? | `periodic()` should log and poll. Deciding what the motor does is a command's job |
+
+The lecture slides add two more things to watch for: constants that control motors (they should only store configuration), and unclear boundaries or silent failures.
+
+## Giving a useful comment
+
+A good comment has three parts.
+
+1. **Where:** the file and the name, so the author can find it.
+2. **What:** the specific problem, about the code and not the person.
+3. **Why:** the impact, ideally with a suggested fix.
+
+> `closedLoopCalculate` accepts `target` without a unit. Rename it to `targetRPS` so a future caller does not accidentally pass RPM.
+
+"Looks good" gives the author nothing to act on. "I'd do it differently" is preference, not a finding. The lab asks for one recommended change per review. The authors then either make one review change or write down why they kept the design.
+
+## Practice
+
+<Practice bank="4-5" />
+
+## Checkpoint
+
+<Checkpoint lesson="4.5">
+
+<details>
+<summary>Why is "Looks good" not actionable?</summary>
+It names no concrete issue and no next step. A useful comment is specific and explains the impact, like renaming `target` to `targetRPS` to prevent unit confusion.
+</details>
+
+<details>
+<summary>You are the author and disagree with a finding. What do you do?</summary>
+Discuss it with the reviewer, then either make a change or record the technical reason you intentionally kept the current design.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- Review three things: tunables in `Constants.java`, clear units, and behavior kept out of `periodic()`.
+- A comment says where, what, and why.
+- Review for correctness and clarity, not personal style.
+- Authors fix a finding or write down why they kept the design.
+</RecapCard>

@@ -1,0 +1,28 @@
+# Practice bank for lesson 0.1 (How to use this site).
+lesson: "0.1"
+items:
+  - type: mcq
+    prompt: "You finish lesson 2.3 on your school laptop. The next day you open the site on your phone. What do you see?"
+    choices:
+      - "Lesson 2.3 ticked, because the site remembers you"
+      - "No progress, because it is saved in the browser you used"
+      - "Your progress, but only if you are on the same Wi-Fi"
+    answer: 1
+    explain: "Progress is saved in one browser on one device. A different browser starts empty, so tick boxes by hand if you want to copy your place."
+  - type: multi
+    prompt: "Which of these are parts of a lesson? Select all that apply."
+    choices:
+      - "Why it matters"
+      - "Do it for real"
+      - "A Gradle build log"
+      - "A recap"
+    answers: [0, 1, 3]
+    explain: "Lessons open with why it matters, practice the idea, send you to the real tools, and end with a recap. Build logs belong to the real tools, not to the lesson layout."
+  - type: parsons
+    prompt: "Put the learning loop in order."
+    lines:
+      - "read the concept"
+      - "try the playground"
+      - "do it for real"
+    distractors: []
+    explain: "Understand the idea first, build intuition in the playground, then repeat the task in the real tools. Skipping the last step leaves you with a model, not a skill."

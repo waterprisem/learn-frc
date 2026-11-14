@@ -383,3 +383,221 @@ race-condition:
   short: A bug where the result depends on timing, such as a ready signal that is still true for an old goal.
   lessons:
     - "3.9"
+static:
+  term: static
+  short: Belongs to the class itself, so you use it without creating an object (Math.abs, FlywheelConstants.PID_KP).
+  lessons:
+    - "0.4"
+final:
+  term: final
+  short: A variable that cannot be reassigned after it is set.
+  lessons:
+    - "0.4"
+package:
+  term: Package
+  short: A named folder of related classes. The package line at the top of a file must match its folder path.
+  lessons:
+    - "0.4"
+import:
+  term: Import
+  short: A line that borrows a class from another package so the file can use it by its short name.
+  lessons:
+    - "0.4"
+generics:
+  term: Generic type
+  short: A type with another type in angle brackets that says what it holds, like List of String.
+  lessons:
+    - "0.4"
+enum:
+  term: Enum
+  short: A type with a fixed list of named values, like NeutralModeValue.Brake and Coast.
+  lessons:
+    - "0.4"
+method-chaining:
+  term: Method chaining
+  short: Calling .withX().withY() in a row, where each call returns the same object so the next call can follow.
+  lessons:
+    - "0.4"
+gradle:
+  term: Gradle
+  short: The build tool behind WPILib's build, deploy, and simulate commands. It compiles your code and runs the next step.
+  lessons:
+    - "0.6"
+compiler:
+  term: Compiler
+  short: The program that translates your Java into something the computer can run, and refuses code that breaks the language's rules.
+  lessons:
+    - "0.6"
+stack-trace:
+  term: Stack trace
+  short: The list of method calls, newest first, printed when a program crashes. It shows where the crash happened and how the code got there.
+  lessons:
+    - "0.6"
+command-palette:
+  term: Command palette
+  short: The VS Code search box (Ctrl+Shift+P) where you type the name of a command, such as WPILib - Build Robot Code.
+  lessons:
+    - "0.6"
+git:
+  term: Git
+  short: A tool that keeps a history of snapshots of your project and lets several people change it safely.
+  lessons:
+    - "0.7"
+repository:
+  term: Repository
+  short: A project folder together with its full Git history.
+  lessons:
+    - "0.7"
+commit:
+  term: Commit
+  short: One saved snapshot of the project in Git, with a short message saying what changed.
+  lessons:
+    - "0.7"
+branch:
+  term: Branch
+  short: A separate line of work in Git that does not change the main code until it is merged.
+  lessons:
+    - "0.7"
+pull-request:
+  term: Pull request
+  short: A request on GitHub to merge your branch into main, where teammates review and comment.
+  lessons:
+    - "0.7"
+merge-conflict:
+  term: Merge conflict
+  short: What Git reports when two changes edit the same lines. You resolve it by choosing the right lines.
+  lessons:
+    - "0.7"
+radian:
+  term: Radian
+  short: An angle unit where a full turn is 2π (about 6.28). WPILib trig and ArmFeedforward use radians. Degrees × π / 180.
+  lessons:
+    - "0.8"
+vector:
+  term: Vector
+  short: A quantity with a direction, written as a speed and a direction or as an x part and a y part.
+  lessons:
+    - "0.8"
+velocity:
+  term: Velocity
+  short: How fast position changes; the slope of a position graph.
+  lessons:
+    - "0.8"
+acceleration:
+  term: Acceleration
+  short: How fast velocity changes; the slope of a velocity graph.
+  lessons:
+    - "0.8"
+voltage:
+  term: Voltage
+  short: The electrical push. Robot code commands a voltage; a fresh battery is about 12 V.
+  lessons:
+    - "0.9"
+current:
+  term: Current
+  short: The flow of electricity, in amps. Current produces motor torque and heat.
+  lessons:
+    - "0.9"
+torque:
+  term: Torque
+  short: Turning force. A motor's torque roughly follows its current.
+  lessons:
+    - "0.9"
+inertia:
+  term: Inertia
+  short: How strongly a heavy object resists changes in speed. It is why acceleration needs extra voltage (kA).
+  lessons:
+    - "0.9"
+magic-number:
+  term: Magic number
+  short: A bare number in code whose meaning and unit you have to guess. Replace it with a named constant.
+  lessons:
+    - "4.1"
+topic:
+  term: Topic
+  short: One named, typed value in NetworkTables, such as Velocity RPS, inside a table like Subsystems/FlywheelSubsystem.
+  lessons:
+    - "4.2"
+publisher:
+  term: Publisher
+  short: An object that writes values to a NetworkTables topic. Create it once as a field.
+  lessons:
+    - "4.2"
+subscriber:
+  term: Subscriber
+  short: An object that reads the latest value of a NetworkTables topic, or a default if it has none yet.
+  lessons:
+    - "4.2"
+    - "4.3"
+live-tuning:
+  term: Live tuning
+  short: Changing gains while the robot runs by reading them from NetworkTables, then copying the final values into Constants.java.
+  lessons:
+    - "4.3"
+data-log:
+  term: Data log
+  short: A file the robot writes while it runs (a .wpilog) so you can graph what happened after the robot is off.
+  lessons:
+    - "4.6"
+assertion:
+  term: Assertion
+  short: A line in a test that fails the test when a condition is false, such as the error being larger than allowed.
+  lessons:
+    - "4.7"
+command-composition:
+  term: Command composition
+  short: Combining small commands with sequence, parallel, race, or deadline into one bigger command.
+  lessons:
+    - "5.1"
+named-action:
+  term: Named action
+  short: A composed command a driver would call by name, such as Intake or Score Speaker, built in one place and bound to a button.
+  lessons:
+    - "5.1"
+setpoint-specific-trigger:
+  term: Setpoint-specific trigger
+  short: A readiness trigger that checks the controller goal equals one named setpoint and the mechanism is at that goal.
+  lessons:
+    - "5.2"
+active-side:
+  term: Active side
+  short: A field the actions read to decide which side of the robot to use; flipping it lets the same buttons work on both sides.
+  lessons:
+    - "5.3"
+coupled-mechanisms:
+  term: Coupled mechanisms
+  short: Mechanisms that share space or load, such as an arm mounted on an elevator, so safe moves for one depend on the other.
+  lessons:
+    - "5.5"
+    - "5.6"
+pose:
+  term: Pose (state)
+  short: A named combination of setpoints for a superstructure, such as L4 = 1.08 m elevator and -20 degree arm.
+  lessons:
+    - "5.5"
+    - "5.7"
+travel-envelope:
+  term: Travel envelope
+  short: The range of arm angles (-25 to 50 degrees in Lab 10) in which the elevator is allowed to move freely.
+  lessons:
+    - "5.6"
+state-machine:
+  term: State machine
+  short: Code organized as an enum of states, one wanted state, and one place that decides what each mechanism does.
+  lessons:
+    - "5.7"
+sim-gui:
+  term: Sim GUI
+  short: The WPILib simulator window with panels for robot state, joysticks, and NetworkTables.
+  lessons:
+    - R.2
+advantagescope:
+  term: AdvantageScope
+  short: A desktop tool that graphs robot data live from the simulator or a robot, or from a saved log file.
+  lessons:
+    - R.3
+wpilog:
+  term: WPILOG
+  short: The log file format WPILib writes; AdvantageScope opens it with File, Open Log(s).
+  lessons:
+    - R.3

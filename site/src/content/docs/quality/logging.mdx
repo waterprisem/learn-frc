@@ -5,16 +5,95 @@ id: "4.6"
 track: "quality"
 session: null
 isNew: true
-status: stub
+minutes: 15
+prereqs: ["4.2", "4.4"]
+outcomes:
+  - Explain the difference between live NetworkTables, a saved data log, and AdvantageKit
+  - Turn on WPILib data logging in robot code
+  - Describe how you would use a log after a match
+sources:
+  - doc: "https://docs.wpilib.org/en/stable/docs/software/telemetry/datalog.html"
+  - doc: "https://docs.wpilib.org/en/stable/docs/software/telemetry/datalog-download.html"
+  - doc: "https://v6.docs.ctr-electronics.com/en/stable/docs/api-reference/api-usage/signal-logging.html"
+  - doc: "https://docs.advantagescope.org/"
+  - doc: "https://docs.advantagekit.org/"
+status: review
 sidebar:
   label: "4.6 Logging and replay"
   order: 6
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import GoDeeper from '../../../components/lesson/GoDeeper.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
 
-**What it will cover:** Data logs, opening them after a match, and what AdvantageKit adds.
+<WhyItMatters>
+At competition the shooter missed in match 14, and by the time you reach the pit the robot is off and the graph is gone.
+A log keeps what happened, so you can look at the match afterward instead of guessing.
+</WhyItMatters>
 
-This lesson goes beyond the Orbit Robotics curriculum.
+## Live versus saved
+
+Everything you graphed so far was **live**: AdvantageScope read NetworkTables while the robot ran. NetworkTables only holds the current values, so when the robot powers off, nothing remains.
+
+A **data log** is a file the robot writes to disk while it runs. WPILib's `DataLogManager` writes a `.wpilog` file, and by default it records the NetworkTables values your code publishes. You open the file in AdvantageScope later, with the same graphs as live.
+
+Only what your code publishes gets logged. A signal you never published cannot be graphed afterward, which is why the topics from lessons 4.2 and 4.4 matter.
+
+## Turn it on
+
+One call at the start of robot code starts logging. The second line also records Driver Station data and joystick inputs, which are off by default.
+
+```java
+DataLogManager.start();
+DriverStation.startDataLog(DataLogManager.getLog());
+```
+
+The roboRIO saves files to a USB flash drive in a folder called `logs` if one is plugged in, or to `/home/lvuser/logs` otherwise. The drive must be formatted FAT32. Files are renamed with the date and time, or the match number when the Field Management System provides it. After a match you copy the file off and open it in AdvantageScope.
+
+## Three ways to see data
+
+| | Live NetworkTables | WPILib data log | AdvantageKit |
+|---|---|---|---|
+| What you get | Current values, while connected | A `.wpilog` file of values over time | A log of values and of every input to your code |
+| When you can look | Only while the robot runs | Any time after | Any time after |
+| Setup | Publish the topics | `DataLogManager.start()` | A library plus a code structure built around it |
+| Best for | Tuning at the bench | Finding out what happened in a match | Re-running the robot code on a log to reproduce a bug |
+| Level in this course | Used throughout | Use it | Awareness only |
+
+<GoDeeper title="CTRE logs and what AdvantageKit adds">
+Phoenix 6 has its own logger, `SignalLogger`, which writes `.hoot` files with the motor controllers' status signals and your own custom signals on the same timebase. CTRE's docs describe how to extract and convert those files.
+**AdvantageKit** is a logging framework used by many advanced teams. Because it logs every input your code reads (sensors, joysticks, the clock), it can replay a match through your code and let you change the code and see what it would have done. It needs your subsystems structured around it, so this course only introduces the idea.
+</GoDeeper>
+
+## Practice
+
+<Practice bank="4-6" />
+
+## Checkpoint
+
+<Checkpoint lesson="4.6">
+
+<details>
+<summary>The robot misbehaved in a match and you only have the log. What can you graph?</summary>
+Only the values your code published (plus whatever the data log or Driver Station logging recorded). That is why you publish target, measurement, error, output, and the ready flag every loop.
+</details>
+
+<details>
+<summary>What does AdvantageKit add on top of a data log?</summary>
+It logs every input to the code so a match can be replayed through the code, which lets you test a fix against what really happened.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- Live NetworkTables disappears when the robot stops; a `.wpilog` file does not.
+- `DataLogManager.start()` records published NetworkTables values to a log on the roboRIO or USB drive.
+- `DriverStation.startDataLog(...)` adds Driver Station and joystick data.
+- Open logs in AdvantageScope after the match, and only published signals can be graphed.
+- AdvantageKit adds replay of the code itself, at the cost of structuring the code around it.
+</RecapCard>

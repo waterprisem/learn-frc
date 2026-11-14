@@ -5,16 +5,113 @@ id: "4.7"
 track: "quality"
 session: null
 isNew: true
-status: stub
+minutes: 20
+prereqs: ["3.5"]
+outcomes:
+  - Explain what an automated test is and what the lab tests check
+  - Run the tests from the command line or from VS Code
+  - Read a failure message and decide whether the code or the test is wrong
+  - State what a passing simulation test does not prove
+sources:
+  - curriculum: "labs/Session 11 - Mini Scorer Challenge/solution/src/test/java/frc/robot/MiniScorerSimulationTest.java"
+  - curriculum: "labs/Session 9 - Command Composition with Roti-Style Superstructure/solution/src/test/java/frc/robot/ArmSimulationSmokeTest.java"
+  - doc: "https://docs.wpilib.org/en/stable/"
+status: review
 sidebar:
   label: "4.7 Unit tests for robot code"
   order: 7
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import GoDeeper from '../../../components/lesson/GoDeeper.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
+import AnnotatedCode from '../../../components/code/AnnotatedCode.astro';
 
-**What it will cover:** What the tests shipped with the labs do and how to run them.
+<WhyItMatters>
+You change one constant to fix the arm, and the elevator quietly stops reaching its height.
+A test can catch that in seconds on your laptop, without a robot and without waiting for the next time anyone tries the elevator.
+</WhyItMatters>
 
-This lesson goes beyond the Orbit Robotics curriculum.
+## What a test is
+
+A **test** is a small piece of code that sets up a situation, runs your code, and checks the result with an **assertion**: a line that fails the test if a condition is false. Tests live in `src/test/java`, and the build tool runs them all and reports what passed.
+
+The labs ship two examples. `MiniScorerSimulationTest` (Lab 11) and `ArmSimulationSmokeTest` (Lab 9) create a real subsystem, run its control loop in the WPILib simulator, and assert on the mechanism's state. For example, "within 150 loops the flywheel gets within 4 RPS of its scoring speed" or "the elevator gets within 0.08 m of its height".
+
+## Anatomy of one test
+
+<AnnotatedCode
+  file="lab11-4.7/flywheel-test"
+  title="MiniScorerSimulationTest.java"
+  notes={[
+    { lines: '1-2', text: '<code>@Test</code> marks a method as a test. The name says what should be true.' },
+    { lines: '3-4', text: 'Arrange: build the subsystem and pick the target from the same constants the robot uses.' },
+    { lines: '7-14', text: 'Act: loop 150 times, doing what the scheduler and simulator normally do. <code>Unmanaged.feedEnable(100)</code> keeps the simulated CTRE devices enabled.' },
+    { lines: '16-18', text: 'Assert: fail unless the best error came within 4 RPS. The message string is what you read when it fails.' },
+  ]}
+/>
+
+## Run it and read a failure
+
+From the project folder run:
+
+```
+./gradlew test
+```
+
+or use the WPILib command **Test Robot Code** in VS Code. Gradle prints each test as passed or failed, and writes an HTML report under `build/reports/tests`.
+
+A failure looks like the assertion message you wrote, for instance `Flywheel should reach target velocity within tolerance. Best error: 11.3`. Read it in three steps.
+
+1. Which test failed, and which assertion?
+2. What number did it get, and what did it expect?
+3. Is the code wrong, or did you change a constant the test depends on on purpose?
+
+Because the test uses the real constants, a gain change that makes the flywheel slower can fail it. That is the test doing its job.
+
+## What a passing test does not prove
+
+A passing simulation test says the code behaves inside a model. It does not say the real robot works.
+
+- The simulation does not include a loose belt, a flipped motor, or a real battery.
+- The tests check the final reach, not how smooth or safe the motion was.
+- They only cover what someone thought to assert.
+
+Treat tests as a quick safety net before you deploy, and still test on the robot.
+
+<GoDeeper title="the Session 9 smoke test">
+`ArmSimulationSmokeTest` is called a smoke test because it checks only that the basics work, like turning on a device and watching for smoke. It moves the arm to the amp angle and back home, and asserts the best error is under 4 degrees each time.
+It also asserts the first computed voltage is not nearly 0, which catches a controller that is silently doing nothing.
+</GoDeeper>
+
+## Practice
+
+<Practice bank="4-7" />
+
+## Checkpoint
+
+<Checkpoint lesson="4.7">
+
+<details>
+<summary>What does <code>assertTrue(bestError less than 4.0, message)</code> do when the condition is false?</summary>
+The test fails and shows the message, which should say what was expected and include the actual number.
+</details>
+
+<details>
+<summary>The tests pass. Is the robot ready to compete?</summary>
+No. The tests run in a simulation of the mechanism. You still need to check wiring, motor direction, limits, and behavior on the real robot.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- A test builds a situation, runs your code, and asserts a result.
+- The lab tests step the simulation and assert on mechanism state, such as velocity error or height.
+- Run them with `./gradlew test` or **Test Robot Code**.
+- Read the failure message: which assertion, which number, and whether the code or a constant changed.
+- A passing simulation test does not prove the real robot works.
+</RecapCard>

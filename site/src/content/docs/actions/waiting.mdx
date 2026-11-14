@@ -5,16 +5,125 @@ id: "5.2"
 track: "actions"
 session: 9
 isNew: false
-status: stub
+minutes: 25
+prereqs: ["5.1", "3.9"]
+outcomes:
+  - Gate a step on a readiness trigger with Commands.waitUntil
+  - Show the plan's Commands.none().until(trigger) as the same thing
+  - Build the Lab 9 composed command that avoids the stale-readiness race
+  - Pair a wait with until and withTimeout so an action cannot hang
+sources:
+  - curriculum: "presentations/Session 9 - Advanced Command Composition & Single-Controller Design/Raw Data/slides.md"
+  - curriculum: "labs/Session 9 - Command Composition with Roti-Style Superstructure/LAB_MANUAL.md"
+  - curriculum: "labs/Session 9 - Command Composition with Roti-Style Superstructure/solution/src/main/java/frc/robot/commands/SuperstructureCommands.java"
+  - curriculum: "labs/Session 11 - Mini Scorer Challenge/solution/src/main/java/frc/robot/commands/SuperstructureCommands.java"
+  - doc: "https://docs.wpilib.org/en/stable/docs/software/commandbased/command-groups.html"
+status: review
 sidebar:
   label: "5.2 Waiting for readiness"
   order: 2
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import GoDeeper from '../../../components/lesson/GoDeeper.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
+import AnnotatedCode from '../../../components/code/AnnotatedCode.astro';
 
-**What it will cover:** Gating one step on another, and the race condition from Lab 9.
+<WhyItMatters>
+A shooter that spins up before the arm is in place wastes a game piece. A scoring action has to wait until the mechanisms have arrived, and it has to wait for the right arrival, not a leftover one from the last action.
+</WhyItMatters>
 
-Based on Session 9 of the Orbit Robotics curriculum.
+## Wait with a trigger
+
+`Commands.waitUntil(trigger)` is a command that does nothing and ends when the trigger becomes true. Put it in a sequence or a deadline to gate the next step on a readiness trigger from lesson 3.9.
+
+The curriculum plan writes the same idea as `Commands.none().until(trigger)`: a do-nothing command that ends when the condition is true. Both work. Prefer `waitUntil`, which says what it does.
+
+```java
+Commands.waitUntil(elevatorSubsystem.elevatorAtScoreAmp)
+```
+
+## Wait for the right goal
+
+A **readiness trigger** says "the mechanism is within tolerance of its goal". The PID controller already has a goal before your new action starts. If the arm sits at the Intake goal and you switch to Score Amp, a generic `armAtTarget` can still be true for the **old** goal.
+
+```java
+// Looks right, but can be true for the old goal.
+Commands.waitUntil(elevatorSubsystem.elevatorAtTarget.and(armSubsystem.armAtTarget))
+```
+
+The flywheel then starts before the elevator and arm have reached the Amp setpoints. That is a **race condition**: the result depends on which happened first.
+
+The Lab 9 fix is a **setpoint-specific trigger**, which checks `goal == the setpoint I'm waiting for` and `at goal`. Lesson 3.9 shows where those triggers are defined. Here you use them inside the composition.
+
+## The composed fix: Score Amp
+
+<AnnotatedCode
+  file="lab9-5.2/score-amp"
+  title="SuperstructureCommands.java"
+  notes={[
+    { lines: '2-5', text: 'The elevator and arm start moving immediately and keep holding for as long as the action runs.' },
+    { lines: '6-8', text: 'The wait uses <code>elevatorAtScoreAmp</code> and <code>armAtScoreAmp</code>, joined with <code>and</code>. It cannot become true for the Intake goal.' },
+    { lines: '9-12', text: '<code>andThen</code> starts the flywheel only after the wait ends. The flywheel target stays at 0 until then.' },
+  ]}
+/>
+
+All three branches are in a `parallel`, so the group ends when all of them end. None of them finishes, so the driver ends the action by releasing the button.
+
+## Never wait forever
+
+A trigger that never fires would hang the action. The lab's Score Amp and Score Speaker have no timeout, but the Lab 11 solution adds one to its multi-step actions, and uses `until` to end an elevator move when it clears a safe height.
+
+<AnnotatedCode
+  file="lab11-5.2/score-front"
+  title="SuperstructureCommands.java (Lab 11)"
+  notes={[
+    { lines: '6-9', text: '<code>until</code> ends the elevator command once the carriage is above the clearance height. This gates the next stage on a measured condition.' },
+    { lines: '11-19', text: 'After the wait, the elevator hold, arm move, and flywheel spin-up run together.' },
+    { lines: '20', text: '<code>withTimeout</code> wraps the whole sequence and cancels it after <code>SUPERSTRUCTURE_COMMAND_TIMEOUT_SECONDS</code> (5.0 s in the lab), even if the driver still holds the button.' },
+  ]}
+/>
+
+## Practice
+
+<Practice bank="5-2" />
+
+## Checkpoint
+
+<Checkpoint lesson="5.2">
+
+<details>
+<summary>Why is generic `armAtTarget` not enough for Amp or Speaker?</summary>
+It is true whenever the arm is within tolerance of whatever goal the controller currently has. After Intake, the arm can be settled at the Intake goal, so the trigger is true for the old goal before the new scoring goal is reached.
+</details>
+
+<details>
+<summary>What previous command state causes the race condition?</summary>
+A mechanism that has already settled at a different goal, such as Intake, when the driver switches to a scoring action.
+</details>
+
+<details>
+<summary>What does the flywheel Target RPS graph show when the fix works?</summary>
+It stays at zero until the elevator and arm are at the scoring setpoints, then steps to the scoring velocity.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+
+- `Commands.waitUntil(trigger)` gates a step; `Commands.none().until(trigger)` means the same.
+- Wait on a setpoint-specific trigger, not a generic "at target".
+- Put the wait in the same composition that moves the mechanisms.
+- Bound an action with `until` for measured conditions and `withTimeout` for a limit.
+
+</RecapCard>
+
+<GoDeeper title="why timeouts matter during a match">
+
+A command that waits on a trigger that never becomes true holds its subsystems forever. In a match the driver sees a robot that ignores every other button. A timeout turns "stuck" into "ends and the default command takes over". The Lab 11 solution uses one shared constant for those actions so the limit is easy to tune.
+
+</GoDeeper>

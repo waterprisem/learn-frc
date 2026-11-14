@@ -1,0 +1,57 @@
+# Practice bank for lesson 0.8 (Math for robots).
+lesson: "0.8"
+items:
+  - type: mcq
+    prompt: "An arm is at 0.25 rotations. What angle is that in degrees?"
+    choices: ["25 degrees", "90 degrees", "180 degrees", "360 degrees"]
+    answer: 1
+    explain: "Multiply by the fraction 360 degrees / 1 rotation: 0.25 × 360 = 90 degrees. A quarter turn is 90 degrees; 25 would come from forgetting that a full turn is 360."
+  - type: mcq
+    prompt: "A flywheel spins at 50 rotations per second. How many rotations per minute is that?"
+    choices: ["0.83", "50", "300", "3000"]
+    answer: 3
+    explain: "Multiply by 60 seconds / 1 minute so the seconds cancel: 50 × 60 = 3000 rotations per minute. Dividing by 60 would give 0.83, which turns the conversion upside down."
+  - type: fill-blank
+    prompt: "Complete the conversion from degrees to radians (use `Math.PI`)."
+    code: |
+      double angleRadians = angleDegrees * ____ / ____;
+    blanks:
+      - ["Math.PI", "3.14159", "3.14"]
+      - ["180", "180.0"]
+    explain: "Degrees × π / 180 gives radians, because 180 degrees is π radians. Swapping the two numbers gives a huge wrong value, not an error message."
+  - type: mcq
+    prompt: "An arm is 60 degrees above horizontal. Roughly what fraction of its full holding effort does gravity need, if effort follows cos(angle)?"
+    choices: ["0", "0.5", "0.87", "1"]
+    answer: 1
+    explain: "cos(60 degrees) = 0.5, so half of the flat-arm effort. 1 is the flat arm at 0 degrees, and 0 is straight up at 90 degrees."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "The arm feedforward is correct with the arm flat (0 degrees) but gives wrong voltages at most other angles, such as 45 or 90 degrees."
+    choices:
+      - "The angle was passed in degrees where radians were expected."
+      - "The gear ratio is too large."
+      - "The battery is low."
+      - "The motor was wired backwards."
+    answer: 0
+    explain: "In degrees, 45 is read as 45 radians, which gives a meaningless cosine. At 0 degrees the cosine of 0 is 1 either way, so the bug hides there. Lab 7 calls Math.toRadians before the feedforward."
+  - type: mcq
+    prompt: "A swerve module should drive at 2 m/s toward 45 degrees left of forward. What are its forward (x) and left (y) parts?"
+    choices: ["2 and 0", "1.41 and 1.41", "1 and 1", "0 and 2"]
+    answer: 1
+    explain: "x = 2 × cos(45 degrees) = 1.41 and y = 2 × sin(45 degrees) = 1.41. The two parts add back to 2 m/s total, not to 2 (1 and 1 would give a speed of 1.41)."
+  - type: mcq
+    prompt: "On an elevator's position graph, the line is a straight, slanted line. What are its velocity and acceleration?"
+    choices:
+      - "Constant velocity, zero acceleration"
+      - "Zero velocity, zero acceleration"
+      - "Increasing velocity, positive acceleration"
+      - "Constant velocity, constant positive acceleration"
+    answer: 0
+    explain: "Slope is velocity, and a straight line has the same slope everywhere, so velocity is constant. Acceleration is the change in velocity, which is zero. A curve that steepens is what shows acceleration."
+  - type: fill-blank
+    prompt: "The elevator moves from 0.2 m to 1.0 m in 2 s at a steady speed. Fill in its velocity in meters per second."
+    code: |
+      velocity = (1.0 - 0.2) / 2.0 = ____ m/s
+    blanks:
+      - ["0.4", ".4"]
+    explain: "Velocity is change in position divided by change in time: 0.8 m / 2 s = 0.4 m/s. Using 1.0 / 2 forgets to subtract the starting position."

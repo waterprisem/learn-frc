@@ -1,0 +1,44 @@
+lesson: "R.2"
+items:
+  - type: mcq
+    prompt: "Which command starts the simulator?"
+    choices:
+      - "WPILib: Simulate Robot Code"
+      - "The Run button next to the WPILib button"
+      - "WPILib: Build Robot Code"
+      - "File, Connect to Simulator"
+    answer: 0
+    explain: "The Run button does not set up simulation correctly. Connecting to the simulator is something AdvantageScope does, after it is already running."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "The simulator is open and you hold the Z key, but nothing happens in the code."
+    choices:
+      - "Keyboard 0 is not dragged onto Joystick[0]"
+      - "The battery is low"
+      - "The radio is unplugged"
+      - "AdvantageScope is closed"
+    answer: 0
+    explain: "Robot code reads controller 0. Until a keyboard or gamepad is on that slot, key presses never reach the code."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "Z is mapped, the window has focus, and the button shows as pressed, but the flywheel never spins."
+    choices:
+      - "The robot is still Disabled"
+      - "Z is the wrong key"
+      - "The build is too old"
+      - "Keyboard 0 does not exist"
+    answer: 0
+    explain: "A disabled robot ignores commands. Choose Teleoperated in Robot State and click Enable."
+  - type: multi
+    prompt: "Which keys press Xbox buttons on the lab keyboard joystick? Select all that apply."
+    choices:
+      - "Z is A"
+      - "X is B"
+      - "C is X"
+      - "V is A"
+    answers: [0, 1, 2]
+    explain: "Z, X, C, V are A, B, X, Y in order. V is Y, not A."
+  - type: free
+    prompt: "You edit a constant and save. Describe what to do to test it in the simulator."
+    modelAnswer: "Close the simulator window, run WPILib: Simulate Robot Code again so it rebuilds, then choose Teleoperated and enable."
+    explain: "A running simulation keeps using the old code, so a restart is the only way to pick up the change."

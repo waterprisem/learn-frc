@@ -1,0 +1,64 @@
+# Practice bank for lesson 5.6 (Arm-on-elevator safety).
+lesson: "5.6"
+items:
+  - type: mcq
+    prompt: "The arm is at -90 degrees (pointing down) and you request `HOME`. Which branch of `safeGoToLevel` runs?"
+    choices:
+      - "`armFirst`: the current arm angle is outside the envelope."
+      - "`elevatorFirst`: the target arm angle is outside the envelope."
+      - "`parallelSafe`: `HOME` is a safe pose."
+      - "None. The request is blocked."
+    answer: 0
+    explain: "The outer `either` tests the current angle first. -90 is below -25, so the arm folds to the `HOME` angle before the elevator moves. The wrong idea is that the target decides alone."
+  - type: mcq
+    prompt: "The arm is at 20 degrees and the target arm angle is -60 degrees. Which ordering is chosen?"
+    choices:
+      - "Arm first."
+      - "Elevator first, then arm."
+      - "Parallel."
+      - "The elevator holds forever."
+    answer: 1
+    explain: "The current angle is inside -25 to 50, so the outer test is false. The target is outside, so the inner test picks `elevatorFirst`: the carriage moves while the arm is folded, then the arm goes out."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "At L2, you hold the right trigger and nothing moves. `Current Transition` shows `BLOCKED: ELEVATOR_BELOW_SAFE_HEIGHT`."
+    choices:
+      - "The trigger binding is missing."
+      - "The command is working: L2 is below the 0.64 m clearance line, so the request is blocked on purpose."
+      - "The arm PID gains are zero."
+      - "The elevator encoder is not homed."
+    answer: 1
+    explain: "The blocked branch only publishes a message. This is the safety feature, not a bug. Try the trigger again at L3 or L4."
+    source: "Lab 10, Step 9"
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "After the faux intake, the elevator always returns to 0 m, whatever level you started from."
+    choices:
+      - "The elevator height was read when the command was built at bindings time, not when it started."
+      - "The elevator tolerance is too large."
+      - "The arm never reached -90 degrees."
+      - "The hold command ends at tolerance."
+    answer: 0
+    explain: "At bindings time the elevator is at its startup height. The capture must happen inside `Commands.runOnce(...)` at the start of the command, using the measured height."
+    source: "Lab 10, Step 9"
+  - type: symptom-cause
+    prompt: "What should you check first?"
+    symptom: "At L4, the right bumper runs a safe stow, but `Blocked Request Count` stays at 0."
+    choices:
+      - "That `isUnsafeHomeRequest()` is true: the elevator must be above the safe height and the current arm outside the envelope."
+      - "That the right trigger is released."
+      - "That the elevator has a current limit."
+      - "That the autonomous command is empty."
+    answer: 0
+    explain: "The guard only records a block when both conditions hold. The lab's troubleshooting list starts with the same two checks: measured elevator height and measured arm angle."
+    source: "Lab 10, Step 12"
+  - type: mcq
+    prompt: "Why do the predicates read `getElevatorHeightMeters()` and not the elevator's target?"
+    choices:
+      - "The target is slower to read."
+      - "A target is only a request. It does not prove the elevator has reached that height."
+      - "The target is in the wrong units."
+      - "WPILib does not allow reading targets."
+    answer: 1
+    explain: "The safety rules protect against where the mechanism really is. A command that has just been issued tells you nothing about the carriage position yet."
+    source: "Lab 10, Step 2"

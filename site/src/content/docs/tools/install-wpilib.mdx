@@ -5,16 +5,101 @@ id: "R.1"
 track: "tools"
 session: 1
 isNew: false
-status: stub
+minutes: 20
+prereqs: []
+outcomes:
+  - Install WPILib and find the WPILib VS Code it creates
+  - Open a lab's assignment folder as its own project
+  - Build the project with the WPILib command palette
+sources:
+  - curriculum: "misc/v1/frc1360_programming_curriculum_plan.md"
+  - curriculum: "labs/Session 2 - How 1360 Robot Code Is Organized/LAB_MANUAL.md"
+  - doc: "https://docs.wpilib.org/en/stable/docs/zero-to-robot/step-2/wpilib-setup.html"
+status: review
 sidebar:
   label: "R.1 Install WPILib and open a lab"
   order: 1
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
 
-**What it will cover:** Install WPILib and open a curriculum lab project in the WPILib VS Code.
+<WhyItMatters>
+Every lab in this course runs inside the tools WPILib installs: a special copy of VS Code, the Java compiler, and the simulator.
+Set this up once and every later lesson starts with "open the project" instead of a day of debugging.
+</WhyItMatters>
 
-Based on Session 1 of the Orbit Robotics curriculum.
+## Before you start
+
+- A Windows, macOS, or Linux computer with a few GB of free disk space.
+- An internet connection. The installer downloads VS Code, and the first build of each project downloads its libraries.
+- The lab files from the course repository on your computer.
+
+## Install WPILib
+
+1. Open the WPILib releases page on GitHub (`github.com/wpilibsuite/allwpilib/releases`) and download the installer for the current season and your operating system.
+2. Run it. On Windows, mount the downloaded `.iso` and open `WPILibInstaller.exe`. On macOS, open the `.dmg` and choose `WPILibInstaller`. If your system warns about a download from the internet, allow it to run.
+3. Click **Start**, then accept the defaults: **Everything** and **Download for this computer only** for VS Code.
+4. When the installer finishes, click **Finish**.
+
+The installer makes its own copy of VS Code for this year's WPILib. Always open that copy, not a VS Code you installed earlier.
+On Windows it appears in a desktop folder named for the year; on macOS, drag it to the dock.
+
+## Open a lab as its own project
+
+Each lab folder holds two complete projects, `solution` and `assignment`. Open one at a time.
+
+1. Start the WPILib VS Code.
+2. Choose **File**, then **Open Folder**.
+3. Pick the folder that directly contains `build.gradle`, for example the lab's `assignment` folder. Do not pick the lab folder above it.
+4. If VS Code asks whether you trust the authors, choose yes.
+
+You should see `src`, `vendordeps`, and `build.gradle` in the Explorer on the left.
+
+## Build the project
+
+1. Press <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> (<kbd>Cmd</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> on macOS) to open the command palette.
+2. Type `WPILib` and choose **WPILib: Build Robot Code**.
+3. Watch the terminal at the bottom. It ends with `BUILD SUCCESSFUL` when the code compiles.
+
+The first build can take several minutes because it downloads the libraries listed in `vendordeps`. Later builds take seconds.
+
+## If something goes wrong
+
+| What you see | Likely cause | Fix |
+|---|---|---|
+| No **WPILib** commands in the palette | You opened a regular VS Code | Close it and start the WPILib VS Code |
+| VS Code asks which folder is the project, or the build cannot find `build.gradle` | You opened the lab folder, not `assignment` or `solution` | Open the folder that directly contains `build.gradle` |
+| The first build fails with a download or dependency error | No internet connection | Connect, then build again |
+| Red underlines everywhere right after opening | The project is still loading | Wait for the build to finish, then reopen the file |
+
+## Practice
+
+<Practice bank="R-1" />
+
+## Checkpoint
+
+<Checkpoint lesson="R.1">
+
+<details>
+<summary>Why open the assignment folder itself rather than the lab folder?</summary>
+The lab folder holds two separate projects. WPILib builds the folder that contains `build.gradle`, so each project must be opened on its own.
+</details>
+
+<details>
+<summary>Why does the first build need internet?</summary>
+It downloads the vendor libraries the project lists, such as the motor controller library. They are cached afterward.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- Install from the WPILib GitHub release and accept the defaults.
+- Use the WPILib VS Code the installer creates.
+- Open the folder that contains `build.gradle`, one project at a time.
+- **WPILib: Build Robot Code** compiles it; the first build needs internet.
+</RecapCard>

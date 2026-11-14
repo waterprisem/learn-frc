@@ -5,16 +5,112 @@ id: "5.4"
 track: "actions"
 session: 9
 isNew: false
-status: stub
+minutes: 15
+prereqs: ["2.5", "5.1"]
+outcomes:
+  - Say when a default command runs and when it stops
+  - Write a default command that holds a mechanism safely
+  - Explain why Home in Lab 9 is a default and not a button
+  - Diagnose a mechanism that goes limp when a button is released
+sources:
+  - curriculum: "presentations/Session 9 - Advanced Command Composition & Single-Controller Design/Raw Data/slides.md"
+  - curriculum: "labs/Session 9 - Command Composition with Roti-Style Superstructure/LAB_MANUAL.md"
+  - curriculum: "labs/Session 6 - Profiled Elevator Control/LAB_MANUAL.md"
+  - doc: "https://docs.wpilib.org/en/stable/docs/software/commandbased/subsystems.html"
+status: review
 sidebar:
   label: "5.4 Default commands"
   order: 4
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import GoDeeper from '../../../components/lesson/GoDeeper.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
+import AnnotatedCode from '../../../components/code/AnnotatedCode.astro';
 
-**What it will cover:** What a mechanism does when nothing else is asking for it.
+<WhyItMatters>
+Release the button that raised an elevator and, with no command left, the motor gets nothing and the elevator sags. A **default command** is the answer to "what should this mechanism do when nobody is asking?"
+</WhyItMatters>
 
-Based on Session 9 of the Orbit Robotics curriculum.
+## The rule
+
+`subsystem.setDefaultCommand(command)` gives a subsystem one command that the scheduler runs whenever no other command requires that subsystem.
+
+1. A button's command starts and takes the subsystem. The default is interrupted.
+2. The button command ends or is cancelled. The default starts again, automatically.
+
+A default command must require its subsystem, and it normally never finishes. A default that finishes leaves the subsystem with nothing to do again.
+
+## Hold the stow position
+
+In Lab 6 the elevator returns to a stow height when no scoring button is held.
+
+<AnnotatedCode
+  file="lab6-5.4/default-stow"
+  title="RobotContainer.java (Lab 6)"
+  notes={[
+    { lines: '1-2', text: 'The default command asks for <code>STOW_HEIGHT_METERS</code> and keeps asking, because <code>SetElevatorHeightCommand</code> never finishes. This is why only four buttons are needed: stow is not a button.' },
+  ]}
+/>
+
+## Home is a default
+
+Lab 9 sets one default for each mechanism.
+
+<AnnotatedCode
+  file="lab9-5.4/default-commands"
+  title="RobotContainer.java (Lab 9)"
+  notes={[
+    { lines: '1-3', text: 'The elevator holds <code>HOME_ELEVATOR_HEIGHT_METERS</code> when nothing else needs it.' },
+    { lines: '4-5', text: 'The arm holds <code>HOME_ARM_ANGLE_DEGREES</code>.' },
+    { lines: '6-8', text: 'The flywheel idles at <code>HOME_FLYWHEEL_VELOCITY_RPS</code>, which is 0.' },
+  ]}
+/>
+
+So `Home` is not a button. It is what the robot does whenever no held command is using the mechanisms. When the driver lets go of A, X, or Y, the held action ends and the defaults take the robot back to Home. The lab checks this: after releasing each button, confirm the robot returns Home.
+
+Lab 11 goes one step further: the arm and elevator defaults read the active side, so the robot rests on the side the driver last chose.
+
+## Practice
+
+<Practice bank="5-4" />
+
+## Checkpoint
+
+<Checkpoint lesson="5.4">
+
+<details>
+<summary>Why is Home implemented as default commands instead of a button?</summary>
+Home is the resting state, not something the driver asks for. A default command applies it automatically whenever no held action is using the mechanisms, and brings it back when the driver releases a button.
+</details>
+
+<details>
+<summary>What happens to the default when a button command starts, and when it ends?</summary>
+The button command requires the same subsystem, so the default is interrupted. When the button command ends, the default starts again by itself.
+</details>
+
+<details>
+<summary>Why must a default command require its subsystem?</summary>
+Requirements are how the scheduler decides the default is idle and a button command may replace it. Without the requirement the default would run at the same time as the button command and both would drive the motor.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+
+- A default command runs when nothing else requires the subsystem, and restarts when the other command ends.
+- It must require its subsystem and normally never finishes.
+- Use a default to hold a safe resting state, so that state needs no button.
+- In Lab 9, Home is the defaults; A, X, and Y are held actions on top.
+
+</RecapCard>
+
+<GoDeeper title="one default per subsystem">
+
+A subsystem has at most one default command. Setting a second one replaces the first. If a default should behave differently by mode, make it read state, as the Lab 11 arm default does with `isFrontIntake`, instead of swapping defaults.
+
+</GoDeeper>

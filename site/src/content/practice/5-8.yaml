@@ -1,0 +1,44 @@
+# Practice bank for lesson 5.8 (Double-jointed arm).
+lesson: "5.8"
+items:
+  - type: mcq
+    prompt: "Why does the elbow's gravity feedforward need more than the elbow angle?"
+    choices:
+      - "The elbow motor is bigger."
+      - "The pull of the second link depends on its angle from the ground, which is the shoulder angle plus the elbow angle."
+      - "Gravity is stronger at higher heights."
+      - "The shoulder encoder uses a different unit."
+    answer: 1
+    explain: "A relative elbow angle alone does not tell you how far the link is from horizontal. The shoulder angle changes that, so the gravity load depends on both joints."
+  - type: mcq
+    prompt: "Which best describes the area a two-joint arm tip can reach?"
+    choices:
+      - "A rectangle set by two limits."
+      - "An area set by link lengths and joint limits, not a rectangle."
+      - "A single line."
+      - "Anything, as long as the motors are strong enough."
+    answer: 1
+    explain: "Link lengths and joint limits shape the reachable space. Treating it as a box is the mistake of thinking of the joints as independent axes."
+  - type: multi
+    prompt: "Which belong in the high-level pose layer rather than in joint control? Select all that apply."
+    choices:
+      - "Named poses such as stow or score"
+      - "A profiled move of one joint to its angle"
+      - "The safe intermediate pose between far-apart poses"
+      - "The rule that stops joints sweeping through the robot"
+    answers: [0, 2, 3]
+    explain: "Joint control moves one joint. Anything that involves both joints or the robot structure belongs in the layer above."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "Each joint reaches its setpoint with no error, but the second link brushes the frame on the way to a new pose."
+    choices:
+      - "The joint PID gains are wrong."
+      - "The joints moved independently, so their combined path swept the link through the robot."
+      - "The encoders are inverted."
+      - "The battery is low."
+    answer: 1
+    explain: "Both joints can track perfectly and still take an unsafe combined path. A coordinating layer needs to order or route the move through an intermediate pose."
+  - type: free
+    prompt: "Which four things does the plan say to log, and why?"
+    modelAnswer: "Joint goals, joint setpoints, the end-effector target, and the actual pose. Comparing them shows which joint is causing an error."
+    explain: "Goals versus setpoints show whether the profile is working. Target versus actual pose shows the overall error."

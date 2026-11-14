@@ -5,16 +5,103 @@ id: "R.7"
 track: "tools"
 session: 17
 isNew: false
-status: stub
+minutes: 15
+prereqs: ["8.1"]
+outcomes:
+  - Open your robot project and set the robot configuration
+  - Create a path with an end state, constraints, and an event marker
+  - Build an auto from paths and named commands
+  - Find the saved files in your project
+sources:
+  - doc: "https://pathplanner.dev/gui-getting-started.html"
+  - doc: "https://pathplanner.dev/gui-editing-paths-and-autos.html"
+  - doc: "https://pathplanner.dev/gui-settings.html"
+status: review
 sidebar:
   label: "R.7 PathPlanner GUI"
   order: 7
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import Practice from '../../../components/practice/Practice.astro';
 
-**What it will cover:** Create paths and autos in the PathPlanner app.
+<WhyItMatters>
+Drawing a path is faster and safer than typing waypoints by hand, and the app saves files your robot code loads at match time.
+Lessons 8.1 to 8.3 explain what paths, autos, and markers are. This guide is only the clicks.
+</WhyItMatters>
 
-Based on Session 17 of the Orbit Robotics curriculum.
+## Before you start
+
+- The PathPlanner app installed.
+- Your robot project folder on the laptop.
+- The names of the commands your code registers for autos (lesson 8.3), so you can type them exactly.
+
+## Open the project and set the robot config
+
+1. On the starting page, click **Open Robot Project** and choose the top-level folder of your robot code.
+2. Open the app's settings. Turn **Holonomic Mode** on or off to match your drivetrain.
+3. Fill in the robot configuration: size, mass, and the module and drive values. These are measured on your robot, so find them in the official Robot Config page rather than guessing.
+4. Under the default constraints, set **Max Velocity** (m/s), **Max Acceleration** (m/s squared), **Max Angular Velocity** (deg/s), **Max Angular Accel** (deg/s squared), and **Nominal Voltage** (V). New paths start from these.
+
+## Create a path
+
+1. Create a new path from the Paths list.
+2. Double-click the field in the path preview to add a waypoint at the end. Drag waypoints to shape the path, or edit the numbers in the Waypoints tree.
+3. Under **Goal End State**, set the end **Velocity** (0 to stop) and, for a holonomic robot, the **Rotation** in degrees. You can also drag the rotation in the preview.
+4. Under **Global Constraints**, keep **Use Default Constraints** on, or switch it off to set values for this path only.
+
+## Add an event marker
+
+1. Open the **Event Markers** tree and add a marker.
+2. Slide its position to where along the path the action should fire. Tick **Zoned Event** if it should run between a start and an end position.
+3. In the marker's command tree, choose a named command. The name must match one registered in your code. After typing a new name in the dropdown, press Enter to save it.
+
+## Create an auto
+
+1. Create a new auto from the Autos list.
+2. Add commands in order: choose a path to follow, a named command, or a wait command.
+3. Reorder or delete items in the tree.
+
+## Where the files are saved
+
+Paths and autos are saved inside your project in `src/main/deploy/pathplanner/`, so deploying (lesson R.5) sends them to the roboRIO. Commit them with git (lesson R.9).
+
+## If something goes wrong
+
+| What you see | Likely cause | Fix |
+| --- | --- | --- |
+| Robot ignores a marker or named command | Name differs from the code's | Retype so spelling and case match exactly |
+| Path looks right but the robot is slow or sluggish | Constraints or robot config do not match the real robot | Recheck the config and the path's constraints |
+| An auto you deleted still shows on the robot | Old files remain on the roboRIO | Make sure the deploy setting that clears old files is on, then redeploy |
+| New path is missing from the code | File not in `deploy/pathplanner` | Reopen the correct project folder |
+
+## Practice
+
+<Practice bank="R-7" />
+
+## Checkpoint
+
+<Checkpoint lesson="R.7">
+
+<details>
+<summary>Where are your paths and autos stored, and why there?</summary>
+In `src/main/deploy/pathplanner/`. Files in the deploy folder are copied to the roboRIO when you deploy.
+</details>
+
+<details>
+<summary>Why must a named command be typed exactly?</summary>
+The app only stores a name. The robot code looks the command up by that name, so any difference means nothing runs.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- **Open Robot Project**, then set robot config and default constraints.
+- A path is waypoints, an end state, and constraints. Markers fire commands along it.
+- An auto chains paths, named commands, and waits.
+- Everything saves to `src/main/deploy/pathplanner/`. Names must match your code.
+</RecapCard>

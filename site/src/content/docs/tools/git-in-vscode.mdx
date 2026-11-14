@@ -5,16 +5,102 @@ id: "R.9"
 track: "tools"
 session: null
 isNew: true
-status: stub
+minutes: 12
+prereqs: ["0.7"]
+outcomes:
+  - Stage, commit, and push changes from the Source Control view
+  - Create and switch branches from the status bar
+  - Pull before you start work
+  - Recognize and resolve a merge conflict in the editor
+sources:
+  - doc: "https://code.visualstudio.com/docs/sourcecontrol/overview"
+  - doc: "https://code.visualstudio.com/docs/sourcecontrol/staging-commits"
+  - doc: "https://code.visualstudio.com/docs/sourcecontrol/merge-conflicts"
+status: review
 sidebar:
   label: "R.9 Git in VS Code"
   order: 9
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import Practice from '../../../components/practice/Practice.astro';
 
-**What it will cover:** Commit, push, pull, and switch branches from the editor.
+<WhyItMatters>
+On a team, everyone edits the same robot code. Git in VS Code keeps your changes saved, shared, and separate until they are ready.
+Lesson 0.7 explains the concepts and the team workflow. This guide is only the clicks.
+</WhyItMatters>
 
-This lesson goes beyond the Orbit Robotics curriculum.
+## Before you start
+
+- Your project open in VS Code as a git repository.
+- A GitHub account with access to the team repository. If VS Code asks you to sign in to GitHub, do it in the browser window it opens.
+
+## Commit and push your work
+
+1. Open the **Source Control** view from the sidebar.
+2. Files you changed are listed under **Changes**. Hover a file and click the **+** icon to stage it. Staged files move under **Staged Changes**.
+3. Type a short message describing the change in the message box.
+4. Click **Commit**. This saves a snapshot on your laptop only.
+5. Click **Sync Changes** to upload it. If the branch is new, the status bar shows **Publish Branch** instead, so click that.
+
+## Start work: pull first
+
+Before you edit, bring in teammates' changes. In the Source Control view, open the **More Actions** menu (the three dots) and choose **Pull**. **Sync Changes** also pulls before it pushes.
+
+## Create and switch branches
+
+1. Click the branch name in the status bar at the bottom left.
+2. Choose **Create new branch...**, type a name, and press Enter. VS Code switches to it.
+3. To switch later, click the branch name again and pick another branch.
+
+Git may refuse to switch if you have uncommitted changes. Commit them first.
+
+## Resolve a merge conflict
+
+A conflict appears when you and a teammate changed the same lines. The file is marked in Source Control, and the editor shows both versions between marker lines, with actions above them:
+
+- **Accept Current Change** keeps your version.
+- **Accept Incoming Change** keeps the teammate's.
+- **Accept Both Changes** keeps both.
+
+Edit the result if needed, save, stage the file, and commit. Some conflicts offer **Resolve in Merge Editor**, which has a **Complete Merge** button.
+
+## If something goes wrong
+
+| What you see | Likely cause | Fix |
+| --- | --- | --- |
+| Commit button does nothing | No files staged | Stage at least one file with **+** |
+| Cannot switch branch | Uncommitted changes in the way | Commit them first |
+| Push or sync is rejected | Teammates pushed first | Pull, resolve any conflicts, then sync again |
+| Sign-in prompt appears | Not signed in to GitHub | Sign in when VS Code prompts |
+
+## Practice
+
+<Practice bank="R-9" />
+
+## Checkpoint
+
+<Checkpoint lesson="R.9">
+
+<details>
+<summary>Does Commit upload your work to GitHub?</summary>
+No. Commit saves a snapshot on your laptop. Sync Changes (or a push) uploads it.
+</details>
+
+<details>
+<summary>What do you do in the editor when two people changed the same lines?</summary>
+Choose Accept Current, Accept Incoming, or Accept Both above the conflict, check the result, save, stage the file, and commit.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- Stage with **+**, write a message, **Commit**, then **Sync Changes**.
+- Pull before you start work.
+- Change branches from the branch name in the status bar.
+- Conflicts show both versions. Pick one or both, save, stage, commit.
+</RecapCard>

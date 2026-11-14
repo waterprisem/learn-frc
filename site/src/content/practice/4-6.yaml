@@ -1,0 +1,53 @@
+# Practice bank for lesson 4.6 (Logging and replay).
+lesson: "4.6"
+items:
+  - type: mcq
+    prompt: "The robot lost power in the middle of a match and you want to see the flywheel graph afterward. What do you need?"
+    choices:
+      - "Nothing. AdvantageScope stores live data."
+      - "A data log written during the match, such as a `.wpilog` file."
+      - "A live connection started after the match."
+      - "A faster battery."
+    answer: 1
+    explain: "NetworkTables only holds current values, so live data vanishes when the robot stops. A log file is the only record."
+  - type: mcq
+    prompt: "Which call starts WPILib data logging?"
+    choices:
+      - "`DataLogManager.start()`"
+      - "`DriverStation.startMatch()`"
+      - "`SignalLogger.stop()`"
+      - "`NetworkTables.save()`"
+    answer: 0
+    explain: "`DataLogManager.start()` creates the `.wpilog` file and records NetworkTables by default. `SignalLogger` is CTRE's logger, and stopping it ends logging."
+  - type: multi
+    prompt: "Which of these does a data log from `DataLogManager.start()` give you? Select all that apply."
+    choices:
+      - "The NetworkTables values your code published, over time"
+      - "A file you can open in AdvantageScope after the match"
+      - "A signal your code never published"
+      - "A replay of your robot code on the recorded inputs"
+    answers: [0, 1]
+    explain: "A data log records what was published, as a file. Unpublished signals are not in it, and replaying the code itself is what AdvantageKit adds."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "After a match you copy the log and open it, but `Output Voltage` is not in the list of signals."
+    choices:
+      - "The code never published `Output Voltage`."
+      - "AdvantageScope cannot show voltages."
+      - "The match was too short."
+      - "The battery was low."
+    answer: 0
+    explain: "A log can only contain signals that were published or logged. Add the publisher in the subsystem, as in lesson 4.4, before the next match."
+  - type: mcq
+    prompt: "Which statement about AdvantageKit is correct?"
+    choices:
+      - "It is required to record any log."
+      - "It records inputs so the code can be replayed against a match, and needs code structured around it."
+      - "It is the same thing as live NetworkTables."
+      - "It only works in the simulator."
+    answer: 1
+    explain: "Plain data logs are built into WPILib. AdvantageKit is an extra framework for deterministic replay, which is why it is introduced here only as an idea."
+  - type: free
+    prompt: "Name two reasons a saved log is better than live NetworkTables for finding out what went wrong in a match."
+    modelAnswer: "The log exists after the robot powers off, and you can scrub back and forth through the whole match. It also records what happened when nobody was watching a live graph."
+    explain: "A log gives you a record; live data only shows the present."

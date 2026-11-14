@@ -5,16 +5,122 @@ id: "5.7"
 track: "actions"
 session: null
 isNew: true
-status: stub
+minutes: 15
+prereqs: ["5.1", "5.5", "5.6"]
+outcomes:
+  - Describe a state machine as an enum of states, one wanted state, and one place that decides
+  - Explain how it differs from command composition
+  - Choose between the two approaches for a given mechanism group
+sources:
+  - doc: "https://docs.wpilib.org/en/stable/docs/software/commandbased/index.html"
+status: review
 sidebar:
   label: "5.7 State machines"
   order: 7
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import GoDeeper from '../../../components/lesson/GoDeeper.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
 
-**What it will cover:** Another way to organize a superstructure.
+<WhyItMatters>
+In lessons 5.1 and 5.6 you built each robot action as a command group and put the safety rules around it. As the number of poses grows, so does the number of transitions to check.
+A **state machine** moves that thinking into one place: the robot is always in a named state, and one piece of code decides what every mechanism does there.
+</WhyItMatters>
 
-This lesson goes beyond the Orbit Robotics curriculum.
+This lesson is not from the team's labs. It is a second way to solve the same problem, so you can recognize it and choose between them.
+
+## The idea
+
+A state machine has three parts.
+
+1. **An enum of states**, such as `STOWED`, `INTAKE`, `SCORE`. The robot is always in exactly one.
+2. **A wanted state.** Buttons do not move mechanisms. They only say which state the robot should be in.
+3. **One decision point**, usually a subsystem's `periodic()`. It looks at the wanted state and the current state, checks that the move is allowed, and sets every mechanism's goal.
+
+Think of it as a table of rows (states) and the setpoints each mechanism takes in that row. The pose table from lesson 5.5 is already most of one.
+
+## A small illustration
+
+This is generic WPILib Java written for this lesson. It is not from any lab, and the mechanism methods are made up.
+
+```java
+public enum SuperstructureState { STOWED, INTAKE, SCORE }
+
+// Inside a SuperstructureSubsystem
+private SuperstructureState currentState = SuperstructureState.STOWED;
+private SuperstructureState wantedState = SuperstructureState.STOWED;
+
+public void setWantedState(SuperstructureState wanted) {
+  wantedState = wanted;
+}
+
+@Override
+public void periodic() {
+  // Only allow the move if it does not skip the stowed pose.
+  boolean allowed = currentState == SuperstructureState.STOWED
+      || wantedState == SuperstructureState.STOWED;
+  if (allowed) {
+    currentState = wantedState;
+  } else {
+    currentState = SuperstructureState.STOWED; // route through STOWED first
+  }
+
+  switch (currentState) {
+    case STOWED -> { elevator.setGoalMeters(0.10); arm.setGoalDegrees(45.0); }
+    case INTAKE -> { elevator.setGoalMeters(0.00); arm.setGoalDegrees(-22.0); }
+    case SCORE  -> { elevator.setGoalMeters(1.08); arm.setGoalDegrees(-20.0); }
+  }
+}
+```
+
+The safety rule is a single `if`. Every button, including autonomous, goes through `setWantedState`, so none can skip it.
+
+## Compared with command composition
+
+| | Command composition (5.1, 5.6) | State machine |
+|---|---|---|
+| Where the order lives | In each action's `sequence` and `parallel` | In one transition check |
+| Adding a pose | New command plus its safe-transition logic | New enum value plus one row |
+| Reading the code | Follows the scheduler and the command lifecycle | Follows a table of states |
+| Debugging | `Current Transition` and the command names | Log `currentState` and `wantedState` |
+| Interrupting mid-move | The scheduler cancels the command | You must decide what each state does when the wanted state changes |
+| Fits best | Actions with steps, waits and one-off sequences | Mechanisms that sit in a few named poses |
+
+Neither is better in general. Many teams use both: a state machine for where the superstructure should be, and commands for the steps of a particular action.
+
+<GoDeeper title="why this is not the lab's approach">
+Lab 10 uses command composition because it builds on the command-based ideas from lessons 2.x and 5.1 to 5.4, and the scheduler already handles requirements and interruption.
+A state machine means you take on those jobs yourself inside `periodic()`.
+</GoDeeper>
+
+## Practice
+
+<Practice bank="5-7" />
+
+## Checkpoint
+
+<Checkpoint lesson="5.7">
+
+<details>
+<summary>In a state machine, what does a button press do?</summary>
+It only sets the wanted state. The single decision point checks the move and sets every mechanism's goal.
+</details>
+
+<details>
+<summary>Name one situation where command composition is the better fit.</summary>
+An action made of steps and waits, such as a pickup that moves, waits for a sensor, then returns. Commands already express sequences, timeouts and cancelation.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- A state machine is an enum of states, one wanted state, and one place that decides.
+- Buttons request a state, and the transition check can reject or reroute a request.
+- Adding a pose is a new row, but you handle interruption yourself.
+- Command composition and state machines can be combined.
+</RecapCard>

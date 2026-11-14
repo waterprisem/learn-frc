@@ -1,0 +1,57 @@
+# Practice bank for lesson 5.5 (Coupled mechanisms).
+lesson: "5.5"
+items:
+  - type: mcq
+    prompt: "Why can the arm and elevator each pass their own tests and still be unsafe together?"
+    choices:
+      - "Each controller only knows its own target, so nothing in either one knows the other is in the way."
+      - "Profiled control does not work on coupled mechanisms."
+      - "The arm and elevator share one motor controller."
+      - "Tests only run in simulation."
+    answer: 0
+    explain: "Each PID loop chases its own setpoint. The collision comes from the combination of positions, which neither subsystem can see. The wrong idea is that a bug inside one subsystem causes it."
+    source: "Session 10 slide 6"
+  - type: multi
+    prompt: "Which are real risks of an arm riding on an elevator? Select all that apply."
+    choices:
+      - "The arm hits the robot when the order of moves is wrong."
+      - "A raised elevator with an extended arm shifts the center of gravity."
+      - "An unhomed elevator makes arm positions wrong in world space."
+      - "The arm encoder reads a different unit when the elevator is up."
+    answers: [0, 1, 2]
+    explain: "Collisions, center-of-gravity shifts, and encoder interdependence are the three risks. The arm encoder units never change; what changes is where the arm is in the world."
+    source: "Session 10 slides 6-8"
+  - type: mcq
+    prompt: "Using the pose table, which transition lowers the elevator the most?"
+    choices:
+      - "`INTAKE` to `HOME`"
+      - "`L4` to `L1`"
+      - "`L1` to `L3`"
+      - "`HOME` to `L2`"
+    answer: 1
+    explain: "`L4` is at 1.08 m and `L1` at 0.18 m, so the elevator descends. The other three all raise the elevator."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "The elevator and arm work separately in simulation. When you press the button for HOME from a high pose, the arm clips the robot base on the way down."
+    choices:
+      - "The arm PID gains are too high."
+      - "Both mechanisms were sent to their goals at the same time, so the arm was still extended while the elevator descended."
+      - "The elevator was homed twice."
+      - "The tolerance for the arm is too small."
+    answer: 1
+    explain: "The move needed a particular order (fold first). Running both in parallel ignores that. Gains and tolerance change how well each mechanism tracks its target, not which one moves first."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "Every arm position looks about 0.2 m too low in the world, even though the arm encoder reads the right angle."
+    choices:
+      - "The arm gear ratio is wrong."
+      - "The elevator encoder was not homed, so the pivot height is wrong."
+      - "The arm feedforward is too small."
+      - "The controller is in the wrong mode."
+    answer: 1
+    explain: "The arm angle is relative to the carriage. If the elevator encoder is off, the carriage height is off and every world position moves with it."
+    source: "Session 10 slide 8"
+  - type: free
+    prompt: "In one or two sentences: when is it fine to move the elevator and arm in parallel?"
+    modelAnswer: "When neither move enters a danger zone, for example when the arm stays inside its safe travel range for the whole move. If one move must clear space for the other, use a sequence."
+    explain: "Parallel is the faster default; sequence is the safe choice only where one mechanism has to get out of the way first."

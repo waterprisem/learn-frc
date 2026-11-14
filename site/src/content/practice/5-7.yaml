@@ -1,0 +1,43 @@
+# Practice bank for lesson 5.7 (State machines).
+lesson: "5.7"
+items:
+  - type: mcq
+    prompt: "In the state-machine approach, what does a driver button do?"
+    choices:
+      - "Runs a command group that moves each mechanism in order."
+      - "Sets the wanted state. A single place decides what each mechanism does."
+      - "Writes motor voltages directly."
+      - "Resets the current state to the default."
+    answer: 1
+    explain: "Buttons only request a state. The decision point checks the transition and sets the goals. Running command groups is the composition approach."
+  - type: multi
+    prompt: "Which are real trade-offs of a state machine compared with command composition? Select all that apply."
+    choices:
+      - "The transition rules live in one place."
+      - "Adding a pose is usually a new enum value plus a row."
+      - "You must handle what happens when the wanted state changes mid-move."
+      - "The scheduler automatically cancels the old state for you."
+    answers: [0, 1, 2]
+    explain: "A state machine gives one place for the rules and cheap new poses, but the scheduler is no longer managing interruption for you. The last choice describes commands, not a state machine."
+  - type: mcq
+    prompt: "Which job is a better fit for command composition than a state machine?"
+    choices:
+      - "A mechanism that sits in three named poses."
+      - "A pickup: move down, wait for a sensor, then return, with a timeout."
+      - "A log of the current pose."
+      - "A table of setpoints for each pose."
+    answer: 1
+    explain: "Steps, waits and timeouts are what `sequence`, `waitUntil` and `withTimeout` do well. Named poses and setpoint tables suit a state machine."
+  - type: fill-blank
+    prompt: "Complete the method so that a button press only requests a state."
+    code: |
+      public void setWantedState(SuperstructureState wanted) {
+        ____ = wanted;
+      }
+    blanks:
+      - ["wantedState", "this.wantedState"]
+    explain: "The method only stores the request. The `periodic()` decision point reads it, applies the transition rules, and then sets the goals."
+  - type: free
+    prompt: "Why is it useful that every button and autonomous both go through `setWantedState`?"
+    modelAnswer: "The transition check sits in one place, so nothing can skip a safety rule, including autonomous."
+    explain: "One entry point means one place to enforce and one place to debug."

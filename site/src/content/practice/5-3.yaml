@@ -1,0 +1,54 @@
+# Practice bank for lesson 5.3 (Single-controller design).
+lesson: "5.3"
+items:
+  - type: mcq
+    prompt: "In the Lab 11 map, which binding type fits Safe stow, and why?"
+    choices:
+      - "`whileTrue`, because the driver holds the button"
+      - "`onTrue`, because the stow finishes on its own after one press"
+      - "`toggleOnTrue`, because it must be turned off"
+      - "`onFalse`, because it starts on release"
+    answer: 1
+    explain: "Safe stow is a short sequence that ends by itself. A tap starts it and nothing else is needed. `whileTrue` would cancel it the moment the button was released, leaving the robot half-stowed."
+  - type: mcq
+    prompt: "Which is the best way to choose which buttons to use?"
+    choices:
+      - "Start from the list of commands and give each its own button"
+      - "Start from the driver's cycle and give each step one intention"
+      - "Use as many buttons as the controller has"
+      - "Bind everything to the same button with different modes"
+    answer: 1
+    explain: "Bindings should follow what the driver does in order. A command list tends to produce buttons that mean nothing to someone under pressure."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "Pressing Y flips the side every time, but the arm snaps back to the old side as soon as Y is released."
+    choices:
+      - "The default commands do not read the `isFrontIntake` field"
+      - "Y is bound with `onTrue`"
+      - "The controller port is wrong"
+      - "`Commands.either` was not used"
+    answer: 0
+    explain: "The flipped field is the state. If the arm default command still holds a fixed angle, it ignores the new side. The lab's defaults read `isFrontIntake` so the arm stays on the chosen side."
+  - type: fill-blank
+    prompt: "Complete the binding so Intake runs only while A is held."
+    code: |
+      driverController
+          .a()
+          .____(SuperstructureCommands.intake(
+              elevatorSubsystem, armSubsystem, flywheelSubsystem, () -> isFrontIntake));
+    blanks:
+      - ["whileTrue"]
+    explain: "`whileTrue` cancels the command when A is released, and the default commands then take over. `onTrue` would never stop, because the intake does not finish."
+  - type: mcq
+    prompt: "Why does `reverseIntakeDirection` use `Commands.defer` instead of building the command once?"
+    choices:
+      - "To make the command faster"
+      - "So the side flip and the choice of intake command happen each time Y is pressed"
+      - "Because `whileTrue` cannot take a normal command"
+      - "To avoid declaring requirements"
+    answer: 1
+    explain: "A command built once at start-up would always intake on the same side. Defer runs the code at press time. It does not avoid requirements; you pass them in explicitly."
+  - type: free
+    prompt: "A teammate proposes a separate button just for switching the active side. Give one reason the lab keeps it inside Y."
+    modelAnswer: "A separate button is one more thing to remember before intaking. Forgetting it sends the robot to the wrong side. Folding the flip into the intake intention means one press does what the driver wants."
+    explain: "One button should carry one intention. The side flip is part of what the driver means by intake from the other side."

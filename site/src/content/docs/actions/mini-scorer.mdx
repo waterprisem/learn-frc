@@ -5,16 +5,153 @@ id: "5.9"
 track: "actions"
 session: 11
 isNew: false
-status: stub
+minutes: 30
+prereqs: ["4.7", "5.1", "5.3", "5.5"]
+outcomes:
+  - Say what is already written and what you must finish in the Mini Scorer project
+  - Read an unfamiliar project by starting at RobotContainer and tracing one button
+  - Plan the work in an order that lets you test each step before the next
+  - Use the simulator and the unit test to prove the robot works
+sources:
+  - curriculum: "labs/Session 11 - Mini Scorer Challenge/LAB_MANUAL.md"
+  - curriculum: "presentations/Session 11 - Mini Scorer Challenge/Raw Data/slides.md"
+  - curriculum: "misc/v1/frc1360_programming_curriculum_plan.md"
+status: review
 sidebar:
   label: "5.9 Mini Scorer challenge"
   order: 9
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import DoItForReal from '../../../components/lesson/DoItForReal.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
+import AnnotatedCode from '../../../components/code/AnnotatedCode.astro';
 
-**What it will cover:** A guide to Lab 11: finishing a partly written robot.
+<WhyItMatters>
+On a real team you rarely start from a blank project. You open code someone else half-wrote and have to finish it, usually with a deadline.
+This lab is that situation, with no step-by-step help: it is the proof that you can contribute to build season.
+</WhyItMatters>
 
-Based on Session 11 of the Orbit Robotics curriculum.
+## The robot and what is already written
+
+The **Mini Scorer** has three mechanisms: an elevator carriage, a full-rotation arm on the carriage, and a two-roller flywheel on the arm.
+It works on both sides of the chassis, front (right) and back (left), and one Xbox controller runs everything.
+
+| Part | Already written | You finish |
+|---|---|---|
+| Constants, the motors, the physics simulation, the Mechanism2D drawing | Everything | Nothing. Do not open the `simulation` package. |
+| `SetFlywheelVelocityCommand`, `SetArmAngleCommand`, `SetElevatorHeightCommand` | Everything | Nothing |
+| Three subsystems | Motor output and sensor getters | The control math, the reset, the readiness trigger, and telemetry |
+| `SuperstructureCommands` | Empty methods | Home, intake, score, safe stow, and burst actions |
+| `RobotContainer` | Subsystems and publishers | Default commands, the side toggle, and button bindings |
+
+The target behavior is a fixed set of buttons. Run the finished `solution` once before you write code, so you know what "done" looks like.
+
+| Button | Does |
+|---|---|
+| A (hold) | Intake on the active side |
+| Y (hold) | Switch side, then intake on the new side |
+| X (hold) | Score on the active side |
+| B (tap) | Safe stow |
+| Right bumper (hold) | Full-voltage burst |
+| Left bumper (hold) | Home |
+
+The curriculum plan describes scoreLow and scoreHigh actions. The lab you actually get has the dual-sided design above, and the lab code is what the test checks.
+
+## Reading an unfamiliar project
+
+You cannot read every file, so follow one path.
+
+1. Open `RobotContainer`. It is the table of contents: bindings, default commands, and which subsystems exist.
+2. Pick one button, for example A. Use **Find Usages** to follow it: button, then trigger, then command, then subsystem method.
+3. Search the whole project for `TODO`. Each stub is numbered with the manual's step, so the list of TODOs is your to-do list.
+4. Leave the `simulation` package alone. It only draws and models the mechanisms.
+
+You practiced this trace in lesson 2.1 and lesson 1.10. Here you do it without a guide.
+
+## Suggested order of work
+
+Build from the bottom up, and test each layer before you stack the next. A bug in step 1 looks like a bug in step 4 if you wait.
+
+| Step | You build | Earlier lesson | You know it works when |
+|---|---|---|---|
+| 1 | Flywheel control: `closedLoopCalculate`, reset, trigger, telemetry | 3.5, 3.9 | Flywheel test passes; Velocity RPS reaches Target RPS in AdvantageScope |
+| 2 | Elevator control with clamping and gravity feedforward | 3.7 | Elevator test passes; height follows a smooth profile |
+| 3 | Arm control, with radians for the feedforward | 3.8 | Arm test passes at both the front and back angles |
+| 4 | Composite actions in `SuperstructureCommands` | 5.1, 5.2, 5.5, 5.6 | Each action looks right in Mechanism2D; X clears 0.35 m before the arm moves; B folds the arm before the elevator drops |
+| 5 | Default commands, the side toggle, and bindings | 5.3, 5.4 | Side toggle test passes; every button in the table above works |
+
+Within step 4, write the front version first, then copy the idea for the back, then add the `either` that picks between them.
+Give every action a timeout, so a stuck mechanism cannot hold the buttons forever (lesson 5.2).
+
+## How the actions are organized
+
+You will not copy these, but notice the shape. Each side gets its own named command, and one small method picks between them.
+
+<AnnotatedCode
+  file="lab11-5.9/home-front"
+  title="SuperstructureCommands.java"
+  notes={[
+    { lines: '5-11', text: 'One <code>parallel</code> group, with one existing command per mechanism. Each action in this file is built from the same three commands.' },
+    { lines: '12', text: 'A name makes the action easy to find in the logs.' },
+  ]}
+/>
+
+<AnnotatedCode
+  file="lab11-5.9/home-either"
+  title="SuperstructureCommands.java"
+  notes={[
+    { lines: '5', text: 'The active side arrives as a <code>BooleanSupplier</code>, so the answer is read when the button is pressed, not when the robot starts.' },
+    { lines: '6-9', text: '<code>either</code> chooses the front or back action at that moment.' },
+  ]}
+/>
+
+## Practice
+
+<Practice bank="5-9" />
+
+## Do it for real
+
+<DoItForReal tools="WPILib simulator + AdvantageScope + JUnit">
+This is **Lab 11** in the team curriculum repository.
+
+1. Open `labs/Session 11 - Mini Scorer Challenge/assignment` as its own project in the WPILib VS Code.
+2. Work through Steps 1 to 5 in the order above. Search for `TODO` to see what is left.
+3. After each step, run the simulation with `./gradlew simulateJava`. Open the Mechanism2D widget (`Superstructure/Mechanism`) in the simulator GUI and AdvantageScope together.
+4. When all five steps are done, run `./gradlew test`. `MiniScorerSimulationTest` (lesson 4.7) checks the flywheel, elevator, arm, and the side toggle.
+5. Graph the setpoint and measurement of all three mechanisms on one AdvantageScope timeline.
+
+**You know it worked when** all the tests pass, every button in the table does what it says, and the graphs track the profile without oscillating. Keep a note of one bug you hit and how you found it; the checkpoint asks for it.
+
+**On a real robot, also check**
+
+- Soft limits and current limits are set before you let a mechanism move on its own.
+- Test the stow order with the robot on blocks first. Never trust a new safety rule on the floor.
+</DoItForReal>
+
+## Checkpoint
+
+<Checkpoint lesson="5.9">
+
+<details>
+<summary>You open a project you have never seen. Which file do you read first, and how do you find what is unfinished?</summary>
+`RobotContainer`, because it shows the bindings and default commands and leads to everything else. Then follow references with Find Usages, and search for `TODO` to find the stubs.
+</details>
+
+<details>
+<summary>Why test each step before starting the next?</summary>
+A bug in a lower layer, such as a wrong sign in the arm control, appears as a strange failure in the action built on top of it. Testing each layer keeps the list of suspects short.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- Most of the project is given. You finish the control math, the actions, and the wiring.
+- Start at `RobotContainer`, trace one button, and let the `TODO` list be your plan.
+- Build bottom up: flywheel, elevator, arm, actions, bindings. Test each one.
+- The simulator shows what happened, the graphs show why, and `MiniScorerSimulationTest` proves it.
+</RecapCard>

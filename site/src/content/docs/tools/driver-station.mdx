@@ -5,16 +5,112 @@ id: "R.4"
 track: "tools"
 session: 2
 isNew: false
-status: stub
+minutes: 15
+prereqs: []
+outcomes:
+  - Install the FRC Driver Station and set the team number
+  - Read the three status lights
+  - Choose a mode, enable, disable, and emergency stop
+  - Find the Driver Station logs
+sources:
+  - curriculum: "misc/v1/frc1360_programming_curriculum_plan.md"
+  - doc: "https://docs.wpilib.org/en/stable/docs/software/driverstation/driver-station.html"
+  - doc: "https://docs.wpilib.org/en/stable/docs/zero-to-robot/step-2/frc-game-tools.html"
+status: review
 sidebar:
   label: "R.4 Driver Station"
   order: 4
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
 
-**What it will cover:** Modes, enable and disable, E-stop, joysticks, diagnostics, and logs.
+<WhyItMatters>
+The Driver Station is how a real robot gets enabled, told which mode to run, and fed joystick input.
+Its status lights also tell you in seconds whether a problem is the network, the code, or the controller.
+</WhyItMatters>
 
-Based on Session 2 of the Orbit Robotics curriculum.
+## Before you start
+
+- A Windows computer. The FRC Driver Station does not run on macOS or Linux.
+- The FRC Game Tools from National Instruments, which include the Driver Station. WPILib does not install it.
+- A robot, for everything except installation. The simulator has its own virtual panel (lesson R.2).
+
+## Install and set the team number
+
+1. Download the FRC Game Tools from the NI download page named in the WPILib docs. You need a free NI account.
+2. Run the installer and accept the defaults. Reboot if it asks.
+3. Open the **FRC Driver Station**.
+4. Click the **Setup** tab, the third icon in the column on the left.
+5. Type your team number, 1360, in the team number box and press <kbd>Enter</kbd>.
+
+## Read the status
+
+The column of tabs on the left, top to bottom: **Operation**, **Diagnostics**, **Setup**, **USB Devices**, and a last tab for power and CAN faults.
+The status lights are in the pane at the bottom of the window.
+
+| Light | Green means |
+|---|---|
+| Communications | The laptop is talking to the roboRIO |
+| Robot Code | Your program is running on the roboRIO |
+| Joysticks | At least one controller is detected |
+
+- **Diagnostics** shows the network links, which helps when Communications stays red.
+- **USB Devices** lists controllers in order. Drag them to change which is controller 0.
+- The power and CAN tab shows brownouts and CAN fault counts.
+
+## Enable the robot
+
+1. On the **Operation** tab, choose a mode: **Teleoperated**, **Autonomous**, **Practice**, or **Test**.
+2. Check that Communications and Robot Code are green, then click **Enable**.
+3. Click **Disable**, or press <kbd>Enter</kbd>, to stop the robot.
+4. Press <kbd>Space</kbd> for an emergency stop. It works even when the Driver Station window is not in front, and the roboRIO must be rebooted before it can be enabled again.
+
+Safety habits for enabling are covered in lesson 1.14.
+
+## Find the logs
+
+The **Charts** tab has a button that opens the **DS Log File Viewer**, which shows past runs with their brownouts and disconnects.
+Logs are saved on the laptop automatically.
+
+## If something goes wrong
+
+| What you see | Likely cause | Fix |
+|---|---|---|
+| Status reads "No Robot Communication" | Wrong team number, radio not connected, or Wi-Fi not joined | Check the team number in **Setup**, then the radio and network |
+| Status reads "No Robot Code" | Communication works but no program is running | Deploy code, or wait for the robot to finish booting |
+| Joysticks light is red | No controller detected | Replug it and check **USB Devices** |
+| Status reads "Emergency Stopped" | <kbd>Space</kbd> was pressed | Reboot the roboRIO |
+| Status reads "Voltage Brownout" | Battery voltage dropped too low | Swap the battery and look for a high-current load |
+
+## Practice
+
+<Practice bank="R-4" />
+
+## Checkpoint
+
+<Checkpoint lesson="R.4">
+
+<details>
+<summary>Communications is green but Robot Code is red. What does that tell you?</summary>
+The network path works, so the problem is the program on the roboRIO, not the radio or laptop.
+</details>
+
+<details>
+<summary>What is the difference between <kbd>Enter</kbd> and <kbd>Space</kbd>?</summary>
+<kbd>Enter</kbd> disables the robot and you can enable it again. <kbd>Space</kbd> is an emergency stop that needs a roboRIO reboot.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- The Driver Station is Windows-only and comes with the FRC Game Tools, not WPILib.
+- Set the team number in **Setup**.
+- Lights: Communications is the network, Robot Code is your program, Joysticks is the controller.
+- <kbd>Enter</kbd> disables; <kbd>Space</kbd> emergency stops.
+- The **DS Log File Viewer** shows past runs.
+</RecapCard>

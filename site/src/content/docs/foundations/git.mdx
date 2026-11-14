@@ -5,16 +5,110 @@ id: "0.7"
 track: "foundations"
 session: null
 isNew: true
-status: stub
+minutes: 25
+prereqs: ["0.6"]
+outcomes:
+  - Explain what Git and GitHub are for
+  - Name the steps of the team workflow in order
+  - Write a clear commit message
+  - Recognize a merge conflict and say what resolving it means
+sources:
+  - doc: "https://docs.github.com/en/get-started/using-git/about-git"
+  - doc: "https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests"
+status: review
 sidebar:
   label: "0.7 Git and GitHub team workflow"
   order: 7
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
 
-**What it will cover:** Clone, branch, commit, push, pull requests, reviews, and merge conflicts.
+<WhyItMatters>
+At 9 p.m. before a competition, two students edit the same file and one of them breaks the intake. Without version control, nobody can say what changed or get yesterday's working code back.
+Git keeps every version, so mistakes are cheap to undo and teammates stop overwriting each other.
+</WhyItMatters>
 
-This lesson goes beyond the Orbit Robotics curriculum.
+## What Git is for
+
+**Git** keeps a history of snapshots of your project, so you can see what changed, when, and why, and go back to any snapshot. It also lets several people change the same project safely and combine their work. **GitHub** is the website where the team stores the shared copy.
+
+| Word | Meaning |
+|---|---|
+| Repository | The project folder plus its full history |
+| Commit | One saved snapshot, with a message |
+| Branch | A separate line of work that does not touch the main code |
+| Push | Send your commits to GitHub |
+| Pull | Get other people's commits from GitHub |
+| Pull request | A request to merge your branch, where teammates can comment |
+| Review | A teammate reads your changes and approves them or asks for fixes |
+| Merge | Combine one branch into another |
+
+## The team loop
+
+Everyone follows the same steps, every time.
+
+1. Pull `main` so you start from the latest code.
+2. Create a branch for your task.
+3. Commit small changes with clear messages.
+4. Push your branch to GitHub.
+5. Open a pull request.
+6. A teammate reviews it.
+7. Merge it into `main`.
+
+**Never commit directly to `main`.** It is the code the robot runs, so it must always work. Branches let you break things safely, and review catches mistakes before they reach `main`.
+
+A good commit message says what changed, in a short sentence: `Add flywheel voltage command`, not `stuff` or `fixed it`. Later, when something breaks, the messages are how you find the cause.
+
+## Merge conflicts
+
+If you and a teammate change the same lines, Git cannot decide which version to keep. It stops and marks the file:
+
+```text
+<<<<<<< HEAD
+    private static final double FLYWHEEL_MAX_VOLTS = 10.0;
+=======
+    private static final double FLYWHEEL_MAX_VOLTS = 12.0;
+>>>>>>> add-flywheel-limit
+```
+
+The top half is your version, the bottom half is theirs. **Resolving** means choosing the right lines (one side, the other, or a mix), deleting the three marker lines, then committing. If you are unsure which is right, ask the teammate who wrote the other change.
+
+## Commands
+
+| Command | What it does |
+|---|---|
+| `git status` | Shows which files changed |
+| `git switch -c my-branch` | Creates a new branch and moves to it |
+| `git add .` | Marks your changes to go in the next commit |
+| `git commit -m "message"` | Saves the snapshot with a message |
+| `git push` | Sends your commits to GitHub |
+| `git pull` | Gets new commits from GitHub |
+
+The same actions are buttons in VS Code, covered in lesson R.9.
+
+## Practice
+
+<Practice bank="0-7" />
+
+## Checkpoint
+
+<Checkpoint lesson="0.7">
+
+<details>
+<summary>A teammate says "it is only a one-line change, I will commit straight to main." What do you tell them?</summary>
+Even a one-line change can break the robot, and `main` is what gets deployed. Use a branch and a pull request so someone else looks at it first.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- Git stores snapshots; GitHub holds the team's shared copy.
+- The loop: pull main, branch, commit small, push, pull request, review, merge.
+- Never commit directly to `main`.
+- A merge conflict means two edits hit the same lines. You choose the right ones.
+</RecapCard>

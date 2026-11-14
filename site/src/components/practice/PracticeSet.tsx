@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, CircleCheck, CircleX } from 'lucide-react';
+import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, CircleCheck, CircleX } from 'lucide-react';
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { flywheelPresets, STANDARD_SECONDS, standardSchedule, type FlywheelPresetId } from '../../sim/flywheelPresets';
 import { runScenario } from '../../sim/flywheelSim';
@@ -14,6 +14,8 @@ export type PracticeItem =
   | (Base & { type: 'symptom-cause'; symptom: string; choices: string[]; answer: number })
   | (Base & { type: 'multi'; choices: string[]; answers: number[] })
   | (Base & { type: 'fill-blank'; code: string; blanks: string[][] })
+  | (Base & { type: 'bug-hunt'; code: string; bugLine: number })
+  | (Base & { type: 'parsons'; lines: string[]; distractors?: string[] })
   | (Base & { type: 'free'; modelAnswer: string })
   | (Base & { type: string });
 
@@ -36,11 +38,23 @@ function PresetChart({ preset }: { preset: string }) {
   );
 }
 
+/** A fixed shuffle (the same on the server and in the browser) that never leaves the lines in the right order. */
+function scramble(lines: string[]): string[] {
+  const keyed = lines.map((text, i) => ({ text, key: [...text].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 9973, i * 7 + 3) }));
+  const out = keyed.sort((a, b) => a.key - b.key).map((k) => k.text);
+  return out.length > 1 && out.every((t, i) => t === lines[i]) ? [...out.slice(1), out[0]] : out;
+}
+
 const norm = (s: string) => s.replace(/\s+/g, '').toLowerCase();
 
 function Item({ item, n, hidden, onResult }: { item: PracticeItem; n: number; hidden: boolean; onResult: (ok: boolean) => void }) {
   const [pick, setPick] = useState<number | null>(null);
   const [picks, setPicks] = useState<number[]>([]);
+  const [order, setOrder] = useState<Array<{ text: string; used: boolean }>>(() =>
+    item.type === 'parsons'
+      ? scramble([...(item as Extract<PracticeItem, { type: 'parsons' }>).lines, ...((item as Extract<PracticeItem, { type: 'parsons' }>).distractors ?? [])]).map((text) => ({ text, used: true }))
+      : [],
+  );
   const [text, setText] = useState<string[]>([]);
   const [result, setResult] = useState<boolean | null>(null);
   const [revealed, setRevealed] = useState(false);
@@ -111,7 +125,7 @@ function Item({ item, n, hidden, onResult }: { item: PracticeItem; n: number; hi
     );
   } else if (item.type === 'fill-blank') {
     const it = item as Extract<PracticeItem, { type: 'fill-blank' }>;
-    const parts = it.code.split('____');
+    const parts = it.code.split(/_{3,}/);
     ready = it.blanks.every((_, i) => (text[i] ?? '').trim() !== '');
     check = () => finish(it.blanks.every((ok, i) => ok.some((a) => norm(a) === norm(text[i] ?? ''))));
     body = (
@@ -130,6 +144,47 @@ function Item({ item, n, hidden, onResult }: { item: PracticeItem; n: number; hi
           </span>
         ))}
       </pre>
+    );
+  } else if (item.type === 'bug-hunt') {
+    const it = item as Extract<PracticeItem, { type: 'bug-hunt' }>;
+    ready = pick !== null;
+    check = () => finish(pick !== null && pick + 1 === it.bugLine);
+    body = (
+      <div className="lf-bughunt" role="radiogroup" aria-label={`Question ${n}: choose the line with the bug`}>
+        {it.code.trimEnd().split('\n').map((line, i) => (
+          <button key={i} type="button" role="radio" aria-checked={pick === i} className={pick === i ? 'picked' : ''} onClick={() => choose(i)}>
+            <span className="num">{i + 1}</span><code>{line || ' '}</code>
+          </button>
+        ))}
+      </div>
+    );
+  } else if (item.type === 'parsons') {
+    const it = item as Extract<PracticeItem, { type: 'parsons' }>;
+    const hasExtra = (it.distractors ?? []).length > 0;
+    const move = (i: number, by: number) => {
+      const next = [...order];
+      [next[i], next[i + by]] = [next[i + by], next[i]];
+      setOrder(next);
+      setResult(null);
+    };
+    ready = true;
+    check = () => {
+      const used = order.filter((o) => o.used).map((o) => o.text);
+      finish(used.length === it.lines.length && used.every((t, i) => t === it.lines[i]));
+    };
+    body = (
+      <ol className="lf-parsons" aria-label={`Question ${n}: put the lines in order`}>
+        {order.map((o, i) => (
+          <li key={o.text} className={o.used ? '' : 'unused'}>
+            <code>{o.text}</code>
+            {hasExtra && (
+              <label><input type="checkbox" checked={o.used} onChange={() => { setOrder(order.map((x, j) => (j === i ? { ...x, used: !x.used } : x))); setResult(null); }} /> Use</label>
+            )}
+            <button type="button" aria-label={`Move line ${i + 1} up`} disabled={i === 0} onClick={() => move(i, -1)}><ChevronUp size={15} aria-hidden="true" /></button>
+            <button type="button" aria-label={`Move line ${i + 1} down`} disabled={i === order.length - 1} onClick={() => move(i, 1)}><ChevronDown size={15} aria-hidden="true" /></button>
+          </li>
+        ))}
+      </ol>
     );
   } else if (item.type === 'free') {
     const it = item as Extract<PracticeItem, { type: 'free' }>;

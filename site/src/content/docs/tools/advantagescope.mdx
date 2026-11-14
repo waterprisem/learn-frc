@@ -5,16 +5,113 @@ id: "R.3"
 track: "tools"
 session: 2
 isNew: false
-status: stub
+minutes: 20
+prereqs: ["R.2"]
+outcomes:
+  - Connect AdvantageScope to the simulator or a robot
+  - Build a line graph from NetworkTables topics
+  - View a Mechanism2d in the Mechanism tab
+  - Open a saved log file
+sources:
+  - curriculum: "labs/Session 3 - Open-Loop Flywheel with TalonFX/LAB_MANUAL.md"
+  - curriculum: "labs/Session 4 - PID + Feedforward for Velocity Control/LAB_MANUAL.md"
+  - curriculum: "labs/Session 8 - Enrichment and Make-Up Day/LAB_MANUAL.md"
+  - doc: "https://docs.advantagescope.org/overview/live-sources"
+  - doc: "https://docs.advantagescope.org/overview/log-files"
+  - doc: "https://docs.advantagescope.org/tab-reference/line-graph"
+  - doc: "https://docs.advantagescope.org/tab-reference/mechanism"
+status: review
 sidebar:
   label: "R.3 AdvantageScope"
   order: 3
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
 
-**What it will cover:** Connect to the simulator or robot, graph signals, view mechanisms and the field, and open saved logs.
+<WhyItMatters>
+You cannot tune a flywheel or check a profile by watching it. AdvantageScope turns the robot's published numbers into graphs, so you can see what the code actually did.
+</WhyItMatters>
 
-Based on Session 2 of the Orbit Robotics curriculum.
+## Before you start
+
+- AdvantageScope, which WPILib installs with its other tools.
+- For live data: the simulator running (lesson R.2), or a robot on the same network.
+
+## Connect to the simulator or a robot
+
+1. Start the simulator and enable the robot.
+2. In AdvantageScope, open the **File** menu, choose **Connect to Simulator**, then **Default**. The window title shows the address (127.0.0.1) and "Searching" until the connection is made.
+
+For a real robot, first set the address in preferences: **App** then **Show Preferences...** on Windows and Linux, or **AdvantageScope** then **Settings...** on macOS. Enter it in **Robot Address** in the form 10.TE.AM.2 (for team 1360, 10.13.60.2).
+Then choose **File**, **Connect to Robot**, **Default**. For a robot connected by USB, **File** then **Use USB roboRIO Address** temporarily uses the USB address.
+
+AdvantageScope reconnects by itself if the connection drops.
+
+## Graph topics on a line graph
+
+The topics below come from the Lab 4 flywheel. Lab 3 graphs `Velocity RPS` and `Position Rotations` together, and Lab 8 uses the elevator and arm topics under `/Subsystems/ElevatorSubsystem` and `/Subsystems/ArmSubsystem`.
+
+1. Add a **Line Graph** tab with the add-tab button at the right end of the tab strip, if one is not already open.
+2. In the sidebar on the left, expand the topic tree: `Subsystems`, then `FlywheelSubsystem`.
+3. Drag `/Subsystems/FlywheelSubsystem/Target RPS` and `/Subsystems/FlywheelSubsystem/Velocity RPS` into the **left** section of the controls on the right side of the tab.
+4. Drag `/Subsystems/FlywheelSubsystem/Output Voltage` into the **right** section, so volts and RPS each get their own scale.
+5. Drag `/Subsystems/FlywheelSubsystem/At Target`, a true/false signal, into the **discrete** section.
+6. Hold Xbox A (key <kbd>Z</kbd>) in the simulator, release, then hold B (<kbd>X</kbd>) and watch the lines move.
+
+Use the three-dot menu by an axis title and **Edit Range...** to zoom a scale. Click the timeline to freeze on a moment; the selected time is shared by all tabs.
+
+## View a mechanism
+
+1. Add a **Mechanism** tab.
+2. Drag `Flywheel/Mechanism` from the sidebar into the controls. Labs publish it with `SmartDashboard.putData`, so look under `SmartDashboard` if you do not see it at the top.
+3. Hold a button in the simulator and watch the animation.
+
+The animation is a sanity check. The graph is the precise measurement.
+
+## Open a saved log
+
+1. Choose **File**, then **Open Log(s)...**, and pick a `.wpilog` file. You can also drag the file onto the window.
+2. Drag topics onto a tab exactly as for live data. The timeline now covers the whole recording.
+
+**File** then **Download Logs...** copies logs from a robot, once the robot address is set in preferences.
+
+## If something goes wrong
+
+| What you see | Likely cause | Fix |
+|---|---|---|
+| Title bar says "Searching" and no topics appear | The simulator is not running, or the robot is unreachable | Start the simulator first; for a robot, check the address and network |
+| Topics appear but the lines are flat | The robot is Disabled | Enable it in the simulator and hold a button |
+| A topic you expect is missing | The code never publishes it, or you are looking in the wrong folder | Check the topic name in the lab and expand `Subsystems` |
+| Two signals share one scale and one looks flat | Different units on the same axis | Move one to the other axis |
+
+## Practice
+
+<Practice bank="R-3" />
+
+## Checkpoint
+
+<Checkpoint lesson="R.3">
+
+<details>
+<summary>Why put Output Voltage on the other axis from Velocity RPS?</summary>
+They have different units and ranges. On one axis, the smaller signal would look flat.
+</details>
+
+<details>
+<summary>How is opening a saved log different from connecting live?</summary>
+A log is a finished recording you can scrub through. A live connection shows the robot as it runs.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- **File**, **Connect to Simulator** for the simulator; set **Robot Address** first for a robot.
+- Drag topics from the sidebar onto the left, right, or discrete section of a line graph.
+- The **Mechanism** tab shows a `Mechanism2d`.
+- **File**, **Open Log(s)...** loads a saved `.wpilog`.
+</RecapCard>

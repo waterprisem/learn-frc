@@ -5,16 +5,98 @@ id: "R.6"
 track: "tools"
 session: null
 isNew: true
-status: stub
+minutes: 15
+prereqs: ["1.5"]
+outcomes:
+  - Connect Tuner X to the robot and read the device list
+  - Identify a device with Blink and set its CAN ID and name
+  - Update firmware and run a Self Test
+  - Plot a signal
+sources:
+  - doc: "https://v6.docs.ctr-electronics.com/en/stable/docs/tuner/index.html"
+  - doc: "https://v6.docs.ctr-electronics.com/en/stable/docs/tuner/connecting.html"
+  - doc: "https://v6.docs.ctr-electronics.com/en/stable/docs/tuner/device-details-page.html"
+status: review
 sidebar:
   label: "R.6 Phoenix Tuner X"
   order: 6
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import Practice from '../../../components/practice/Practice.astro';
 
-**What it will cover:** Find devices, set CAN IDs, update firmware, run a self-test, and plot a signal.
+<WhyItMatters>
+Your code finds each Kraken, CANcoder, and Pigeon by its CAN ID (lesson 1.5). Tuner X is where you see which devices are really on the bus, fix their IDs, and check their health before you blame the code.
+</WhyItMatters>
 
-This lesson goes beyond the Orbit Robotics curriculum.
+## Before you start
+
+- Phoenix Tuner X installed on your laptop.
+- The robot powered, with your laptop on its network (lesson R.5) or connected to the roboRIO by USB.
+- The Phoenix Diagnostics Server running on the roboRIO. A robot program using Phoenix 6 normally provides it.
+
+## Connect and see your devices
+
+1. In the upper-left flyout menu, open the address box (IP dropdown and textbox).
+2. Pick **Driver Station** to use the robot address from the Driver Station, or **roboRIO USB** (`172.22.11.2`) when tethered by USB.
+3. Open the Devices page. Each CAN device appears as a card with its name, model, ID, and firmware version.
+
+If the roboRIO was just imaged and no program has run yet, enter its address (`10.TE.AM.2`) and click **Run Temporary Diagnostic Server**.
+
+## Identify a device and set its ID and name
+
+1. Click a device card to open its Device Details page.
+2. Click **Blink** to rapidly flash that device's LEDs. This shows you which physical device it is, and helps when two devices share an ID.
+3. Type the new value in the ID or Name box, then press **Set**. IDs must be 0 to 62.
+
+The ID you set must match the ID in your code's constants, or your code will talk to nothing.
+
+## Update firmware and run a Self Test
+
+1. On the Devices page, tick the checkbox on each card you want to update, or click the checkmark icon in the top right. With nothing ticked, all devices are selected.
+2. Open the field upgrade dialog, then click **Update to latest** (or **Custom** to pick versions). Do not unplug anything while a device is flashing.
+3. Back in a device's page, open **Self Test** to see its status and faults. **Refresh** updates it, and **Clear Faults** clears them.
+
+## Plot a signal
+
+Open a device's **Plot** view and add a signal from the right-side menu. The top bar has **Play** (pause/resume), **Timespan**, **Clear Point**, and **Export** (to CSV).
+
+## If something goes wrong
+
+| What you see | Likely cause | Fix |
+| --- | --- | --- |
+| Devices page is empty | Wrong address, or the diagnostics server is not running | Check the address in the flyout menu. After a fresh image, use **Run Temporary Diagnostic Server** |
+| A device you expect is missing | CAN cable loose, or no power | Check its power and the CAN chain (lesson 1.2) |
+| Two cards show the same ID | Duplicate IDs | Use **Blink** on each, then **Set** one to a free ID |
+| Code reports a device not found | ID in Tuner X differs from the code | Make the ID and the constant agree |
+
+## Practice
+
+<Practice bank="R-6" />
+
+## Checkpoint
+
+<Checkpoint lesson="R.6">
+
+<details>
+<summary>How do you tell which physical motor a card on screen represents?</summary>
+Open its Device Details page and click **Blink**. The LEDs on that device flash rapidly.
+</details>
+
+<details>
+<summary>You changed a CANcoder's ID in Tuner X. What else must change?</summary>
+The ID constant in your code, so both agree.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- Set the address in the flyout menu, then read the device list.
+- **Blink** identifies a device. **Set** applies a new ID (0 to 62) or name.
+- The ID in Tuner X must equal the ID in your code.
+- Update firmware from the Devices page, check health with **Self Test**, and watch values in **Plot**.
+</RecapCard>

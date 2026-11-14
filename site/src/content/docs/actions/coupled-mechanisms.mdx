@@ -5,16 +5,102 @@ id: "5.5"
 track: "actions"
 session: 10
 isNew: false
-status: stub
+minutes: 15
+prereqs: ["5.1", "5.2"]
+outcomes:
+  - Explain why two mechanisms that are each safe alone can be unsafe together
+  - Name the three risks of an arm riding on an elevator
+  - Describe a robot as named states and ask "parallel or in sequence?" for each move
+  - Read a pose table and spot which combinations to avoid
+sources:
+  - curriculum: "misc/v1/frc1360_programming_curriculum_plan.md"
+  - curriculum: "presentations/Session 10 - Arm on Elevator /Raw Data/slides.md"
+  - curriculum: "labs/Session 10 - Arm on Elevator Safety and Coordination/solution/src/main/java/frc/robot/Constants.java"
+status: review
 sidebar:
   label: "5.5 Coupled mechanisms"
   order: 5
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
 
-**What it will cover:** Collisions, balance, and thinking in states.
+<WhyItMatters>
+The elevator code works. The arm code works. Press one button that moves both, and the arm can swing into the robot's base on the way down.
+Each subsystem's controller only knows its own target, so nothing inside either one knows the other is in the way.
+</WhyItMatters>
 
-Based on Session 10 of the Orbit Robotics curriculum.
+## Two mechanisms, one structure
+
+An arm mounted on an elevator carriage is **two subsystems in code but one physical structure**. The elevator moves the arm's pivot up and down, and every move changes what the other mechanism can safely do. Three things go wrong:
+
+- **Collisions.** The arm and the elevator share the same space. The wrong move order drives the arm into the robot.
+- **Center-of-gravity shifts.** A raised elevator with an extended arm puts a lot of mass high and off to one side. Fast, unsequenced moves risk tipping.
+- **Encoder interdependence.** The arm angle is measured relative to the carriage, so where the arm is in the world depends on the elevator height too. If the elevator is not homed, every arm position is wrong, even with a perfect arm encoder.
+
+## Think in states
+
+Instead of thinking about motors, think about **named poses** (also called states): a pose is a pair of numbers, one elevator height and one arm angle. A button press is a **transition** from one pose to another. These are the poses in Lab 10:
+
+| Pose | Elevator height (m) | Arm angle (deg) |
+|---|---|---|
+| `INTAKE` | 0.0 | -22 |
+| `HOME` | 0.10 | 45 |
+| `L1` | 0.18 | -8 |
+| `L2` | 0.42 | -10 |
+| `L3` | 0.70 | 48 |
+| `L4` | 1.08 | -20 |
+| Downward intake (faux pickup) | dips to 0.64 | -90 |
+
+Every pose is safe on its own. The danger is in the moves between them, and in the arm angles that never appear in the table above (such as -90) while the elevator is low.
+
+## Unsafe combinations
+
+| Elevator | Arm | Why it is a problem |
+|---|---|---|
+| Low (below 0.64 m) | Pointing down (-90 deg) | The arm and coral sweep into the drivebase |
+| Descending | Extended (outside -25 to 50 deg) | The arm comes down into the structure |
+| High | Extended, moving fast | The center of gravity is high and shifted, so the robot can tip |
+| Not homed | Anything | Arm angles mean nothing in world space |
+
+The 0.64 m is the lab's `SAFE_ARM_MOVEMENT_HEIGHT_METERS`. It is the height where the pivot is 1.10 m above the carpet, which clears the full arm and coral.
+
+## Parallel or in sequence?
+
+For each transition, ask one question: **does either move enter a danger zone?**
+
+- `Commands.parallel(a, b)` moves both at once. It is faster, and fine when neither move creates a collision.
+- `Commands.sequence(a, b)` makes `b` wait for `a`. It is safer, and needed when one move must clear space first.
+
+Always sequencing would be safe but slow, so you only pay that cost where the table says you must. Lesson 5.6 shows how Lab 10 makes that choice in code.
+
+## Practice
+
+<Practice bank="5-5" />
+
+## Checkpoint
+
+<Checkpoint lesson="5.5">
+
+<details>
+<summary>What could happen if the elevator is told to go home while the arm is out at a scoring pose?</summary>
+The arm can hit the robot as the carriage comes down, the center of gravity can shift suddenly, and parts can break.
+</details>
+
+<details>
+<summary>Why not always run both mechanisms in sequence?</summary>
+It is always safe but slow. Moves that never enter a danger zone can run in parallel and save time.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- An arm on an elevator is two subsystems but one structure, so each one's safe moves depend on the other.
+- Three risks: collisions, center-of-gravity shifts, and encoder interdependence (home the elevator first).
+- Describe the robot as named poses; every button press is a transition.
+- For each transition, choose parallel when no move enters a danger zone, and sequence when one move must clear space first.
+</RecapCard>

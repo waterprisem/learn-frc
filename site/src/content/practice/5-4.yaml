@@ -1,0 +1,53 @@
+# Practice bank for lesson 5.4 (Default commands).
+lesson: "5.4"
+items:
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "You hold a button and the elevator rises. When you release it, the elevator sags back down and sits limp instead of holding."
+    choices:
+      - "The elevator has no default command that holds a height"
+      - "The button is bound with `whileTrue` instead of `onTrue`"
+      - "The elevator PID is too high"
+      - "The button command is not named"
+    answer: 0
+    explain: "Releasing a `whileTrue` button cancels its command, so nothing requires the elevator. With no default, no voltage is sent. A default hold command fills that gap. The binding type is correct for a held action."
+  - type: mcq
+    prompt: "When does a default command run?"
+    choices:
+      - "Always, alongside every other command"
+      - "Only when no other command requires its subsystem"
+      - "Only at robot start-up"
+      - "Only when the driver presses the default button"
+    answer: 1
+    explain: "The default fills the gap when nothing else requires the subsystem. It is interrupted when a command that requires the same subsystem starts, and it restarts when that command ends."
+  - type: mcq
+    prompt: "Which `isFinished` best suits a default command that holds a height?"
+    choices:
+      - "Return true once the height is reached"
+      - "Return false"
+      - "Return true after 5 seconds"
+      - "Return true when a button is pressed"
+    answer: 1
+    explain: "A hold command should keep holding. If it finished, the subsystem would be left with nothing to do again. The lab's `SetElevatorHeightCommand` returns false."
+  - type: fill-blank
+    prompt: "Complete the line that makes the arm hold its home angle whenever nothing else uses it."
+    code: |
+      armSubsystem.____(
+          new SetArmAngleCommand(armSubsystem, SuperstructureConstants.HOME_ARM_ANGLE_DEGREES));
+    blanks:
+      - ["setDefaultCommand"]
+    explain: "`setDefaultCommand` registers the command with the scheduler for that subsystem. Calling `schedule` or binding it to a button would not make it the fallback."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "You release the Intake button in Lab 9 and the robot stays at the Intake pose instead of going Home."
+    choices:
+      - "The elevator, arm, and flywheel have no default commands set"
+      - "Intake was bound with `whileTrue`"
+      - "The flywheel velocity is negative"
+      - "The profiled controllers have no tolerance"
+    answer: 0
+    explain: "The lab's troubleshooting says to confirm the default commands still exist. Without them, nothing tells the mechanisms to return Home when Intake ends. `whileTrue` is the correct binding."
+  - type: free
+    prompt: "Lab 6 has five elevator heights: stow, intake, low, mid, and high. Why does it need only four buttons?"
+    modelAnswer: "Stow is the default command, so it runs whenever no button command is using the elevator. Only the four requested heights need buttons."
+    explain: "A resting state does not need a button. The default supplies it, and releasing a height button hands control back to it."

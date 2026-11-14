@@ -5,16 +5,169 @@ id: "0.4"
 track: "foundations"
 session: null
 isNew: true
-status: stub
+minutes: 25
+prereqs: ["0.2", "0.3"]
+outcomes:
+  - Read a constant like FlywheelConstants.PID_KP and say why it is static and final
+  - Fix a missing-import error and match a package to its folder
+  - Read a type with angle brackets and an enum value
+  - Read a chain of .withX() calls from top to bottom
+sources:
+  - curriculum: "labs/Session 4 - PID + Feedforward for Velocity Control/solution/src/main/java/frc/robot/Constants.java"
+  - curriculum: "labs/Session 3 - Open-Loop Flywheel with TalonFX/solution/src/main/java/frc/robot/subsystems/FlywheelSubsystem.java"
+  - doc: "https://docs.oracle.com/javase/tutorial/java/javaOO/classvars.html"
+status: review
 sidebar:
   label: "0.4 Java III: static, final, packages, generics"
   order: 4
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
+import AnnotatedCode from '../../../components/code/AnnotatedCode.astro';
 
-**What it will cover:** static and final, packages and imports, generics, enums, and builder-style method chaining.
+<WhyItMatters>
+Open any robot file and the first 20 lines are `import` statements, and the next lines are full of words like `static`, `final`, and `<Angle>`.
+None of it is hard, but if you do not know the words, the code looks like noise. This lesson gives you the five ideas that explain almost all of it.
+</WhyItMatters>
 
-This lesson goes beyond the Orbit Robotics curriculum.
+## static: one copy, owned by the class
+
+Normally you need an object before you can use its fields or methods (lesson 0.3). **`static`** means the thing belongs to the **class itself**, so you use it without creating an object.
+
+```java
+double kp = FlywheelConstants.PID_KP;
+double size = Math.abs(velocityMetersPerSecond);
+```
+
+On the robot, `PID_KP` is one number shared by every part of the code, and `Math.abs` is a tool you can call from anywhere. Nobody writes `new Math()`.
+Methods can be static too: `RobotBase.isSimulation()` asks "is this the simulator?" without any robot object.
+
+## final: set once, never changed
+
+**`final`** means a variable cannot be reassigned after it is set. The compiler (the program that checks your code before it runs) refuses to build if you try.
+
+```java
+private final TalonFX flywheelMotor = new TalonFX(FlywheelConstants.FLYWHEEL_MOTOR_CAN_ID);
+```
+
+This motor belongs to the flywheel for the whole match, so nothing should be able to swap it for a different one by accident.
+
+## Constants: public static final
+
+Put the two together and you get a **constant**: one shared value that never changes. The team keeps them all in `Constants.java`, in small classes nested inside the big one.
+
+<AnnotatedCode
+  file="lab4-0.4/constants"
+  title="Constants.java (Lab 4)"
+  notes={[
+    { lines: '1', text: '<code>public final class Constants</code>: a class that nobody can extend. It is just a labelled shelf for numbers.' },
+    { lines: '5', text: 'A <code>private</code> constructor means nobody can write <code>new OperatorConstants()</code>. The class exists only to hold values.' },
+    { lines: '8-9', text: 'A nested class groups one mechanism\'s numbers. <code>public static final int</code> is the full constant recipe: reachable from anywhere, owned by the class, never changed.' },
+    { lines: '14-19', text: 'Names are in CAPITAL_SNAKE_CASE, with the unit in the name (<code>_VOLTS</code>, <code>_RPS</code>). To tune the flywheel you change one number here, and every file that uses it follows.' },
+  ]}
+/>
+
+From another file you reach a nested constant with its two class names: `Constants.FlywheelConstants.PID_KP`. Or you import the inner class (next section) and write `FlywheelConstants.PID_KP`, as the lab does.
+
+## Packages and imports
+
+A **package** is a named folder of related classes. The first line of a file declares where it lives, and the folders on disk must match.
+
+```java
+package frc.robot.subsystems;
+```
+
+That line means the file sits in `src/main/java/frc/robot/subsystems/`. An **import** is how a file borrows a class from another package.
+
+```java
+import com.ctre.phoenix6.hardware.TalonFX;
+import frc.robot.Constants.FlywheelConstants;
+```
+
+The first line says "the `TalonFX` class from the CTRE library's `hardware` package." Leave it out and the compiler stops with an error like this:
+
+```text
+error: cannot find symbol
+  symbol:   class TalonFX
+  location: class FlywheelSubsystem
+```
+
+In VS Code the same mistake shows as a red underline and `TalonFX cannot be resolved to a type`. Hover it and choose the quick fix to add the import for you.
+
+## Generics: the type in angle brackets
+
+A **generic** type has a second type in angle brackets that says what it holds, like a labelled box.
+
+```java
+List<String> names = new ArrayList<>();
+```
+
+`List<String>` is a list of text, and `List<Double>` is a list of decimal numbers. The labs rarely write these out, but the CTRE library uses them all the time:
+`flywheelMotor.getVelocity()` returns a `StatusSignal<AngularVelocity>`, which means "a motor reading that holds a speed." That is why the lab calls `.getValueAsDouble()` to pull out a plain number.
+
+## Enums: a fixed list of names
+
+An **enum** is a type with a short, fixed list of allowed values. You pick one by name, and a typo is a compile error instead of a silent bug.
+
+```java
+.withNeutralMode(NeutralModeValue.Coast)
+```
+
+`NeutralModeValue` has `Brake` and `Coast`: what the motor does when you give it no command. `InvertedValue` has `Clockwise_Positive` and `CounterClockwise_Positive`: which spin direction counts as positive.
+
+## Method chaining
+
+Many setup objects use **builder style**: each `.withX(...)` call changes one setting and then returns the same object, so the next call can follow on the next line.
+
+```java
+MotorOutputConfigs cfg = new MotorOutputConfigs()
+    .withNeutralMode(NeutralModeValue.Brake);
+```
+
+Read a chain top to bottom: make the object, then set this, then set that. The semicolon at the very end finishes the whole sentence.
+
+## Read it in real code
+
+Here is the Lab 3 motor setup. Every idea in this lesson is in it.
+
+<AnnotatedCode
+  file="lab3-0.4/motor-config"
+  title="FlywheelSubsystem.java (Lab 3)"
+  notes={[
+    { lines: '2-8', text: 'A chain: <code>new MotorOutputConfigs()</code>, then <code>.withInverted(...)</code>, then <code>.withNeutralMode(...)</code>. Each call returns the object, so the chain keeps going.' },
+    { lines: '5-7', text: 'The <code>? :</code> is a one-line if/else (lesson 0.2). Two enum values, <code>InvertedValue.Clockwise_Positive</code> and <code>InvertedValue.CounterClockwise_Positive</code>, are the only choices.' },
+    { lines: '8', text: 'An enum value as an argument. The motor will coast when idle.' },
+    { lines: '12-15', text: 'Constants from <code>FlywheelConstants</code> feed the current limits in amps. Change the number in <code>Constants.java</code>, not here.' },
+  ]}
+/>
+
+## Practice
+
+<Practice bank="0-4" />
+
+## Checkpoint
+
+<Checkpoint lesson="0.4">
+
+<details>
+<summary>Why is `PID_KP` declared `public static final` instead of as a normal field?</summary>
+`static`: one shared copy that you reach through the class name, with no object needed. `final`: nobody can change it while the robot runs. `public`: every subsystem can read it.
+</details>
+
+<details>
+<summary>The file `FlywheelSubsystem.java` is in `src/main/java/frc/robot/subsystems/`. What is its package line?</summary>
+`package frc.robot.subsystems;`. The package name is the folder path starting after `java/`, with dots in place of slashes.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- `static` belongs to the class, `final` cannot be reassigned, and together with `public` they make a constant.
+- A package is a folder name, and an `import` borrows a class from it. A missing import is "cannot find symbol."
+- `Type<Inner>` says what is inside, an enum is a fixed list of names, and `.withX().withY()` chains settings on one object.
+</RecapCard>

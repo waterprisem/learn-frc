@@ -5,16 +5,93 @@ id: "R.5"
 track: "tools"
 session: null
 isNew: true
-status: stub
+minutes: 10
+prereqs: ["1.2"]
+outcomes:
+  - Connect your laptop to the robot and deploy from VS Code
+  - Read the deploy result and confirm Robot Code in the Driver Station
+  - Name what changes (and what does not) compared with simulation
+sources:
+  - doc: "https://docs.wpilib.org/en/stable/docs/software/vscode-overview/deploying-robot-code.html"
+status: review
 sidebar:
   label: "R.5 Deploy code to the robot"
   order: 5
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import Practice from '../../../components/practice/Practice.astro';
 
-**What it will cover:** Deploying to a real robot and what changes compared with simulation.
+<WhyItMatters>
+Simulation proves your logic. Deploying puts that same code on the roboRIO so real motors move.
+Once you know the few clicks and the three or four ways it fails, a deploy takes under a minute.
+</WhyItMatters>
 
-This lesson goes beyond the Orbit Robotics curriculum.
+## Before you start
+
+- A robot project that builds in VS Code with the WPILib extension.
+- A powered robot with the radio and roboRIO on.
+- Driver Station open on the laptop.
+
+## Connect to the robot
+
+Pick one way to reach the roboRIO. Only one is needed.
+
+1. **Radio Wi-Fi:** join the robot's network from the laptop.
+2. **Ethernet:** plug into the radio's spare port.
+3. **USB:** plug a USB cable into the roboRIO's USB device port.
+
+Then check the team number. Open `.wpilib/wpilib_preferences.json` in your project and confirm `teamNumber` is your team's. WPILib uses it to find the roboRIO.
+
+## Deploy
+
+1. Open the Command Palette (Ctrl+Shift+P, or Cmd+Shift+P on Mac).
+2. Run **WPILib: Deploy Robot Code**. You can also right-click `build.gradle` and choose **Deploy Robot Code**.
+3. Watch the terminal. A **Build Successful** message means the code compiled and was sent, and the RioLog opens to show the robot program's console output.
+4. In the Driver Station, wait for **Robot Code** to turn green.
+
+Do not power off the robot while it is deploying. An interrupted deploy can corrupt the roboRIO filesystem and force a re-image.
+
+## What changes compared with simulation
+
+Only the simulated physics stops. Your subsystems, commands, and NetworkTables topics are the same. AdvantageScope now connects to the robot instead of the simulator.
+
+## If something goes wrong
+
+| What you see | Likely cause | Fix |
+| --- | --- | --- |
+| Terminal says it cannot find or connect to the roboRIO | Laptop is not on the robot network | Rejoin the radio Wi-Fi or plug in Ethernet or USB, then deploy again |
+| Same message, and the network is fine | Wrong `teamNumber` | Correct it in `.wpilib/wpilib_preferences.json` |
+| Red errors and no **Build Successful** | Compile error in your code | Fix the first error listed, then deploy again |
+| Deploy fails with a version complaint, or Robot Code never turns green | roboRIO image and WPILib version do not match | Re-image the roboRIO with the same year's imaging tool |
+
+## Practice
+
+<Practice bank="R-5" />
+
+## Checkpoint
+
+<Checkpoint lesson="R.5">
+
+<details>
+<summary>What file holds the team number the deploy uses?</summary>
+`.wpilib/wpilib_preferences.json`, in the `teamNumber` field.
+</details>
+
+<details>
+<summary>After a successful deploy, how do you know the code is running?</summary>
+**Robot Code** is green in the Driver Station, and the RioLog shows the program's console output.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- Get on the robot network (Wi-Fi, Ethernet, or USB), check `teamNumber`, run **WPILib: Deploy Robot Code**.
+- Success is **Build Successful** in the terminal and a green **Robot Code** light.
+- Only the simulated physics goes away. Your code and topics are unchanged.
+- Never power off mid-deploy.
+</RecapCard>

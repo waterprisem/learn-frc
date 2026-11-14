@@ -1,0 +1,40 @@
+lesson: "R.3"
+items:
+  - type: mcq
+    prompt: "Which menu path connects AdvantageScope to a simulator running on your laptop?"
+    choices:
+      - "File, Connect to Simulator"
+      - "File, Open Log(s)..."
+      - "File, Download Logs..."
+      - "App, Show Preferences..."
+    answer: 0
+    explain: "Open Log(s) loads a saved file and Download Logs copies files from a robot. Preferences hold the robot address."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "AdvantageScope's title bar says Searching and the topic list is empty. The simulator was never started."
+    choices:
+      - "There is nothing to connect to yet"
+      - "The graph is on the wrong axis"
+      - "The log is corrupted"
+      - "The Mechanism tab is open"
+    answer: 0
+    explain: "A live connection needs a running source. Start the simulator, then connect."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "You graph Velocity RPS and Output Voltage on the same left axis. Velocity swings from 0 to 40 but the voltage line looks flat."
+    choices:
+      - "Different ranges share one scale"
+      - "The voltage topic is false"
+      - "The robot is in Test mode"
+      - "The log is too short"
+    answer: 0
+    explain: "Voltage only spans a few volts, so next to 40 it looks flat. Move it to the right axis."
+  - type: multi
+    prompt: "Which topics make up the Lab 4 time graph? Select all that apply."
+    choices:
+      - "`/Subsystems/FlywheelSubsystem/Target RPS`"
+      - "`/Subsystems/FlywheelSubsystem/Velocity RPS`"
+      - "`/Subsystems/FlywheelSubsystem/Error RPS`"
+      - "`/Subsystems/ArmSubsystem/Angle Degrees`"
+    answers: [0, 1, 2]
+    explain: "The graph also includes Output Voltage. The arm topic belongs to the Lab 8 arm graph."

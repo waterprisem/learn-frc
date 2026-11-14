@@ -1,0 +1,70 @@
+# Practice bank for lesson 5.9 (Mini Scorer challenge).
+lesson: "5.9"
+items:
+  - type: mcq
+    prompt: "You open the Mini Scorer project for the first time. Which file do you read first?"
+    choices:
+      - "`FlywheelSimulation`, because it shows how the robot behaves."
+      - "`RobotContainer`, because it shows the bindings and leads to the rest."
+      - "`Constants`, because every number is there."
+      - "`Robot.java`, because it is the entry point."
+    answer: 1
+    explain: "`RobotContainer` is the table of contents of a command-based project: bindings, default commands, and subsystems. The simulation classes are pre-wired and are not part of the task."
+    source: "Session 11 slides 17 and 19"
+  - type: mcq
+    prompt: "Which order does the tracing technique follow for one button?"
+    choices:
+      - "Subsystem method, command, trigger, button"
+      - "Button, trigger, command, subsystem method"
+      - "Command, button, subsystem method, trigger"
+      - "Button, subsystem method, trigger, command"
+    answer: 1
+    explain: "A press makes a trigger active, the trigger schedules a command, and the command calls subsystem methods. Find Usages lets you follow each arrow."
+    source: "Session 11 slide 18"
+  - type: mcq
+    prompt: "Why does the suggested order build the flywheel, elevator, and arm before the actions in `SuperstructureCommands`?"
+    choices:
+      - "The actions cannot compile until the subsystems are finished."
+      - "Actions are built from the mechanisms, so a bug underneath would look like a bug in the action."
+      - "The subsystems are shorter, so they are quicker."
+      - "The test only runs after the subsystems are done."
+    answer: 1
+    explain: "The code would compile with stubs. The reason is debugging: you test each layer alone so that a failure on top points at the top layer."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "Pressing X on the scoring action, the arm swings out while the carriage is still near the floor and hits the chassis."
+    choices:
+      - "The clearance wait is missing, so the arm moves in parallel with the elevator."
+      - "The flywheel velocity is too high."
+      - "The arm default command is not set."
+      - "The elevator is clamped to its maximum height."
+    answer: 0
+    explain: "Score must be a sequence: raise the elevator until it clears 0.35 m, then move the arm. Putting everything in one parallel group lets the arm move at once. The flywheel speed does not move the arm."
+    source: "Lab 11 safety rule 1"
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "Pressing Y always intakes on the front, no matter how many times you press it. A test of the side toggle fails."
+    choices:
+      - "The toggle runs once when the robot starts, not each time the button is pressed."
+      - "The flywheel PID has the wrong sign."
+      - "The arm angle is clamped too tightly."
+      - "The burst voltage is too low."
+    answer: 0
+    explain: "If the command is built once, the toggle code runs once. `Commands.defer` runs its lambda every time the command is scheduled, so each press flips the side."
+    source: "Lab 11 Step 5"
+  - type: fill-blank
+    prompt: "Complete the stow action so the arm folds first. Use the command names from the lab."
+    code: |
+      return Commands.____(
+          new SetArmAngleCommand(armSubsystem, HOME_FRONT_ARM_ANGLE_DEGREES)
+              .____(() -> armIsFolded),
+          new SetElevatorHeightCommand(elevatorSubsystem, HOME_ELEVATOR_HEIGHT_METERS));
+    blanks:
+      - ["sequence"]
+      - ["until"]
+    explain: "A sequence runs its commands one after another, and `until` ends the arm command once the arm is folded. A parallel group would lower the elevator at the same time as the arm moves."
+    source: "Lab 11 Step 4"
+  - type: free
+    prompt: "In two or three sentences, describe your plan for the first 20 minutes with the Mini Scorer project."
+    modelAnswer: "Run the finished solution to see the target behavior. Read RobotContainer, trace the A button with Find Usages, and search for TODO to list the stubs. Start with the flywheel, run the unit test for it, and move on only when it passes."
+    explain: "A good plan finds the goal, then the map, then a small first step that can be tested. Starting with the hardest action is the common mistake."

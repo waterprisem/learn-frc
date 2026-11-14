@@ -1,0 +1,36 @@
+# Practice bank for guide R.5 (Deploy code to the robot).
+lesson: "R.5"
+items:
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "You run Deploy Robot Code and the terminal reports it cannot connect to the roboRIO. The robot is powered and its lights are on."
+    choices:
+      - "A compile error in your code"
+      - "The laptop is not on the robot network"
+      - "AdvantageScope is closed"
+      - "The Driver Station is in Test mode"
+    answer: 1
+    explain: "A compile error would show red build errors before any connection attempt. Deploy needs a path from the laptop to the roboRIO: radio Wi-Fi, Ethernet, or USB. AdvantageScope and the DS mode do not affect deploying."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "Your laptop is on the robot Wi-Fi, but deploy never finds the roboRIO. You just copied the project from another team's repository."
+    choices:
+      - "Wrong teamNumber in .wpilib/wpilib_preferences.json"
+      - "The battery is too low to deploy"
+      - "The CAN chain is broken"
+      - "Too many commands registered"
+    answer: 0
+    explain: "WPILib uses the team number to locate the roboRIO, so a copied project often points at the wrong robot. CAN faults affect devices, not deploying."
+  - type: mcq
+    prompt: "Compared with simulation, what changes when you deploy?"
+    choices:
+      - "You must rewrite your subsystems for real hardware"
+      - "The NetworkTables topics get new names"
+      - "The simulated physics stops, and AdvantageScope connects to the robot"
+      - "Commands no longer run in the scheduler"
+    answer: 2
+    explain: "The same subsystems, commands, and topics run on the roboRIO. Only the simulated physics model goes away, because real motors and sensors take its place."
+  - type: free
+    prompt: "A deploy finished with Build Successful, but the Driver Station still shows Robot Code red. Name one thing you would check."
+    modelAnswer: "Read the RioLog for a crash message in the robot program, and check that the roboRIO image year matches the WPILib version. Waiting a few seconds after deploy is also normal, since the program has to start."
+    explain: "Build Successful only means the code compiled and was copied. The program still has to start on the roboRIO without crashing."

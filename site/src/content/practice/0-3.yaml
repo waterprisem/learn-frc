@@ -1,0 +1,66 @@
+# Practice bank for lesson 0.3 (Java II: classes and objects).
+lesson: "0.3"
+items:
+  - type: mcq
+    prompt: "What does `new TalonFX(5)` do?"
+    choices:
+      - "Defines a new class called `TalonFX`."
+      - "Builds one `TalonFX` object for the device with CAN ID 5."
+      - "Changes the CAN ID of every motor to 5."
+      - "Sets the motor voltage to 5."
+    answer: 1
+    explain: "`TalonFX` is the blueprint; `new` builds one object from it, and the 5 is passed to the constructor. Each `new` makes a separate object."
+  - type: fill-blank
+    prompt: "A flywheel subsystem is a kind of `SubsystemBase`. Complete the class line."
+    code: |
+      public class FlywheelSubsystem ____ SubsystemBase {
+      }
+    blanks:
+      - ["extends"]
+    explain: "`extends` means the new class is a kind of the parent class and inherits its behavior."
+  - type: parsons
+    prompt: "Put the parts of the class in the order the team writes them."
+    lines:
+      - "private final double voltage;"
+      - "public MyCommand(double voltage) {"
+      - "  this.voltage = voltage;"
+      - "}"
+      - "public void execute() { }"
+    distractors: []
+    explain: "Fields first, then the constructor, then methods. Inside the constructor, `this.voltage = voltage` stores the parameter in the field."
+  - type: bug-hunt
+    prompt: "The compiler rejects this subsystem with \"method does not override\". Click the line with the bug."
+    code: |
+      public class FlywheelSubsystem extends SubsystemBase {
+        private final TalonFX flywheelMotor = new TalonFX(1);
+
+        @Override
+        public void periodc() {
+          velocityPublisher.accept(getFlywheelVelocityRPS());
+        }
+      }
+    bugLine: 5
+    explain: "`periodc` is misspelled, so it does not match the parent's `periodic()`. That is exactly what `@Override` catches: the compiler error points at the typo."
+  - type: mcq
+    prompt: "A teammate writes `public void perodic()` with no `@Override`. What happens?"
+    choices:
+      - "WPILib finds it anyway and calls it every 20 ms."
+      - "It compiles, but WPILib never calls it, so nothing happens."
+      - "The compiler always reports an error."
+      - "The robot crashes when it is enabled."
+    answer: 1
+    explain: "Without `@Override` the misspelling is just a new method nobody calls. With `@Override` the compiler would say it overrides nothing and catch the typo."
+  - type: mcq
+    prompt: "In `this.voltage = voltage;` which side is the field?"
+    choices: ["The left side, `this.voltage`", "The right side, `voltage`", "Both", "Neither"]
+    answer: 0
+    explain: "`this.` points at the object's own field. The right side is the parameter that was passed to the constructor."
+  - type: mcq
+    prompt: "Why is `flywheelMotor` declared `private`?"
+    choices:
+      - "So the code runs faster."
+      - "So only the subsystem can command the motor and other code must use its methods."
+      - "Because motors cannot be shared between files in Java."
+      - "Private fields are required for every variable."
+    answer: 1
+    explain: "Private limits access to the class itself. It is about control, not speed: every request has to go through the subsystem."

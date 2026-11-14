@@ -1,0 +1,36 @@
+# Practice bank for guide R.6 (Phoenix Tuner X).
+lesson: "R.6"
+items:
+  - type: mcq
+    prompt: "Two Krakens both appear as ID 5. What is the best way to tell which is which?"
+    choices:
+      - "Unplug both and guess"
+      - "Click Blink on one card and see which device's LEDs flash"
+      - "Run the code and see which spins"
+      - "Plot a signal from both"
+    answer: 1
+    explain: "Blink flashes the LEDs of the device behind that card, so you can find it physically. Running the code with duplicate IDs gives unpredictable results."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "The code starts, but one Kraken never responds. In Tuner X that Kraken shows ID 12, and the code constant says 11."
+    choices:
+      - "Out-of-date firmware"
+      - "The IDs do not match"
+      - "A broken Driver Station"
+      - "The CAN bus has no terminating resistor"
+    answer: 1
+    explain: "The code addresses ID 11, which no device has. Change one side so both agree. A missing resistor would affect several devices, and the device would not appear in Tuner X."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "Tuner X shows an empty Devices page right after the roboRIO was imaged."
+    choices:
+      - "All CAN devices failed"
+      - "No diagnostics server is running yet"
+      - "The firmware year is wrong"
+      - "The laptop battery is low"
+    answer: 1
+    explain: "A freshly imaged roboRIO has no program providing the server. Enter its address and use Run Temporary Diagnostic Server."
+  - type: free
+    prompt: "What range of CAN IDs can you set on a device in Tuner X?"
+    modelAnswer: "0 to 62."
+    explain: "Tuner X only accepts IDs in that range. Pick unique IDs for every device on the bus."

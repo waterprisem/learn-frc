@@ -1,0 +1,36 @@
+# Practice bank for guide R.8 (PhotonVision web UI).
+lesson: "R.8"
+items:
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "The PhotonVision UI shows tags clearly, but your code's PhotonCamera never returns results."
+    choices:
+      - "The camera name in the UI differs from the one in code"
+      - "The tag family is 36h11"
+      - "The browser is Chrome"
+      - "The robot is in teleop"
+    answer: 0
+    explain: "PhotonLib reads from a topic named after the camera. If the names differ, the code listens to an empty topic."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "The UI detects tags, but the robot-relative pose is missing."
+    choices:
+      - "3D mode is off or the camera is not calibrated"
+      - "The team number is long"
+      - "The pipeline is set to AprilTag"
+      - "The coprocessor uses port 5800"
+    answer: 0
+    explain: "Pose needs 3D mode, which needs a calibration for the camera and resolution. Detection alone only gives where the tag appears in the image."
+  - type: mcq
+    prompt: "Which address opens the PhotonVision UI?"
+    choices:
+      - "http://photonvision.local:5800"
+      - "http://photonvision.local:1250"
+      - "http://roborio.local:80"
+      - "http://localhost:1735"
+    answer: 0
+    explain: "The UI is served on port 5800 of the coprocessor. Port 1250 belongs to the Phoenix diagnostics server."
+  - type: free
+    prompt: "How often must a camera be calibrated?"
+    modelAnswer: "Once per camera and resolution. Follow the official calibration guide."
+    explain: "Changing the resolution changes the camera's calibration values, so each resolution you use needs its own."

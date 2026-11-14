@@ -1,0 +1,40 @@
+lesson: "R.1"
+items:
+  - type: mcq
+    prompt: "You open the lab's session folder in VS Code and the WPILib build cannot find the project. What should you open instead?"
+    choices:
+      - "The folder that directly contains `build.gradle`"
+      - "The `src` folder"
+      - "The `vendordeps` folder"
+      - "Your whole Documents folder"
+    answer: 0
+    explain: "WPILib builds from the folder holding `build.gradle`. A lab folder holds two projects, so open `assignment` or `solution` on its own."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "You press the command palette shortcut and type WPILib, but no WPILib commands appear."
+    choices:
+      - "You are in a regular VS Code, not the WPILib one"
+      - "The robot is not connected"
+      - "The battery is low"
+      - "The project has no vendordeps"
+    answer: 0
+    explain: "The WPILib commands come from the VS Code copy the installer creates. A separately installed VS Code does not have them."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "The very first build of a new project fails with a message about downloading dependencies. Your classmate's build, on the same laptop type, passed."
+    choices:
+      - "Your Java code has a typo"
+      - "Your computer was offline and could not download the libraries"
+      - "You pressed the wrong key"
+      - "The simulator is still running"
+    answer: 1
+    explain: "The first build downloads the vendor libraries, so it needs internet. A typo would give a compile error, not a download error."
+  - type: mcq
+    prompt: "Which command compiles the project?"
+    choices:
+      - "WPILib: Build Robot Code"
+      - "WPILib: Create a new project"
+      - "File, Open Folder"
+      - "WPILib: Manage Vendor Libraries"
+    answer: 0
+    explain: "Build Robot Code compiles and reports `BUILD SUCCESSFUL`. Opening a folder only loads the project."

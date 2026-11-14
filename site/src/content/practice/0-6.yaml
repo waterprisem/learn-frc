@@ -1,0 +1,59 @@
+# Practice bank for lesson 0.6 (Tools: VS Code, Gradle, reading errors).
+lesson: "0.6"
+items:
+  - type: mcq
+    prompt: "What does Gradle do when you choose Simulate?"
+    choices:
+      - "It copies the code to the roboRIO"
+      - "It builds the code, then runs it on your laptop"
+      - "It only checks the code for errors"
+    answer: 1
+    explain: "Simulate builds first and then runs the program locally. Copying to the robot is Deploy, and checking without running is Build."
+  - type: bug-hunt
+    prompt: "The compiler reports one error in this code. Which line will it report?"
+    code: |
+      public double getVoltage(double targetRPS) {
+          double kS = 0.1;
+          double kV = 0.12;
+          double voltage = kS + kV * targetRPS
+          return voltage;
+      }
+    bugLine: 4
+    explain: "Line 4 has no semicolon. The compiler may point at line 5, where it noticed the problem, but the missing character is at the end of line 4."
+  - type: bug-hunt
+    prompt: "Which line will the compiler complain about?"
+    code: |
+      public void setSpeed() {
+          double targetRPS = 40.0;
+          String label = "flywheel";
+          int rounded = targetRPS;
+          System.out.println(label + rounded);
+      }
+    bugLine: 4
+    explain: "A `double` cannot be stored in an `int` without a cast, because the decimal part would be lost. Line 4 is where the types disagree."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "The output says `NullPointerException ... because \"this.intake\" is null`, and the first `frc.robot` line is `RobotContainer.java:22`."
+    choices:
+      - "The intake motor is unplugged"
+      - "`intake` was declared but never created with `new`"
+      - "The code is missing a semicolon"
+      - "The battery is low"
+    answer: 1
+    explain: "A NullPointerException means an object variable has no object in it. A missing semicolon would be a compiler error before the program ran, and wiring problems do not produce this message."
+  - type: mcq
+    prompt: "A stack trace has ten lines. Lines 1 to 3 start with `edu.wpi.first`, line 4 starts with `frc.robot.commands`. Where do you look first in your code?"
+    choices:
+      - "Line 1, because it is first"
+      - "Line 4, the first line in `frc.robot`"
+      - "The last line"
+    answer: 1
+    explain: "The `edu.wpi` lines are library code that was called by yours. The first `frc.robot` line is the place in your code that started the failing call."
+  - type: multi
+    prompt: "Which of these happen when you run Deploy? Select all that apply."
+    choices:
+      - "The code is compiled"
+      - "The code is copied to the robot"
+      - "A simulated robot window opens on your laptop"
+    answers: [0, 1]
+    explain: "Deploy is build plus copy. The simulation window comes from Simulate."

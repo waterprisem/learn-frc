@@ -1,0 +1,80 @@
+# Practice bank for lesson 0.4 (Java III: static, final, packages, generics).
+lesson: "0.4"
+items:
+  - type: mcq
+    prompt: "In `double kp = FlywheelConstants.PID_KP;` why can you read `PID_KP` without writing `new FlywheelConstants()`?"
+    choices:
+      - "Because `PID_KP` is `static`, so it belongs to the class itself."
+      - "Because `PID_KP` is `final`, so it can be read by anyone."
+      - "Because `FlywheelConstants` is a package."
+      - "Because `double` values do not need objects."
+    answer: 0
+    explain: "`static` is what removes the need for an object. `final` only stops the value from being changed, and a package is a folder name, not a class."
+  - type: fill-blank
+    prompt: "Complete the constant so it is shared, owned by the class, and never changes."
+    code: |
+      public ____ ____ double PID_KP = 0.08;
+    blanks:
+      - ["static", "final"]
+      - ["final", "static"]
+    explain: "A constant is `public static final`. The order of `static` and `final` can swap, but both are needed."
+  - type: bug-hunt
+    prompt: "This constant is meant to stay the same for the whole match, but the compiler rejects the file. Click the line with the bug."
+    code: |
+      public class ExampleConstants {
+        public static final double TOLERANCE_RPS = 2.0;
+        public static final int MOTOR_CAN_ID = 1;
+
+        public void change() {
+          MOTOR_CAN_ID = 5;
+        }
+      }
+    bugLine: 6
+    explain: "`MOTOR_CAN_ID` is `final`, so line 6 cannot assign a new value. The fix is to not reassign it at all. Changing a constant means editing line 3."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "The compiler says `cannot find symbol - class TalonFX` in `FlywheelSubsystem.java`, and the code that creates the motor is underlined in red."
+    choices:
+      - "The `import com.ctre.phoenix6.hardware.TalonFX;` line is missing."
+      - "`TalonFX` should be declared `final`."
+      - "The CAN ID is wrong."
+      - "The file is in the wrong enum."
+    answer: 0
+    explain: "\"Cannot find symbol\" means the compiler does not know the name. A class from another package needs an import. A wrong CAN ID only shows up when the robot runs, never as a compile error."
+  - type: parsons
+    prompt: "Put these lines in order to build a motor configuration with a chain."
+    lines:
+      - "MotorOutputConfigs cfg ="
+      - "    new MotorOutputConfigs()"
+      - "        .withInverted(InvertedValue.Clockwise_Positive)"
+      - "        .withNeutralMode(NeutralModeValue.Coast);"
+    distractors:
+      - "        .Coast(NeutralModeValue);"
+    explain: "The object is created first, then each `.withX(...)` changes one setting and returns the object so the next call can follow. The semicolon appears only after the last call."
+  - type: mcq
+    prompt: "`flywheelMotor.getVelocity()` returns a `StatusSignal<AngularVelocity>`. What does the part in angle brackets tell you?"
+    choices:
+      - "The signal holds a speed (an angular velocity)."
+      - "The signal can only be read once."
+      - "The signal is a constant."
+      - "The signal is stored in the `AngularVelocity` package folder."
+    answer: 0
+    explain: "The type in angle brackets says what the box contains. It has nothing to do with how many times you can read it, and it is not a folder."
+  - type: mcq
+    prompt: "A file starts with `package frc.robot.commands;`. Where must it be on disk?"
+    choices:
+      - "`src/main/java/frc/robot/commands/`"
+      - "`src/main/java/commands/frc/robot/`"
+      - "Anywhere, because the package line is only a comment."
+      - "`src/main/java/frc.robot.commands/`"
+    answer: 0
+    explain: "Dots in the package name become folder separators, in the same order. The package line is checked by the compiler, so it is not a comment."
+  - type: mcq
+    prompt: "What is the main benefit of `NeutralModeValue.Coast` being an enum value instead of a text string like \"coast\"?"
+    choices:
+      - "A typo becomes a compile error instead of a silent bug."
+      - "The motor spins faster."
+      - "It uses less memory on the roboRIO."
+      - "It lets you change it while the robot is running."
+    answer: 0
+    explain: "An enum has a fixed list of valid names, so the compiler can catch `Coat` right away. A string would accept the typo and fail later, or never."

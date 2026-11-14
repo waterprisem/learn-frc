@@ -1,0 +1,70 @@
+# Practice bank for lesson 0.2 (Java I: variables, types, methods).
+lesson: "0.2"
+items:
+  - type: mcq
+    prompt: "Which type fits `FLYWHEEL_MOTOR_CAN_ID = 1`?"
+    choices: ["`double`", "`int`", "`boolean`", "`String`"]
+    answer: 1
+    explain: "A CAN ID is a whole number, so `int`. `double` would work for decimals like volts, but IDs never have a decimal part."
+  - type: fill-blank
+    prompt: "Declare the variables for a target speed (a decimal) and a ready flag (true or false)."
+    code: |
+      ____ targetRPS = 40.0;
+      ____ atTarget = false;
+    blanks:
+      - ["double"]
+      - ["boolean"]
+    explain: "Speeds are measurements, so `double`. A true/false flag is a `boolean`."
+  - type: bug-hunt
+    prompt: "One line will not compile or does the wrong thing. Click it."
+    code: |
+      double targetRPS = 40.0;
+      double measuredRPS = 37.5;
+      double errorRPS = targetRPS - measuredRPS;
+      boolean atTarget = errorRPS = 2.0;
+      System.out.println(atTarget);
+    bugLine: 4
+    explain: "A single `=` stores a value; it does not compare. A comparison needs `<`, `>`, or `==`, such as `errorRPS < 2.0`."
+  - type: parsons
+    prompt: "Put these lines in order to define a method that returns twice the speed."
+    lines:
+      - "public double doubleIt(double speedRPS) {"
+      - "  double result = speedRPS * 2.0;"
+      - "  return result;"
+      - "}"
+    distractors:
+      - "  void result = speedRPS * 2.0;"
+    explain: "The signature comes first, then the work, then `return`, then the closing brace. `void` is for methods that return nothing, so it cannot declare a value."
+  - type: mcq
+    prompt: "What does `public void setFlywheelVoltage(double volts)` tell you?"
+    choices:
+      - "It takes one decimal number and gives back a decimal number."
+      - "It takes one decimal number and gives nothing back."
+      - "It takes no inputs and gives back a decimal number."
+      - "It gives back `void`, which is a number."
+    answer: 1
+    explain: "`void` means no answer comes back. `double volts` in the parentheses is the one input. The type before the name is the return type, not the input type."
+  - type: fill-blank
+    prompt: "Finish the method so it sends the error back."
+    code: |
+      public double getErrorRPS(double targetRPS, double measuredRPS) {
+        ____ targetRPS - measuredRPS;
+      }
+    blanks:
+      - ["return"]
+    explain: "A method with a `double` return type must hand a value back with `return`."
+  - type: bug-hunt
+    prompt: "This lab-style code has one bug. Click the line."
+    code: |
+      double flywheelVoltage = 0.0;
+      int velocityRPS = 40.5;
+      if (velocityRPS > 20.0) {
+        flywheelVoltage = 6.0;
+      }
+    bugLine: 2
+    explain: "An `int` cannot hold `40.5`. Speeds are measurements, so the variable should be a `double`."
+  - type: mcq
+    prompt: "Which name is the best for a height measured in meters?"
+    choices: ["`h`", "`height`", "`heightMeters`", "`HeightMeters`"]
+    answer: 2
+    explain: "camelCase starts lowercase, and the unit in the name saves you from mixing meters with inches. Capital first letters are for class names."

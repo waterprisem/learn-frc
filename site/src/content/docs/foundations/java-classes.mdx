@@ -5,16 +5,175 @@ id: "0.3"
 track: "foundations"
 session: null
 isNew: true
-status: stub
+minutes: 35
+prereqs: ["0.2"]
+outcomes:
+  - Explain the difference between a class and an object
+  - Name the three parts of a class - fields, constructor, methods
+  - Read extends and @Override on a subsystem and a command
+  - Say what an interface is in one sentence
+sources:
+  - curriculum: "labs/Session 3 - Open-Loop Flywheel with TalonFX/solution/src/main/java/frc/robot/subsystems/FlywheelSubsystem.java"
+  - curriculum: "labs/Session 3 - Open-Loop Flywheel with TalonFX/solution/src/main/java/frc/robot/commands/SetFlywheelVoltageCommand.java"
+  - doc: "https://docs.oracle.com/javase/tutorial/java/concepts/index.html"
+status: review
 sidebar:
   label: "0.3 Java II: classes and objects"
   order: 3
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import GoDeeper from '../../../components/lesson/GoDeeper.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
+import AnnotatedCode from '../../../components/code/AnnotatedCode.astro';
 
-**What it will cover:** Classes, objects, constructors, extends and @Override, and interfaces.
+<WhyItMatters>
+Every robot file you open is a class: `FlywheelSubsystem`, `SetFlywheelVoltageCommand`, `RobotContainer`.
+Once you can read the shape of a class, you can find where a motor is created, where it is commanded, and where WPILib calls your code.
+</WhyItMatters>
 
-This lesson goes beyond the Orbit Robotics curriculum.
+## Classes and objects
+
+A **class** is a blueprint. An **object** is one real thing built from it. You build one with `new`:
+
+```java
+TalonFX flywheelMotor = new TalonFX(1);
+```
+
+`TalonFX` is the blueprint (written by CTRE). `new TalonFX(1)` builds one motor-controller object for the device with CAN ID 1.
+You could build a second one with `new TalonFX(2)` for another motor. Same blueprint, two objects, each with its own state.
+
+The lab does the same with its own classes: there is one `FlywheelSubsystem` class, and the robot builds one flywheel object from it.
+
+## Fields, constructor, methods
+
+A class has three kinds of parts, always in this order in the team's code.
+
+| Part | What it is | Think of it as |
+|---|---|---|
+| **Fields** | variables that belong to the object | what it remembers |
+| **Constructor** | code that runs once when `new` builds the object | setup |
+| **Methods** | the things the object can do | its abilities |
+
+Here is the real `FlywheelSubsystem`, with the middle left out:
+
+```java
+public class FlywheelSubsystem extends SubsystemBase {
+  private final TalonFX flywheelMotor =
+      new TalonFX(FlywheelConstants.FLYWHEEL_MOTOR_CAN_ID);   // field
+
+  public FlywheelSubsystem() {                                 // constructor
+    flywheelMotor.getConfigurator().apply(currentLimitsConfigs);
+  }
+
+  public void setFlywheelVoltage(double volts) { ... }         // method
+}
+```
+
+The field holds the motor. The constructor has the class's name, no return type, and runs once, so it is where motor settings such as current limits are applied.
+The methods are what the rest of the code calls to make the wheel spin.
+
+## Private, public, and this
+
+**`private`** means only this class can use it. **`public`** means any class can.
+The motor field is `private`, so no other file can call `flywheelMotor.setControl(...)` and fight over it. They must go through `setFlywheelVoltage`, and that is the only door to the wheel.
+
+**`this`** means "this object". It tells apart a field from a parameter with the same name. The command uses it:
+
+```java
+this.voltage = voltage;
+```
+
+The left side is the field (what the object remembers); the right side is the parameter that was just passed in. It means: remember the voltage I was given.
+
+<GoDeeper title="why subsystems hide their motors">
+If any command could talk to the motor directly, two commands could give it different voltages in the same loop. Keeping the motor private forces every request through the subsystem, where the scheduler's requirements make sure only one command at a time is in charge (lesson 2.1).
+</GoDeeper>
+
+## Extends and @Override
+
+**`extends`** means "is a kind of". The parent class already has useful behavior, and the child inherits it and adds its own.
+
+```java
+public class FlywheelSubsystem extends SubsystemBase
+public class SetFlywheelVoltageCommand extends Command
+```
+
+A `FlywheelSubsystem` **is a** `SubsystemBase`, so WPILib can register it and call its `periodic()` every 20 ms. A `SetFlywheelVoltageCommand` **is a** `Command`, so the scheduler can run it.
+
+**`@Override`** marks a method that replaces one the parent defines. The parent's `periodic()` does nothing; yours does the real work:
+
+```java
+@Override
+public void periodic() {
+  velocityPublisher.accept(getFlywheelVelocityRPS());
+}
+```
+
+The annotation is a safety check. If you misspell it as `periodic1()`, the compiler says there is nothing to override, instead of the method silently never being called.
+
+## Interfaces
+
+An **interface** is a list of methods a class promises to have. Any class that promises them can be used wherever the interface is expected.
+You will mostly use interfaces other people wrote; the team's labs rarely define one, so a one-line recognition is enough.
+
+## The real subsystem
+
+The methods and the `@Override` from the flywheel subsystem. The motor is `private`, and each method is a public door.
+
+<AnnotatedCode
+  file="lab3-0.3/subsystem-methods"
+  title="FlywheelSubsystem.java"
+  notes={[
+    { lines: '1-3', text: 'A <code>public</code> method that other classes call. The only way to spin the private motor.' },
+    { lines: '5-7', text: 'A getter: no <code>void</code>, it returns the speed in rotations per second. The dotted chain is method chaining (lesson 0.4).' },
+    { lines: '13-17', text: '<code>@Override</code> replaces the parent\'s empty <code>periodic()</code>. WPILib calls it every 20 ms, and it publishes two numbers for graphing.' },
+  ]}
+/>
+
+## The real command
+
+A command receives the subsystem it works on in its constructor, remembers it in a field, and overrides the lifecycle methods.
+
+<AnnotatedCode
+  file="lab3-0.3/command"
+  title="SetFlywheelVoltageCommand.java"
+  notes={[
+    { lines: '1', text: 'A command <code>is a</code> <code>Command</code>.' },
+    { lines: '2-3', text: 'Fields: the subsystem to drive and the voltage to apply. Lesson 0.4 explains <code>final</code>.' },
+    { lines: '5-9', text: 'The constructor takes both as parameters, stores them with <code>this</code>, and <code>addRequirements</code> tells the scheduler this command uses the subsystem.' },
+    { lines: '11-17', text: 'Overrides. <code>initialize()</code> does nothing here. <code>execute()</code> runs every 20 ms and sends the voltage to the wheel.' },
+  ]}
+/>
+
+## Practice
+
+<Practice bank="0-3" />
+
+## Checkpoint
+
+<Checkpoint lesson="0.3">
+
+<details>
+<summary>Why is the motor field in a subsystem private?</summary>
+So the only way to move the motor is through the subsystem's methods. Commands cannot bypass the subsystem and two commands cannot fight over the motor.
+</details>
+
+<details>
+<summary>What does @Override protect you from?</summary>
+Misspelling a method name or getting its parameters wrong. The compiler checks that the parent really has that method, rather than letting yours quietly never run.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- A class is a blueprint; `new` builds an object from it.
+- Parts in order: fields (memory), constructor (runs once), methods (abilities).
+- `private` keeps the motor behind the subsystem; `this.x = x` stores a parameter in a field.
+- `extends` means "is a"; `@Override` replaces a parent method and makes the compiler check the name.
+- An interface is a list of methods a class promises to have.
+</RecapCard>

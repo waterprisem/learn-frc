@@ -377,3 +377,17 @@ details.lf-deeper > summary svg { color: var(--sl-color-text-accent); flex: none
 .lf-q .symptom { margin: 0 0 0.5rem; padding: 0.5rem 0.7rem; border-inline-start: 4px solid var(--warn); background: var(--sl-color-bg); border-radius: calc(var(--radius) * 0.75); }
 .lf-tasks li, .lf-map .layers button, .lf-seg.two button, .lf-can .ids label { margin: 0; }
 .lf-playground .lf-feedback svg { display: inline; }
+
+/* ---------- Practice: find the bug, and put the lines in order ---------- */
+.lf-bughunt { display: grid; margin-top: 0.5rem; padding: 0.4rem 0; overflow-x: auto; background: var(--sl-color-bg); border: 1px solid var(--sl-color-gray-5); border-radius: calc(var(--radius) * 0.75); }
+.lf-practice .lf-bughunt button { justify-content: flex-start; gap: 0.75rem; min-height: 1.9rem; min-width: max-content; margin: 0; padding: 0 0.8rem 0 0.4rem; border: 0; border-inline-start: 3px solid transparent; border-radius: 0; background: none; }
+.lf-practice .lf-bughunt button:hover { background: color-mix(in srgb, var(--sl-color-text-accent) 12%, transparent); }
+.lf-practice .lf-bughunt button.picked { border-inline-start-color: var(--sl-color-text-accent); background: color-mix(in srgb, var(--sl-color-text-accent) 22%, transparent); }
+.lf-bughunt .num { width: 1.6rem; text-align: end; color: var(--sl-color-gray-3); font-size: var(--sl-text-xs); font-variant-numeric: tabular-nums; }
+.lf-bughunt code, .lf-parsons code { font-family: var(--sl-font-mono); white-space: pre; background: none; padding: 0; }
+.lf-practice ol.lf-parsons { gap: 0.35rem; margin-top: 0.5rem; }
+.lf-parsons li { display: flex; align-items: center; gap: 0.4rem; margin: 0; padding: 0.25rem 0.4rem 0.25rem 0.7rem; overflow-x: auto; border: 1px solid var(--sl-color-gray-5); border-radius: calc(var(--radius) * 0.75); background: var(--sl-color-bg); }
+.lf-parsons li code { flex: 1; }
+.lf-parsons li.unused code { opacity: 0.4; text-decoration: line-through; }
+.lf-parsons label { display: inline-flex; align-items: center; gap: 0.3rem; font-size: var(--sl-text-xs); white-space: nowrap; }
+.lf-practice .lf-parsons button { min-height: 2rem; width: 2rem; padding: 0; flex: none; }

@@ -1,0 +1,50 @@
+# Practice bank for lesson 0.7 (Git and GitHub team workflow).
+lesson: "0.7"
+items:
+  - type: parsons
+    prompt: "Put the team workflow in order."
+    lines:
+      - "git pull (on main)"
+      - "git switch -c add-intake-command"
+      - "git commit -m \"Add intake command\""
+      - "git push"
+      - "open a pull request"
+      - "teammate reviews, then merge"
+    distractors: []
+    explain: "Start from the latest main, work on a branch, save and send your commits, then let the team review before merging. Committing straight to main skips the safety steps."
+  - type: mcq
+    prompt: "Which commit message will help most when you search the history next month?"
+    choices:
+      - "fix"
+      - "changes"
+      - "Stop flywheel when the command ends"
+      - "asdf"
+    answer: 2
+    explain: "A good message names what changed. Short vague messages tell you nothing later."
+  - type: mcq
+    prompt: "What is a branch?"
+    choices:
+      - "A copy of the robot"
+      - "A separate line of work that does not change main until you merge"
+      - "A backup stored on your laptop only"
+    answer: 1
+    explain: "A branch lets you try changes without affecting the shared main code. It is not a hardware backup."
+  - type: symptom-cause
+    prompt: "What caused this?"
+    symptom: "Git stops during a merge and the file contains lines starting with `<<<<<<<`, `=======`, and `>>>>>>>`."
+    choices:
+      - "The file is corrupted"
+      - "You and a teammate changed the same lines"
+      - "You forgot to push"
+      - "GitHub is down"
+    answer: 1
+    explain: "Those lines are conflict markers. Git cannot choose between two edits to the same lines, so it asks you to."
+  - type: multi
+    prompt: "Which of these are good habits on a team? Select all that apply."
+    choices:
+      - "Commit small changes often"
+      - "Commit directly to main to save time"
+      - "Pull before starting new work"
+      - "Open a pull request so a teammate can review"
+    answers: [0, 2, 3]
+    explain: "Small commits are easy to review and undo. Pulling avoids conflicts, and review catches mistakes. Committing straight to main removes that safety."

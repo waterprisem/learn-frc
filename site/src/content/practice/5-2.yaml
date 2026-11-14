@@ -1,0 +1,55 @@
+# Practice bank for lesson 5.2 (Waiting for readiness).
+lesson: "5.2"
+items:
+  - type: mcq
+    prompt: "Which line does the same thing as `Commands.none().until(trigger)`?"
+    choices:
+      - "`Commands.waitUntil(trigger)`"
+      - "`Commands.parallel(trigger)`"
+      - "`Commands.print(trigger)`"
+      - "`trigger.whileTrue(Commands.none())`"
+    answer: 0
+    explain: "Both are do-nothing commands that end when the trigger is true. `waitUntil` is the idiomatic form because the name says what it does."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "Switching from Intake directly to Score Amp, the flywheel starts spinning at once while the elevator and arm are still moving."
+    choices:
+      - "The flywheel command has the wrong velocity"
+      - "The wait uses generic `armAtTarget` and `elevatorAtTarget`, which are true for the Intake goal"
+      - "Score Amp is bound with `onTrue`"
+      - "The elevator has no default command"
+    answer: 1
+    explain: "The old goal is already reached, so a generic trigger is true on the first loop. A setpoint-specific trigger also checks that the goal equals the Amp setpoint. The binding type does not affect when the flywheel starts."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "An action waits on a readiness trigger. The trigger never becomes true, and the driver's other buttons stop working for that mechanism."
+    choices:
+      - "The action has no timeout and holds its subsystems forever"
+      - "The trigger was built with `and`"
+      - "The default command has finished"
+      - "The scheduler is overloaded"
+    answer: 0
+    explain: "A command that waits forever keeps its subsystems. A timeout would end it and let the default command run again."
+  - type: fill-blank
+    prompt: "Complete Score Amp so the flywheel only starts after both mechanisms are ready for Amp."
+    code: |
+      Commands.____(
+              elevatorSubsystem.elevatorAtScoreAmp.and(armSubsystem.armAtScoreAmp))
+          .____(new SetFlywheelVelocityCommand(flywheelSubsystem, velocityRPS))
+    blanks:
+      - ["waitUntil"]
+      - ["andThen"]
+    explain: "`waitUntil` ends when the condition is true. `andThen` starts the flywheel command after that. `alongWith` would start the flywheel immediately."
+  - type: mcq
+    prompt: "A setpoint-specific trigger checks `goal == setpoint` and `atGoal`. Why check the goal?"
+    choices:
+      - "To make the mechanism move faster"
+      - "To prove the mechanism is ready for this setpoint, not an earlier one"
+      - "To avoid using the PID controller"
+      - "To reset the encoder"
+    answer: 1
+    explain: "At-goal alone only says the mechanism has stopped near whatever goal it had. Checking the goal says it is the goal you are waiting for."
+  - type: free
+    prompt: "Your Score action sequence ends when the arm is ready. Name two ways to stop it from hanging if the arm never becomes ready."
+    modelAnswer: "Add a timeout with `withTimeout(seconds)` to the whole action, or use `until` with a condition that ends the step early. The timeout is the safety net."
+    explain: "Both end the command from outside. A timeout cancels the action after a set time, and the default command takes over."

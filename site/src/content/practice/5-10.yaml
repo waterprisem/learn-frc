@@ -1,0 +1,140 @@
+# Practice bank for lesson 5.10 (Week 6 checkpoint, mock). Tracks 1-5.
+lesson: "5.10"
+items:
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "Whenever the arm and flywheel start moving together, the roboRIO restarts and the Driver Station shows low battery voltage."
+    choices:
+      - "A brownout: the battery voltage dropped too low under the sudden load."
+      - "The CAN bus is wired in a loop."
+      - "The radio lost its IP address."
+      - "The code has a compile error."
+    answer: 0
+    explain: "Motors drawing a big current at once pull the battery voltage down, and below the roboRIO's threshold it resets. A compile error would stop the deploy, not restart a running robot."
+    source: "Track 1"
+  - type: mcq
+    prompt: "How often does the scheduler run the `execute()` of an active command?"
+    choices:
+      - "Once, when the command starts."
+      - "Every 20 ms, or 50 times a second."
+      - "Every 1 second."
+      - "Only when the encoder changes."
+    answer: 1
+    explain: "The robot loop runs every 20 ms and the scheduler runs each active command once per loop. `initialize()` is the one that runs once."
+    source: "Track 1 and 2"
+  - type: multi
+    prompt: "Which of these belong inside a subsystem class, and not in `RobotContainer`? Select all that apply."
+    choices:
+      - "The motor and sensor objects"
+      - "A method such as `closedLoopCalculate`"
+      - "Which button runs which command"
+      - "A rule that the elevator waits for the arm"
+      - "Telemetry published in `periodic()`"
+    answers: [0, 1, 4]
+    explain: "Subsystems own hardware, math, and logging. Bindings and rules that involve more than one mechanism live in `RobotContainer`, because subsystems should not know about each other."
+    source: "Tracks 2 and 5"
+  - type: fill-blank
+    prompt: "Complete the bindings. A should run while held, and B should run once per press."
+    code: |
+      driverController.a().____(intakeCommand);
+      driverController.b().____(stowCommand);
+    blanks:
+      - ["whileTrue"]
+      - ["onTrue"]
+    explain: "`whileTrue` schedules the command on press and cancels it on release. `onTrue` schedules it once on press and lets it finish by itself."
+    source: "Track 2"
+  - type: read-graph
+    preset: "flywheel:kp-high"
+    prompt: "The target is steady but the velocity keeps crossing it. What do you change?"
+    choices:
+      - "Raise `kV`."
+      - "Lower `kP`."
+      - "Raise `kS`."
+      - "Widen the tolerance and leave the gains."
+    answer: 1
+    explain: "Crossing the target again and again is over-correction from a large `kP`. A wider tolerance would hide the symptom without fixing the output swings."
+    source: "Track 3"
+  - type: read-graph
+    preset: "flywheel:kv-high"
+    prompt: "The velocity settles above the target. What is the most likely fix?"
+    choices:
+      - "Lower `kV`."
+      - "Raise `kP`."
+      - "Raise `kS`."
+      - "Lower the target."
+    answer: 0
+    explain: "Feedforward predicts more voltage than that speed needs, so the wheel overshoots and stays there. Raising `kP` would only push harder against a gap that feedforward created."
+    source: "Track 3"
+  - type: predict-graph
+    prompt: "All gains (`kS`, `kV`, `kP`) are 0 and you hold a 40 RPS target. Which graph will you see?"
+    presets: ["flywheel:zero", "flywheel:tuned", "flywheel:kv-high"]
+    answer: 0
+    explain: "With every gain at 0 the code sends 0 V, so the wheel never moves. Graph B is the tuned case and Graph C has too much `kV`."
+    source: "Track 3"
+  - type: mcq
+    prompt: "Why is the elevator feedforward gravity term a constant, but the arm's depends on the angle?"
+    choices:
+      - "The elevator motor is stronger."
+      - "Gravity pulls the carriage the same amount at every height, but its torque on an arm follows the cosine of the angle."
+      - "The arm is lighter, so gravity matters less."
+      - "Both are constant, and the arm just uses radians."
+    answer: 1
+    explain: "A carriage lifts the same weight at any height. An arm held horizontal needs the most holding torque and an arm held vertical needs almost none."
+    source: "Track 3"
+  - type: mcq
+    prompt: "Which constant name follows the team's naming convention?"
+    choices:
+      - "`scoreHeight`"
+      - "`SCORE_ELEVATOR_HEIGHT_METERS`"
+      - "`SCORE_ELEVATOR_HEIGHT`"
+      - "`scoreHeightMeters`"
+    answer: 1
+    explain: "Constants are upper snake case with the unit in the name. The unit in the name prevents mixing meters with centimeters or degrees with radians."
+    source: "Track 4"
+  - type: mcq
+    prompt: "What is the best reason to write a unit test for robot code?"
+    choices:
+      - "It replaces testing on the real robot."
+      - "It runs in seconds without hardware and warns you when a later change breaks something."
+      - "It makes the code run faster on the roboRIO."
+      - "It tunes the PID gains for you."
+    answer: 1
+    explain: "Unit tests are cheap and repeatable. They do not replace real-robot testing, and they cannot tune gains, but they catch regressions early."
+    source: "Track 4"
+  - type: fill-blank
+    prompt: "Complete the action so the elevator reaches the clearance height before the arm moves."
+    code: |
+      Commands.____(
+          raiseElevator.____(() -> elevatorHeightMeters >= CLEARANCE_HEIGHT_METERS),
+          moveArmAndSpinUp)
+    blanks:
+      - ["sequence"]
+      - ["until"]
+    explain: "A sequence runs its parts in order, and `until` ends the first part once the condition is true. A parallel group would start the arm immediately."
+    source: "Track 5"
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "You press B to stow. The carriage drops while the arm is still swinging in, and the arm hits the carriage."
+    choices:
+      - "The stow action lowers the elevator in parallel with the arm instead of after it."
+      - "The arm feedforward uses degrees."
+      - "The flywheel default command is missing."
+      - "The controller is on the wrong port."
+    answer: 0
+    explain: "Safe stow must be a sequence: fold the arm until it is within tolerance, then lower. Parallel means both start at once."
+    source: "Track 5"
+  - type: mcq
+    prompt: "A command that needs the arm subsystem is scheduled while another command that requires the arm is running. What happens?"
+    choices:
+      - "Both run and their voltages are added."
+      - "The new command is ignored."
+      - "The scheduler interrupts the old command and starts the new one."
+      - "The robot disables."
+    answer: 2
+    explain: "Requirements give each subsystem one owner at a time. By default the newer command wins and the older one gets `end(true)`."
+    source: "Tracks 2 and 5"
+  - type: free
+    prompt: "A teammate says the scoring action never finishes moving the arm. What do you open first, and what do you look for?"
+    modelAnswer: "Open AdvantageScope and graph the arm's goal, setpoint, and measurement. Check whether the measured angle ever gets inside the tolerance, whether the arm is stuck behind a wait (such as the elevator clearance), and whether the command is being interrupted by another command that requires the arm."
+    explain: "Good answers start with the logs and name a specific signal. Guessing and changing code first is the common mistake."
+    source: "Session 12 oral check"

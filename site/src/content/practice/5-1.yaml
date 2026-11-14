@@ -1,0 +1,54 @@
+# Practice bank for lesson 5.1 (Command composition).
+lesson: "5.1"
+items:
+  - type: mcq
+    prompt: "A group must keep the intake spinning while the arm moves into position, and end exactly when the arm arrives. Which composition fits?"
+    choices:
+      - "`Commands.sequence(intake, arm)`"
+      - "`Commands.parallel(intake, arm)`"
+      - "`Commands.deadline(arm, intake)`"
+      - "`Commands.race(arm, intake)` with an intake that never ends"
+    answer: 2
+    explain: "In a deadline the first command sets the clock, so the group ends when the arm command ends and the intake is cancelled. A parallel would wait for both, and the intake never finishes. A race would work if the arm finishes first, but deadline says the intent directly."
+  - type: multi
+    prompt: "Which of these end the group when they are used in `Commands.race(a, b)`? Select all that apply."
+    choices:
+      - "`a` finishes"
+      - "`b` finishes"
+      - "Both finish"
+      - "Only the longer one finishes"
+    answers: [0, 1, 2]
+    explain: "A race ends when the first command ends, so either one finishing is enough. If both finish at the same moment it ends as well. Waiting for the longer one is what parallel does."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "You compose an elevator command and an arm command with `parallel`. Another button's command that also uses the arm starts while the group is running. The group stops."
+    choices:
+      - "`parallel` ends as soon as one part ends"
+      - "Both commands require the arm, so the new command interrupts the group, and the whole group is cancelled"
+      - "The group never required the arm"
+      - "The scheduler cannot run two buttons at once"
+    answer: 1
+    explain: "A group requires everything its parts require. A new command that needs the arm interrupts the whole group, not just the arm part. The wrong idea is that only one part of a group is cancelled."
+  - type: free
+    prompt: "In Score Speaker, why does stage 2 contain a new `SetElevatorHeightCommand` instead of leaving the stage-1 elevator command running?"
+    modelAnswer: "Stage 1 ends when its deadline ends, which cancels the elevator command. Each stage is its own group, so stage 2 needs its own elevator command to keep holding the height while the arm moves."
+    explain: "The deadline cancels every other command in the stage when its main command ends. A command only runs during its own stage, so anything that must keep going has to be started again in the next one."
+  - type: fill-blank
+    prompt: "Complete a group that moves the elevator and arm together and ends when both setpoint commands end."
+    code: |
+      return Commands.____(
+          new SetElevatorHeightCommand(elevatorSubsystem, heightMeters),
+          new SetArmAngleCommand(armSubsystem, angleDegrees))
+        .withName("Intake");
+    blanks:
+      - ["parallel"]
+    explain: "`parallel` starts every part at once. `sequence` would move the elevator first and never reach the arm, because the elevator command does not finish."
+  - type: mcq
+    prompt: "What does `.withName(\"Score Speaker\")` change?"
+    choices:
+      - "Which subsystems the command requires"
+      - "When the command ends"
+      - "The label shown for the command in logs and the scheduler view"
+      - "Which button it is bound to"
+    answer: 2
+    explain: "The name is only a label. It makes the scheduler view and logs readable, but does not change requirements, ending, or bindings."

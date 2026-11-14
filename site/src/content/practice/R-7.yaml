@@ -1,0 +1,36 @@
+# Practice bank for guide R.7 (PathPlanner GUI).
+lesson: "R.7"
+items:
+  - type: mcq
+    prompt: "Where do PathPlanner's saved paths and autos live?"
+    choices:
+      - "src/main/java/frc/robot"
+      - "src/main/deploy/pathplanner/"
+      - "The PathPlanner app's install folder"
+      - "build/libs"
+    answer: 1
+    explain: "The deploy folder is copied to the roboRIO on deploy, so the robot can load the files. The Java folder holds code, not path data."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "An event marker on your path is supposed to run the intake, but nothing happens on the robot."
+    choices:
+      - "The marker name differs from the named command registered in code"
+      - "The path is too short"
+      - "Holonomic Mode is on"
+      - "The auto has two paths"
+    answer: 0
+    explain: "The app stores only a name, and the robot looks the command up by that name. A spelling or case difference means no match."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "You deleted an auto in the app, but it still appears in the robot's auto chooser after deploying."
+    choices:
+      - "The Driver Station caches it"
+      - "Old files were not cleared from the roboRIO's deploy folder"
+      - "The auto has no waypoints"
+      - "AdvantageScope is open"
+    answer: 1
+    explain: "Deleted files are not removed from the roboRIO unless the build clears old deploy files. Fix the build setting or delete them on the roboRIO."
+  - type: free
+    prompt: "A path ends with Velocity set to 0 in Goal End State. What will the robot do at the end of it?"
+    modelAnswer: "It comes to a stop at the end of the path."
+    explain: "A nonzero end velocity means the robot keeps moving through the end point, which is how you chain fast paths."
