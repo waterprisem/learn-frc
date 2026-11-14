@@ -15,6 +15,7 @@ export default defineConfig({
         '@fontsource-variable/jetbrains-mono',
         './src/styles/tokens.css',
         './src/styles/components.css',
+        './src/styles/playgrounds-b.css',
       ],
       components: {
         ThemeSelect: './src/components/ThemeSelect.astro',
