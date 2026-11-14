@@ -43,10 +43,10 @@ The lab's recipe for a second `TalonFX`:
 1. Give the follower its own CAN ID constant.
 2. Make it a field next to the leader motor.
 3. Give it the same neutral mode and current limit as the leader.
-4. Call `setControl` with a CTRE `Follower` request that names the leader's device ID.
-5. Decide whether it runs the same direction or opposite, based on how the two motors are mounted.
+4. Call `setControl` with a CTRE `Follower` request that names the leader's device ID and a `MotorAlignmentValue`.
+5. Choose `MotorAlignmentValue.Aligned` (same direction as the leader) or `Opposed`, based on how the two motors are mounted.
 
-Phoenix 6 changes its API between seasons, so confirm the `Follower` constructor in the CTRE docs for your version (2026). Commands and the public subsystem methods should not change at all.
+In the Phoenix 6 Java API the request is `new Follower(leaderId, MotorAlignmentValue.Aligned)`. The API changes between seasons, so confirm it in the CTRE docs for your version. Commands and the public subsystem methods should not change at all.
 
 ## The acceleration term, kA
 
