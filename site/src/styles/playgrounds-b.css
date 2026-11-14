@@ -32,3 +32,12 @@
 .lf-ip-split .x { color: var(--sig-output); }
 .lf-teamip table { margin: 0; }
 .lf-teamip td small { color: var(--sl-color-gray-3); }
+
+.lf-journey-map { width: 100%; display: block; margin-bottom: 0.5rem; }
+.lf-journey-map .lane { stroke: var(--sl-color-gray-5); stroke-dasharray: 3 4; }
+.lf-journey-map .path { fill: none; stroke: var(--sl-color-gray-4); stroke-width: 1.5; }
+.lf-journey-map text.n { font-size: 11px; font-weight: 700; }
+.lf-journey-map g[role='button'] circle { transition: r 0.15s; }
+.lf-journey-card p { margin: 0; }
+.lf-journey-card .where { font-size: var(--sl-text-sm); margin-bottom: 0.25rem; }
+.lf-journey-card .loop { margin-inline-start: 0.6rem; padding: 0.05rem 0.45rem; border: 1px solid var(--sig-measurement); border-radius: 1rem; font-size: var(--sl-text-xs); }

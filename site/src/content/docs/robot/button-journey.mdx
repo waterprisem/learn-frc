@@ -29,6 +29,7 @@ import GoDeeper from '../../../components/lesson/GoDeeper.astro';
 import Checkpoint from '../../../components/lesson/Checkpoint.astro';
 import Practice from '../../../components/practice/Practice.astro';
 import AnnotatedCode from '../../../components/code/AnnotatedCode.astro';
+import ButtonJourney from '../../../components/playgrounds/ButtonJourney.tsx';
 
 <WhyItMatters>
 You press a button and the mechanism does nothing. That one symptom can come from a dead cable, a missing binding, a wrong CAN ID, or a stalled motor.
@@ -57,6 +58,10 @@ This is the Lab 3 flywheel. Holding Xbox A runs the flywheel at 6 volts (`FORWAR
 | 14 | **Network**: AdvantageScope | AdvantageScope reads `/Subsystems/FlywheelSubsystem/Velocity RPS` and draws the graph. |
 
 Steps 5 to 7 and 13 happen inside the 20 ms robot loop. So the code reacts to a press within one or two loops, and the physical wheel takes longer than any of the electronics.
+
+## Try it: step through the press
+
+<ButtonJourney client:visible lessonId="1.10" />
 
 ## Where the code is
 
