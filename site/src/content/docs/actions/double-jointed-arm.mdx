@@ -23,6 +23,7 @@ import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
 import RecapCard from '../../../components/lesson/RecapCard.astro';
 import Checkpoint from '../../../components/lesson/Checkpoint.astro';
 import Practice from '../../../components/practice/Practice.astro';
+import TwoLinkArm from '../../../components/diagrams/TwoLinkArm.astro';
 
 <WhyItMatters>
 A two-joint arm can reach over a bumper, down into a low scoring spot, and back inside the frame perimeter. It can also fold into the robot if the joints move independently.
@@ -40,6 +41,8 @@ Picture a **shoulder** joint fixed to the robot and an **elbow** joint at the en
 ## Frames and angles
 
 To describe a pose you need to be clear about **which angle you mean**. A **relative** angle is measured from the previous link. An **absolute** angle is measured from the ground. The elbow is usually a relative angle, and the tip's position depends on both joints.
+
+<TwoLinkArm />
 
 Going from a wanted tip position to the two joint angles is called **inverse kinematics**. At the concept level, think of it as a helper: you give it a target and it gives back joint angles. The plan's guidance is to provide math helpers, and not to make students derive the math.
 

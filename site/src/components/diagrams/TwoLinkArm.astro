@@ -1,0 +1,44 @@
+---
+// Two-link arm, side view: shoulder angle from the horizontal, elbow angle relative to link 1.
+const sx = 90, sy = 220;
+const L1 = 150, L2 = 120;
+const t1 = 55, t2 = -70; // shoulder (absolute), elbow (relative)
+const rad = (d: number) => (d * Math.PI) / 180;
+const ex = sx + L1 * Math.cos(rad(t1));
+const ey = sy - L1 * Math.sin(rad(t1));
+const tx = ex + L2 * Math.cos(rad(t1 + t2));
+const ty = ey - L2 * Math.sin(rad(t1 + t2));
+const arc = (cx: number, cy: number, r: number, a0: number, a1: number) => {
+  const p = (a: number) => `${cx + r * Math.cos(rad(a))} ${cy - r * Math.sin(rad(a))}`;
+  return `M${p(a0)}A${r} ${r} 0 0 ${a1 > a0 ? 0 : 1} ${p(a1)}`;
+};
+const mid = (a: number, r: number, cx: number, cy: number) => [cx + r * Math.cos(rad(a)), cy - r * Math.sin(rad(a))];
+const [s1x, s1y] = mid(t1 / 2, 52, sx, sy);
+const [e1x, e1y] = mid(t1 + t2 / 2, 44, ex, ey);
+---
+<figure class="lf-diagram not-content">
+  <svg viewBox="0 0 400 260" role="img" aria-labelledby="tl-title tl-desc">
+    <title id="tl-title">Two-link arm angles</title>
+    <desc id="tl-desc">A shoulder joint fixed to the robot and a first link of length L1 at the shoulder angle from horizontal. An elbow joint at its end, and a second link of length L2 bent by the elbow angle relative to the first link. The tip is at the end of the second link.</desc>
+    <line class="wire" x1="20" y1={sy} x2="170" y2={sy} />
+    <line class="wire" x1={sx} y1={sy} x2={sx + 150} y2={sy} stroke-dasharray="2 3" style="stroke: var(--sl-color-gray-4)" />
+    <line class="wire" x1={ex} y1={ey} x2={ex + L1 * 0.4 * Math.cos(rad(t1))} y2={ey - L1 * 0.4 * Math.sin(rad(t1))} stroke-dasharray="2 3" style="stroke: var(--sl-color-gray-4)" />
+
+    <line class="wire" x1={sx} y1={sy} x2={ex} y2={ey} stroke-width="6" stroke-linecap="round" style="stroke: var(--sig-measurement)" />
+    <line class="wire" x1={ex} y1={ey} x2={tx} y2={ty} stroke-width="6" stroke-linecap="round" style="stroke: var(--sig-output)" />
+    <circle class="node" cx={sx} cy={sy} r="7" />
+    <circle class="node" cx={ex} cy={ey} r="7" />
+    <circle class="node" cx={tx} cy={ty} r="5" style="stroke: var(--sig-setpoint)" />
+
+    <path class="wire" d={arc(sx, sy, 40, 0, t1)} />
+    <text x={s1x + 6} y={s1y + 4} text-anchor="start">shoulder</text>
+    <path class="wire" d={arc(ex, ey, 34, t1, t1 + t2)} />
+    <text x={e1x + 8} y={e1y - 2}>elbow</text>
+
+    <text x={(sx + ex) / 2 - 12} y={(sy + ey) / 2 + 4} text-anchor="end">L1</text>
+    <text x={(ex + tx) / 2 + 12} y={(ey + ty) / 2 - 2}>L2</text>
+    <text x={sx - 8} y={sy + 20} class="muted" text-anchor="end">shoulder joint</text>
+    <text x={tx + 10} y={ty + 4} class="muted">tip</text>
+  </svg>
+  <figcaption>The shoulder angle is measured from the horizontal. The elbow angle is relative to link 1, so link 2 points at shoulder + elbow from the ground.</figcaption>
+</figure>
