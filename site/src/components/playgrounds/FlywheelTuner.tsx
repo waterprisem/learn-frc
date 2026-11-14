@@ -131,7 +131,7 @@ export default function FlywheelTuner({ initialPreset = 'zero', lessonId }: Prop
       <div className="lf-pg-top">
         <div className="lf-pg-controls">
           <fieldset>
-            <legend>Hold a button (target speed)</legend>
+            <legend>Target speed</legend>
             <div className="lf-seg">
               {TARGETS.map((t) => (
                 <button key={t.label} type="button" aria-pressed={target === t.value} onClick={() => hold(t.value)}>
@@ -145,7 +145,7 @@ export default function FlywheelTuner({ initialPreset = 'zero', lessonId }: Prop
             <legend>Gains</legend>
             {KNOBS.filter((k) => !k.advanced).map(knob)}
             <details>
-              <summary>kI and kD (leave at 0 for this lab)</summary>
+              <summary>kI and kD</summary>
               {KNOBS.filter((k) => k.advanced).map(knob)}
             </details>
           </fieldset>

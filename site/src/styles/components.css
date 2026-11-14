@@ -33,10 +33,8 @@
   align-items: center;
   gap: 0.4rem;
   margin: 0 0 0.4rem;
-  font-size: var(--sl-text-xs);
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-size: var(--sl-text-sm);
+  font-weight: 600;
   color: var(--sl-color-text-accent);
 }
 .lf-box.real { border-color: var(--sl-color-accent); }
@@ -95,7 +93,7 @@ details.lf-deeper > summary svg { color: var(--sl-color-text-accent); flex: none
 .lf-pg-top { display: grid; grid-template-columns: minmax(0, 1fr) 11rem; gap: 1rem; align-items: start; }
 @media (max-width: 40rem) { .lf-pg-top { grid-template-columns: 1fr; } .lf-pg-visual svg { max-width: 9rem; } }
 .lf-playground fieldset { border: 0; padding: 0; margin: 0 0 0.9rem; min-width: 0; }
-.lf-playground legend { padding: 0; margin-bottom: 0.4rem; font-size: var(--sl-text-xs); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--sl-color-gray-3); }
+.lf-playground legend { padding: 0; margin-bottom: 0.4rem; font-size: var(--sl-text-sm); font-weight: 600; color: var(--sl-color-gray-2); }
 .lf-seg { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.4rem; }
 .lf-seg button { display: flex; flex-direction: column; align-items: center; line-height: 1.2; padding: 0.35rem 0.2rem; }
 .lf-seg small { opacity: 0.85; font-size: 0.72rem; }
@@ -196,7 +194,7 @@ details.lf-deeper > summary svg { color: var(--sl-color-text-accent); flex: none
   box-shadow: 0 6px 16px -8px rgba(0, 0, 0, 0.45);
 }
 .lf-coach > header { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 0.5rem 0.8rem; border-bottom: 1px solid var(--sl-color-gray-5); }
-.lf-coach .who { display: inline-flex; align-items: center; gap: 0.4rem; font-size: var(--sl-text-xs); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--sl-color-text-accent); }
+.lf-coach .who { display: inline-flex; align-items: center; gap: 0.4rem; font-size: var(--sl-text-sm); font-weight: 600; color: var(--sl-color-text-accent); }
 .lf-coach .dots { display: flex; gap: 0.3rem; list-style: none; margin: 0; padding: 0; }
 .lf-coach .dots button { min-height: 1.75rem; width: 1.75rem; padding: 0; border-radius: 50%; font-size: var(--sl-text-xs); font-variant-numeric: tabular-nums; }
 .lf-coach .dots button.done { border-color: var(--ok); color: var(--ok); }
@@ -205,7 +203,7 @@ details.lf-deeper > summary svg { color: var(--sl-color-text-accent); flex: none
 .lf-coach h4 { margin: 0 0 0.3rem; font-size: var(--sl-text-base); color: var(--sl-color-white); }
 .lf-coach .goal { margin: 0; font-size: var(--sl-text-sm); }
 .lf-coach code, .lf-walk .note code { background: var(--sl-color-bg-inline-code); padding: 0.1em 0.3em; border-radius: 0.25em; font-size: 0.9em; }
-.lf-coach .note { display: flex; gap: 0.5rem; align-items: flex-start; margin: 0.7rem 0 0; padding: 0.55rem 0.7rem; min-height: 3.6rem; border-radius: calc(var(--radius) * 0.75); background: var(--sl-color-bg-sidebar); border-inline-start: 4px solid var(--sl-color-gray-3); font-size: var(--sl-text-sm); }
+.lf-coach .note { display: flex; gap: 0.5rem; align-items: flex-start; margin: 0.7rem 0 0; padding: 0.55rem 0.7rem; border-radius: calc(var(--radius) * 0.75); background: var(--sl-color-bg-sidebar); border-inline-start: 4px solid var(--sl-color-gray-3); font-size: var(--sl-text-sm); }
 .lf-coach .note svg { flex: none; margin-top: 0.15rem; }
 .lf-coach .note.good { border-color: var(--ok); }
 .lf-coach .note.good svg { color: var(--ok); }
@@ -251,8 +249,7 @@ details.lf-deeper > summary svg { color: var(--sl-color-text-accent); flex: none
 .lf-progress li.here a { color: var(--sl-color-white); font-weight: 600; }
 .lf-progress li.here button { color: var(--sl-color-text-accent); }
 .lf-progress li.done button { color: var(--ok); }
-.lf-progress .help { margin: 0.7rem 0 0.4rem; font-size: var(--sl-text-xs); color: var(--sl-color-gray-3); }
-.lf-progress .reset { display: inline-flex; align-items: center; gap: 0.3rem; border: 0; background: none; padding: 0.2rem 0; font: inherit; font-size: var(--sl-text-xs); color: var(--sl-color-gray-3); text-decoration: underline; cursor: pointer; }
+.lf-progress .reset { margin-top: 0.7rem; display: inline-flex; align-items: center; gap: 0.3rem; border: 0; background: none; padding: 0.2rem 0; font: inherit; font-size: var(--sl-text-xs); color: var(--sl-color-gray-3); text-decoration: underline; cursor: pointer; }
 .lf-progress .reset:hover { color: var(--sl-color-white); }
 .lf-progress small { color: var(--sl-color-gray-3); font-variant-numeric: tabular-nums; }
 
@@ -267,3 +264,10 @@ details.lf-deeper > summary svg { color: var(--sl-color-text-accent); flex: none
 .lf-practice .pager .dots button.current { background: var(--sl-color-text-accent); border-color: var(--sl-color-text-accent); color: var(--sl-color-black); }
 .lf-practice .pager .score { margin: 0 0 0 auto; }
 .lf-practice .turn { display: flex; justify-content: space-between; gap: 0.5rem; margin-top: 0.75rem; }
+
+/* ---------- Tip: a small ? button that opens a short hint ---------- */
+.lf-tip { position: relative; display: inline-flex; }
+.lf-tip > button { display: grid; place-items: center; min-height: 0; width: 1.75rem; height: 1.75rem; padding: 0; border: 0; border-radius: 50%; background: none; color: var(--sl-color-gray-3); cursor: pointer; }
+.lf-tip > button:hover, .lf-tip > button[aria-expanded='true'] { color: var(--sl-color-text-accent); background: var(--sl-color-bg-sidebar); }
+.lf-tip > [role='note'] { position: absolute; z-index: 5; top: calc(100% + 0.3rem); inset-inline-start: 0; width: min(18rem, 70vw); padding: 0.6rem 0.75rem; border-radius: calc(var(--radius) * 0.75); border: 1px solid var(--sl-color-gray-4); background: var(--sl-color-bg); box-shadow: 0 8px 20px -10px rgba(0, 0, 0, 0.5); font-size: var(--sl-text-sm); font-weight: 400; color: var(--sl-color-gray-2); }
+.lf-coach h4 { display: flex; align-items: center; gap: 0.25rem; }

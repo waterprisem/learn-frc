@@ -55,11 +55,7 @@ A real wheel never sits at exactly 40.000, so the code never checks for an exact
 
 ## Try it: tune the flywheel
 
-This is the Lab 4 flywheel running in your browser. The gains start at zero, exactly like the lab's starting code,
-and the graph shows the same signals you will graph in AdvantageScope, with the same names.
-
-The **Guide** at the top walks you through the lab's tuning order. It watches what you do, tells you what it sees, and unlocks **Next** when a step is done.
-Before each change, predict what the graph will do.
+This is the Lab 4 flywheel, starting from zero gains like the lab's starting code. The graph uses the same signal names you will see in AdvantageScope.
 
 <FlywheelTuner client:visible lessonId="3.5" />
 
@@ -77,8 +73,6 @@ Three short pieces of code do everything you just did by hand:
 1. The **subsystem** turns a target into a voltage.
 2. The **command** runs that calculation every loop while a button is held.
 3. The subsystem's **`periodic()`** reports what happened, so you can graph it.
-
-Click the highlighted lines in each block, in order.
 
 **1. The calculation.** One line adds the two parts. It returns a voltage; it does not send it to the motor.
 

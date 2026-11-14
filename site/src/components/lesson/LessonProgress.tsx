@@ -87,7 +87,7 @@ export default function LessonProgress({ lessonId, sections }: { lessonId: strin
                 type="button"
                 aria-pressed={ok}
                 aria-label={`${s.text}: mark as ${ok ? 'not done' : 'done'}`}
-                title={ok ? 'Done. Click to mark as not done.' : `To do: ${HOW[kind]}. Click to mark as done.`}
+                title={ok ? 'Mark as not done' : `Mark as done (or ${HOW[kind]})`}
                 onClick={() => updateLesson(lessonId, { manual: { ...progress.manual, [s.slug]: !ok } })}
               >
                 <Icon size={16} aria-hidden="true" />
@@ -100,7 +100,6 @@ export default function LessonProgress({ lessonId, sections }: { lessonId: strin
           );
         })}
       </ol>
-      <p className="help">Click a circle to tick or un-tick a section yourself.</p>
       {started && (
         <button type="button" className="reset" onClick={() => resetLesson(lessonId)}>
           <RotateCcw size={13} aria-hidden="true" />Reset this lesson

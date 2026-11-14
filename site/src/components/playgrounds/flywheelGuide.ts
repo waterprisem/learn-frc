@@ -42,11 +42,15 @@ export interface GuideResult {
 export interface GuideStep {
   title: string;
   goal: string;
+  /** Optional extra help, shown only when the learner opens the ? button. */
+  tip?: string;
   /** `memo` persists for the step so it can remember what it has already seen. */
   evaluate(c: GuideContext, memo: Record<string, any>): GuideResult;
 }
 
 const info = (note: string): GuideResult => ({ done: false, tone: 'info', note });
+/** Nothing worth saying yet: the step's goal already tells the learner what to do. */
+const quiet = info('');
 const warn = (note: string): GuideResult => ({ done: false, tone: 'warn', note });
 const good = (note: string): GuideResult => ({ done: true, tone: 'good', note });
 const n = (v: number) => Math.abs(v).toFixed(1);
@@ -59,19 +63,20 @@ export const flywheelGuide: GuideStep[] = [
     evaluate(c) {
       const { kS, kV, kP, kI, kD } = c.gains;
       if (kS || kV || kP || kI || kD) return warn('Set every gain back to 0 first (choose the **All zeros** preset).');
-      if (c.target === null) return info('Press **B**. The dashed Target line will jump to 40.');
-      if (c.heldFor < 1) return info('Watch the Output Voltage line…');
+      if (c.target === null) return quiet;
+      if (c.heldFor < 1) return quiet;
       return good('Target jumped to 40, but Output Voltage stays at 0 V. Every gain is 0, so the code asks the motor for nothing.');
     },
   },
   {
     title: 'Tune kS',
     goal: 'Keep **B** held. Raise `kS` slowly until the wheel only just starts to turn.',
+    tip: 'About 0.2 works here. On a real robot you find it the same way: raise it until the mechanism barely moves.',
     evaluate(c) {
       if (c.target === null) return info('Hold **B** so the controller is running.');
       if (c.gains.kV || c.gains.kP) return warn('Leave `kV` and `kP` at 0 for this step so you only see what `kS` does.');
       const v = c.latest?.velocity ?? 0;
-      if (v < 0.05) return info(c.gains.kS ? 'Not moving yet. Friction is still winning, so go a little higher.' : 'Drag the `kS` slider up a little at a time.');
+      if (v < 0.05) return info(c.gains.kS ? 'Not moving yet. Friction is still winning.' : '');
       if (c.gains.kS > 0.4) return warn('It turns, but that is more than friction needs. Bring `kS` down until the wheel barely creeps (about 0.2).');
       return good(`The wheel is creeping at ${n(v)} RPS. That is all \`kS\` is for: just enough voltage to beat friction.`);
     },
@@ -79,11 +84,12 @@ export const flywheelGuide: GuideStep[] = [
   {
     title: 'Tune kV',
     goal: 'Raise `kV` until Velocity sits on Target. Then check **A** and **Y** too.',
+    tip: 'About 0.12 works here. If the gap grows as the target gets faster, `kV` is off. If the gap is the same at every speed, look at `kS`.',
     evaluate(c, memo) {
       if (memo.kV !== c.gains.kV) { memo.kV = c.gains.kV; memo.ok = {}; }
       if (c.gains.kP) return warn('Keep `kP` at 0 here, so you see what feedforward does by itself.');
-      if (c.target === null) return info('Hold a button. Start with **B**.');
-      if (!c.settled || c.heldFor < 1.5) return info('Let the speed settle…');
+      if (c.target === null) return quiet;
+      if (!c.settled || c.heldFor < 1.5) return quiet;
       const e = c.latest?.error ?? 0;
       if (e > 2) return info(`Velocity settles ${n(e)} RPS below Target, so \`kV\` is too small. Raise it.`);
       if (e < -2) return warn(`Velocity settles ${n(e)} RPS above Target, so \`kV\` is too large. Lower it.`);
@@ -96,12 +102,13 @@ export const flywheelGuide: GuideStep[] = [
   {
     title: 'Add kP',
     goal: 'Set `kP` to about 0.08, then hold a button again.',
+    tip: 'Type the value into the box next to the slider for fine control.',
     evaluate(c) {
-      if (!c.gains.kP) return info('Give `kP` a small value. Type 0.08 in its box.');
+      if (!c.gains.kP) return quiet;
       if (c.target === null) return info('Hold a button to see the response.');
       if (c.oscillating) return warn('The speed is swinging around the target. That `kP` is too large; bring it down.');
       if (c.gains.kP > 0.5) return warn('That is a lot of `kP`. Feedforward already does most of the work, so try about 0.08.');
-      if (!c.latest?.atTarget || c.heldFor < 1.2) return info('Watch the Error line head to zero…');
+      if (!c.latest?.atTarget || c.heldFor < 1.2) return quiet;
       return good('At Target is true. PID now trims whatever error feedforward leaves behind.');
     },
   },
@@ -114,7 +121,7 @@ export const flywheelGuide: GuideStep[] = [
       if (c.gains.kV <= 0.08 && c.settled && c.heldFor > 1.5 && e > 4) memo.low = true;
       if (c.gains.kP >= 1.5 && c.oscillating) memo.osc = true;
       if (memo.low && memo.osc) return good('You have seen both classic problems: a steady gap (`kV` too small) and swinging (`kP` too large). Choose the **Tuned** preset to recover.');
-      if (!memo.low) return info(c.gains.kV <= 0.08 ? 'Let it settle and look at the gap between Velocity and Target.' : 'Lower `kV` to about 0.06.');
+      if (!memo.low) return info('');
       return info(c.gains.kP >= 1.5 ? 'Watch Velocity and Output Voltage swing.' : `Steady gap seen: ${n(e)} RPS that a modest \`kP\` cannot close. Now restore \`kV\` to 0.12 and raise \`kP\` above 2.`);
     },
   },
@@ -123,11 +130,11 @@ export const flywheelGuide: GuideStep[] = [
     goal: 'Choose **Tuned**, hold **B**, and tick **Add a load**. Set `kP` to 0, let it settle, then raise `kP`.',
     evaluate(c, memo) {
       if (c.target === null) return info('Hold **B** first.');
-      if (!c.load) return info('Tick **Add a load** under the gains.');
+      if (!c.load) return quiet;
       const e = Math.abs(c.latest?.error ?? 0);
       if (!c.gains.kP) {
         if (c.settled && c.heldFor > 1.5 && e > 2) { memo.ff = e; return info(`Feedforward alone misses by ${n(e)} RPS and Output Voltage stays flat. It never looks at the encoder. Now raise \`kP\`.`); }
-        return info('Let it settle with `kP` at 0.');
+        return quiet;
       }
       if (!memo.ff) return info('Set `kP` to 0 first, so you can see feedforward alone against the load.');
       if (c.oscillating) return warn('Too much: it is swinging now. Back `kP` off.');

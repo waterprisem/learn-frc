@@ -22,7 +22,7 @@ export default function CodeWalkthrough({ title, lines, notes }: Props) {
       <header>
         <span className="file">{title}</span>
         {notes.length > 0 && (
-          <span className="hint"><MousePointerClick size={14} aria-hidden="true" /> Click a highlighted line</span>
+          <span className="hint" title="Click a highlighted line to explain it"><MousePointerClick size={15} aria-label="Click a highlighted line to explain it" /></span>
         )}
       </header>
       <div className="code" role="group" aria-label={title ? `Code from ${title}` : 'Code'}>

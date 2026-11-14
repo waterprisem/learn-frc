@@ -1,4 +1,5 @@
 import { ChevronLeft, ChevronRight, CircleCheck, Info, TriangleAlert } from 'lucide-react';
+import Tip from '../viz/Tip';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import type { GuideContext, GuideStep } from './flywheelGuide';
 
@@ -69,12 +70,14 @@ export default function Coach({ steps, context, icon, onFinish }: Props) {
         </div>
       ) : (
         <div className="body">
-          <h4>Step {index + 1}: {step.title}</h4>
+          <h4>Step {index + 1}: {step.title}{step.tip && <Tip key={index} label={`Tip for step ${index + 1}`}>{rich(step.tip)}</Tip>}</h4>
           <p className="goal">{rich(step.goal)}</p>
-          <p className={`note ${tone}`} role="status">
-            <ToneIcon size={17} aria-hidden="true" />
-            <span>{rich(note)}</span>
-          </p>
+          {note && (
+            <p className={`note ${tone}`} role="status">
+              <ToneIcon size={17} aria-hidden="true" />
+              <span>{rich(note)}</span>
+            </p>
+          )}
         </div>
       )}
 

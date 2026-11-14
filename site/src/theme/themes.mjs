@@ -80,15 +80,15 @@ export function themeCss() {
       ? `:root[data-theme='light'],:root[data-accent='${t.id}'][data-theme='light']`
       : `:root[data-accent='${t.id}'][data-theme='light']`;
     return `${root}{${block(resolve(t, 'dark'))}}\n${light}{${block(resolve(t, 'light'))}}`;
-  }).join('\n') + '\n' + widths.map((w) => `:root[data-width='${w.id}']{--sl-content-width:${w.rem}rem}`).join('\n');
+  }).join('\n');
 }
 
-/** Reading widths for the main column. */
+/** Reading widths for the main column. The sizes themselves are in styles/tokens.css. */
 export const widths = [
-  { id: 'narrow', label: 'Narrow', rem: 38 },
-  { id: 'standard', label: 'Standard', rem: 46 },
-  { id: 'wide', label: 'Wide', rem: 60 },
-  { id: 'full', label: 'Extra wide', rem: 78 },
+  { id: 'narrow', label: 'Narrow' },
+  { id: 'standard', label: 'Standard' },
+  { id: 'wide', label: 'Wide' },
+  { id: 'full', label: 'Extra wide' },
 ];
 export const defaultWidth = 'standard';
 export const widthKey = 'learn-frc-width';

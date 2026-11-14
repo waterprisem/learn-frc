@@ -27,7 +27,7 @@
   --space: 0.25rem;
   --ease: 200ms ease;
 
-  --sl-content-width: 46rem; /* "Standard"; the page-width menu overrides it */
+  --sl-content-width: 46rem;
   --sl-font: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
   --sl-font-mono: 'JetBrains Mono Variable', ui-monospace, 'SF Mono', Menlo, monospace;
 }
@@ -56,6 +56,12 @@
   }
 }
 
+/* Page-width menu (header). The doubled :root outranks Starlight's own page-level settings. */
+:root:root[data-width='narrow'] { --sl-content-width: 38rem; }
+:root:root[data-width='standard'] { --sl-content-width: 46rem; }
+:root:root[data-width='wide'] { --sl-content-width: 60rem; }
+:root:root[data-width='full'] { --sl-content-width: 78rem; }
+
 /* Typography polish */
 .sl-markdown-content :is(h1, h2, h3), h1#_top { letter-spacing: -0.015em; }
 .sl-markdown-content h2 { margin-top: 2.75rem; }
@@ -65,7 +71,7 @@
 .lf-home { margin-top: 1.5rem; }
 .lf-home .continue { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; padding: 1.1rem 1.25rem; border-radius: var(--radius); border: 1px solid var(--sl-color-text-accent); background: var(--sl-color-bg-sidebar); }
 .lf-home .continue div { display: grid; gap: 0.15rem; }
-.lf-home .continue small { font-size: var(--sl-text-xs); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--sl-color-text-accent); }
+.lf-home .continue small { font-size: var(--sl-text-sm); font-weight: 600; color: var(--sl-color-text-accent); }
 .lf-home .continue strong { font-size: var(--sl-text-xl); color: var(--sl-color-white); line-height: 1.25; }
 .lf-home .continue span { font-size: var(--sl-text-sm); color: var(--sl-color-gray-3); }
 .lf-home .go { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.6rem 1.1rem; border-radius: 999px; font-weight: 600; text-decoration: none; background: var(--sl-color-text-accent); color: var(--sl-color-black); }
