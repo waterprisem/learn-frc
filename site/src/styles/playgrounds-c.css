@@ -39,3 +39,20 @@
 .lf-odo-key i.est { background: var(--sig-measurement); }
 .lf-odo-key i.ok { background: var(--sig-output); height: 0.6rem; width: 0.6rem; border-radius: 50%; }
 .lf-odo-key i.no { background: var(--sig-error); height: 0.6rem; width: 0.6rem; transform: rotate(45deg); }
+
+/* ---------- P18 camera transform ---------- */
+.lf-cam-top { grid-template-columns: minmax(0, 1fr) minmax(12rem, 16rem); }
+.lf-cam .lf-pg-visual svg { max-width: 16rem; width: 100%; }
+@media (max-width: 40rem) { .lf-cam .lf-pg-visual svg { max-width: 100%; } }
+.lf-cam .field { fill: none; stroke: var(--sl-color-gray-4); stroke-width: 2; }
+.lf-cam .tag rect { fill: var(--sl-color-gray-2); }
+.lf-cam .sight { stroke: var(--sl-color-gray-3); stroke-width: 1; stroke-dasharray: 2 4; }
+.lf-cam .bot rect { fill-opacity: 0.2; stroke-width: 2; }
+.lf-cam .bot.truth rect { fill: var(--sig-setpoint); stroke: var(--sig-setpoint); stroke-dasharray: 5 3; }
+.lf-cam .bot.truth .cam polygon { fill: var(--sig-setpoint); }
+.lf-cam .bot.est rect { fill: var(--sig-measurement); stroke: var(--sig-measurement); }
+.lf-cam .bot.est .cam polygon { fill: var(--sig-measurement); }
+.lf-cam-read { display: flex; gap: 1.5rem; margin: 0.4rem 0 0; font-size: var(--sl-text-sm); }
+.lf-cam-read div { display: block; }
+.lf-cam-read dt { color: var(--sl-color-gray-3); font-size: var(--sl-text-xs); }
+.lf-cam-read dd { margin: 0; font-variant-numeric: tabular-nums; font-weight: 600; color: var(--sig-error); }

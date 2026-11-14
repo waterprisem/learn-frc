@@ -28,6 +28,7 @@ import GoDeeper from '../../../components/lesson/GoDeeper.astro';
 import Checkpoint from '../../../components/lesson/Checkpoint.astro';
 import Practice from '../../../components/practice/Practice.astro';
 import AnnotatedCode from '../../../components/code/AnnotatedCode.astro';
+import CameraTransform from '../../../components/playgrounds/CameraTransform';
 
 <WhyItMatters>
 On a real team you spend more time reading code you did not write than writing new code. `OrbitCamera` is a class the team wrote once and reuses for every camera on the robot. You will use it, not rewrite it, so the skill here is reading it fast.
@@ -73,6 +74,10 @@ The simulation fields further down (a simulated camera and vision system) are us
 />
 
 The rest of the constructor publishes the transform once and, in simulation only, builds a simulated camera with a 640 by 400 image, 68 degree field of view, 50 FPS, and about 21 ms of latency.
+
+## Try it: a wrong mount
+
+<CameraTransform client:visible lessonId="7.3" />
 
 ## 3. Public methods: what it offers
 
