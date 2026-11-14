@@ -1,0 +1,44 @@
+---
+// Field frame: robot at (2, 3) m, target at (6, 6) m. Angle to target = atan2(dy, dx) ~ 37 deg.
+const ox = 30, oy = 260, k = 40;
+const X = (m: number) => ox + m * k;
+const Y = (m: number) => oy - m * k;
+const rx = 2, ry = 3, tx = 6, ty = 6;
+const head = 10; // example robot heading, deg
+const rad = (d: number) => (d * Math.PI) / 180;
+const bearing = (Math.atan2(ty - ry, tx - rx) * 180) / Math.PI;
+const hx = X(rx) + 80 * Math.cos(rad(head));
+const hy = Y(ry) - 80 * Math.sin(rad(head));
+const r = 60;
+const p = (a: number) => `${X(rx) + r * Math.cos(rad(a))} ${Y(ry) - r * Math.sin(rad(a))}`;
+const am = rad((head + bearing) / 2);
+---
+<figure class="lf-diagram not-content">
+  <svg viewBox="0 0 400 280" role="img" aria-labelledby="at-title at-desc">
+    <title id="at-title">Angle to a target</title>
+    <desc id="at-desc">In the field frame with x to the right and y up, a robot at (2, 3) meters faces a heading. The target is at (6, 6) meters. The vector to the target points at atan2(3, 4), about 37 degrees. The error is the angle between the robot heading and that vector.</desc>
+    <defs>
+      <marker id="at-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0 0L10 5L0 10z" fill="context-stroke" />
+      </marker>
+    </defs>
+    <path class="wire" d={`M${X(0)} ${Y(0)}H${X(8)}M${X(0)} ${Y(0)}V${Y(6.8)}`} marker-end="url(#at-arrow)" />
+    <text x={X(8) - 4} y={Y(0) + 16} class="muted" text-anchor="end">x</text>
+    <text x={X(0) + 8} y={Y(6.8) + 6} class="muted">y</text>
+    <line class="wire" x1={X(rx)} y1={Y(ry)} x2={X(rx) + 130} y2={Y(ry)} stroke-dasharray="2 3" style="stroke: var(--sl-color-gray-4)" />
+
+    <line class="wire" x1={X(rx)} y1={Y(ry)} x2={X(tx)} y2={Y(ty)} stroke-width="2" stroke-dasharray="7 5" style="stroke: var(--sig-setpoint)" marker-end="url(#at-arrow)" />
+    <line class="wire" x1={X(rx)} y1={Y(ry)} x2={hx} y2={hy} stroke-width="2.5" style="stroke: var(--sig-measurement)" marker-end="url(#at-arrow)" />
+    <path class="wire" d={`M${p(head)}A${r} ${r} 0 0 0 ${p(bearing)}`} stroke-width="2.5" style="stroke: var(--sig-error)" />
+
+    <rect class="node" x={X(rx) - 12} y={Y(ry) - 12} width="24" height="24" rx="4" transform={`rotate(${-head} ${X(rx)} ${Y(ry)})`} />
+    <circle class="node" cx={X(tx)} cy={Y(ty)} r="8" style="stroke: var(--sig-setpoint)" />
+
+    <text x={X(rx) - 8} y={Y(ry) + 28} text-anchor="end">robot (2, 3)</text>
+    <text x={X(tx) + 14} y={Y(ty) + 4}>target (6, 6)</text>
+    <text x={hx + 6} y={hy + 16} class="muted">heading</text>
+    <text x={X(rx) + 140 * Math.cos(am) - 4} y={Y(ry) - 140 * Math.sin(am) + 14} text-anchor="end">error</text>
+    <text x={(X(rx) + X(tx)) / 2 + 8} y={(Y(ry) + Y(ty)) / 2 - 8} class="muted" text-anchor="start">atan2(3, 4) = 37 deg</text>
+  </svg>
+  <figcaption>The target heading is the angle of the vector to the target. The controller turns the robot by the error between it and the current heading.</figcaption>
+</figure>

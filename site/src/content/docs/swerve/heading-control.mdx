@@ -28,6 +28,7 @@ import GoDeeper from '../../../components/lesson/GoDeeper.astro';
 import Checkpoint from '../../../components/lesson/Checkpoint.astro';
 import Practice from '../../../components/practice/Practice.astro';
 import AnnotatedCode from '../../../components/code/AnnotatedCode.astro';
+import AngleToTarget from '../../../components/diagrams/AngleToTarget.astro';
 
 <WhyItMatters>
 Last year's robot shot while driving, and the driver only steered with the left stick.
@@ -54,6 +55,8 @@ Say the robot is at (2, 3) and the target is at (6, 6) meters, both in the field
 1. Subtract: the difference is 4 m in x and 3 m in y.
 2. The angle to the target is `atan2(dy, dx)` = `atan2(3, 4)`, about 37 degrees.
 3. Hand that angle to a controller as the **target heading**.
+
+<AngleToTarget />
 
 Use `atan2`, not `atan`: it takes the two differences separately, so it gets the correct quadrant. The team computes this with `PhotonUtils.getYawToPose`, passing poses with zero rotation so the result is the field-frame angle.
 
