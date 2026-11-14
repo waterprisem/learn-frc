@@ -14,3 +14,28 @@
 .lf-nt-row output.on { color: var(--sig-output); font-weight: 700; }
 .lf-nt-row input[type='number'] { width: 100%; font: inherit; font-variant-numeric: tabular-nums; text-align: end; color: var(--sl-color-white); background: var(--sl-color-bg); border: 1px solid var(--sig-setpoint); border-radius: 0.3rem; padding: 0.1rem 0.3rem; }
 .lf-nt-pick { display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem; align-items: center; margin-top: 0.6rem; min-height: 1.8rem; font-size: var(--sl-text-sm); }
+
+/* ---------- P17 odometry drift ---------- */
+.lf-odo-top { grid-template-columns: minmax(0, 1fr) minmax(12rem, 16rem); }
+.lf-odo .lf-pg-visual svg { max-width: 16rem; width: 100%; }
+@media (max-width: 40rem) { .lf-odo .lf-pg-visual svg { max-width: 100%; } }
+.lf-odo .field { fill: none; stroke: var(--sl-color-gray-4); stroke-width: 2; }
+.lf-odo .loop { fill: none; stroke: var(--sl-color-gray-5); stroke-width: 1.5; stroke-dasharray: 3 4; }
+.lf-odo .tag rect { fill: var(--sl-color-gray-2); }
+.lf-odo .trail { fill: none; stroke-width: 2; stroke-linejoin: round; }
+.lf-odo .trail.truth { stroke: var(--sig-setpoint); stroke-dasharray: 6 4; }
+.lf-odo .trail.est { stroke: var(--sig-measurement); }
+.lf-odo .bot rect { fill-opacity: 0.25; stroke-width: 2; }
+.lf-odo .bot line { stroke-width: 2; }
+.lf-odo .bot.truth rect, .lf-odo .bot.truth line { stroke: var(--sig-setpoint); stroke-dasharray: 4 3; }
+.lf-odo .bot.truth rect { fill: var(--sig-setpoint); }
+.lf-odo .bot.est rect { stroke: var(--sig-measurement); fill: var(--sig-measurement); }
+.lf-odo .bot.est line { stroke: var(--sig-measurement); }
+.lf-odo .vis.ok { fill: var(--sig-output); }
+.lf-odo .vis.no { stroke: var(--sig-error); stroke-width: 2; fill: none; }
+.lf-odo-key { display: flex; flex-wrap: wrap; gap: 0.2rem 0.9rem; justify-content: center; font-size: var(--sl-text-xs); color: var(--sl-color-gray-2); margin-top: 0.3rem; }
+.lf-odo-key i { display: inline-block; width: 0.8rem; height: 0.18rem; margin-inline-end: 0.3rem; vertical-align: middle; border-radius: 1px; }
+.lf-odo-key i.truth { background: var(--sig-setpoint); }
+.lf-odo-key i.est { background: var(--sig-measurement); }
+.lf-odo-key i.ok { background: var(--sig-output); height: 0.6rem; width: 0.6rem; border-radius: 50%; }
+.lf-odo-key i.no { background: var(--sig-error); height: 0.6rem; width: 0.6rem; transform: rotate(45deg); }

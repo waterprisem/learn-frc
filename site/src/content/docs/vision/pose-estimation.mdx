@@ -29,6 +29,7 @@ import GoDeeper from '../../../components/lesson/GoDeeper.astro';
 import Checkpoint from '../../../components/lesson/Checkpoint.astro';
 import Practice from '../../../components/practice/Practice.astro';
 import AnnotatedCode from '../../../components/code/AnnotatedCode.astro';
+import OdometryDrift from '../../../components/playgrounds/OdometryDrift';
 
 <WhyItMatters>
 Seeing a tag tells you where the tag is relative to the camera. A shooter or an auto path needs to know where the robot is on the field. Getting from one to the other takes a chain of facts, and one wrong link makes the pose wrong by a constant amount or makes it jump.
@@ -100,6 +101,10 @@ The last step feeds the estimate to the drivetrain **with its timestamp**, so th
 <GoDeeper title="why the timestamp matters">
 Suppose the robot moves 2 m/s and the picture is 40 ms old. The robot has moved 8 cm since. If you applied the measurement as "now", every correction would pull the pose 8 cm behind. The pose estimator keeps a short history of odometry and applies the measurement to the matching moment.
 </GoDeeper>
+
+## Try it: vision correction
+
+<OdometryDrift client:visible mode="vision" lessonId="7.2" />
 
 ## Practice
 

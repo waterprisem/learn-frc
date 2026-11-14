@@ -28,6 +28,7 @@ import GoDeeper from '../../../components/lesson/GoDeeper.astro';
 import Checkpoint from '../../../components/lesson/Checkpoint.astro';
 import Practice from '../../../components/practice/Practice.astro';
 import AnnotatedCode from '../../../components/code/AnnotatedCode.astro';
+import OdometryDrift from '../../../components/playgrounds/OdometryDrift';
 
 <WhyItMatters>
 To score from the right spot or drive an autonomous path, the robot has to know where it is on the field.
@@ -77,6 +78,10 @@ A tag measured from close up gets a small value and pulls the pose strongly. A n
 WPILib's swerve pose estimator and CTRE's drivetrain both use a Kalman filter: a standard way to blend noisy measurements by their standard deviations.
 You do not need the math yet. The idea is a weighted average where the trusted source gets the larger weight.
 </GoDeeper>
+
+## Try it: watch the pose drift
+
+<OdometryDrift client:visible lessonId="6.5" />
 
 ## How the team code reads and publishes the pose
 
