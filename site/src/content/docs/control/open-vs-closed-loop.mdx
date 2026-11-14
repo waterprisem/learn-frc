@@ -25,6 +25,7 @@ import RecapCard from '../../../components/lesson/RecapCard.astro';
 import Checkpoint from '../../../components/lesson/Checkpoint.astro';
 import Practice from '../../../components/practice/Practice.astro';
 import FlywheelTuner from '../../../components/playgrounds/FlywheelTuner.tsx';
+import OpenLoopFlywheel from '../../../components/playgrounds/OpenLoopFlywheel.tsx';
 
 <WhyItMatters>
 A shooter that sends 5 V to its wheel launches a note at one speed on a fresh battery and a slower speed on a tired one.
@@ -54,6 +55,10 @@ A **closed-loop** controller measures the result and uses it to change the outpu
 3. **Correct** the voltage to close the gap.
 
 Open loop is fine when the result does not matter much, such as an intake that only has to spin. Use closed loop when the result matters, such as a shooter that must hit a speed.
+
+## Try it: one voltage, many speeds
+
+<OpenLoopFlywheel client:visible lessonId="3.1" />
 
 ## Experiment: add a load
 
