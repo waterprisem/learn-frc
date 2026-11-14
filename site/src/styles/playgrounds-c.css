@@ -72,3 +72,34 @@
 .lf-align .sight { stroke: var(--sl-color-gray-3); stroke-width: 1; stroke-dasharray: 2 4; }
 .lf-align .lf-check { margin-block: 0.6rem; }
 .lf-align-state { display: flex; align-items: center; gap: 0.6rem; }
+
+/* ---------- P20 path and event markers ---------- */
+.lf-pathm-top { grid-template-columns: minmax(0, 1fr) minmax(12rem, 16rem); }
+.lf-pathm .lf-pg-visual svg { max-width: 16rem; width: 100%; }
+@media (max-width: 40rem) { .lf-pathm .lf-pg-visual svg { max-width: 100%; } }
+.lf-pathm svg.clickable { cursor: crosshair; }
+.lf-pathm .field { fill: none; stroke: var(--sl-color-gray-4); stroke-width: 2; }
+.lf-pathm .route { fill: none; stroke: var(--sig-setpoint); stroke-width: 2; stroke-dasharray: 6 4; }
+.lf-pathm .wp { fill: var(--sl-color-bg); stroke: var(--sig-setpoint); stroke-width: 2; cursor: pointer; }
+.lf-pathm .mk { fill: var(--sl-color-gray-2); stroke: var(--sl-color-gray-1); stroke-width: 1; }
+.lf-pathm .mk.hit { fill: var(--sig-output); }
+.lf-pathm .mk.unbound { fill: none; stroke: var(--sig-error); stroke-width: 2; }
+.lf-pathm .mk.unbound.miss { fill: var(--sig-error); fill-opacity: 0.35; }
+.lf-pathm .bot rect { fill: var(--sig-measurement); fill-opacity: 0.25; stroke: var(--sig-measurement); stroke-width: 2; }
+.lf-pathm .bot line { stroke: var(--sig-measurement); stroke-width: 2; }
+.lf-pathm-markers { list-style: none; margin: 0 0 0.5rem; padding: 0; }
+.lf-pathm-markers li { display: grid; grid-template-columns: minmax(0, 1fr) minmax(4rem, 0.7fr) 2.6rem auto; gap: 0.4rem; align-items: center; margin-bottom: 0.4rem; }
+.lf-pathm-markers input[type='text'] { width: 100%; font: inherit; font-size: var(--sl-text-xs); color: var(--sl-color-white); background: var(--sl-color-bg); border: 1px solid var(--sl-color-gray-4); border-radius: 0.3rem; padding: 0.25rem 0.4rem; }
+.lf-pathm-markers input.unbound { border-color: var(--sig-error); }
+.lf-pathm-markers input[type='range'] { width: 100%; accent-color: var(--sl-color-text-accent); }
+.lf-pathm-running { display: flex; flex-wrap: wrap; gap: 0.3rem; justify-content: center; margin-top: 0.4rem; min-height: 1.6rem; font-size: var(--sl-text-xs); }
+.lf-pathm-running span { background: var(--sig-output); color: #04231a; border-radius: 0.3rem; padding: 0.1rem 0.45rem; font-weight: 600; }
+.lf-pathm-running span.idle { background: none; color: var(--sl-color-gray-3); font-weight: 400; }
+.lf-pathm-timeline { width: 100%; height: auto; margin-top: 0.6rem; }
+.lf-pathm-timeline .axis { stroke: var(--sl-color-gray-4); stroke-width: 2; }
+.lf-pathm-timeline .run { fill: var(--sig-output); fill-opacity: 0.8; }
+.lf-pathm-timeline .flag line { stroke: var(--sl-color-gray-2); stroke-width: 1.5; }
+.lf-pathm-timeline .flag circle { fill: var(--sl-color-gray-2); }
+.lf-pathm-timeline .flag.unbound line, .lf-pathm-timeline .flag.unbound circle { stroke: var(--sig-error); fill: none; stroke-width: 2; }
+.lf-pathm-timeline .cursor { stroke: var(--sig-measurement); stroke-width: 2; }
+.lf-pathm .lf-pg-bar input[type='range'] { flex: 1 1 8rem; min-width: 6rem; accent-color: var(--sl-color-text-accent); }

@@ -27,6 +27,7 @@ import GoDeeper from '../../../components/lesson/GoDeeper.astro';
 import Checkpoint from '../../../components/lesson/Checkpoint.astro';
 import Practice from '../../../components/practice/Practice.astro';
 import AnnotatedCode from '../../../components/code/AnnotatedCode.astro';
+import PathMarkers from '../../../components/playgrounds/PathMarkers';
 
 <WhyItMatters>
 A scoring auto that drives to the goal and only then starts spinning up the shooter wastes seconds. An **event marker** is a named point on a path: when the robot reaches it, your code starts a mechanism command while the robot keeps driving.
@@ -58,6 +59,10 @@ For named commands, registration must run **before** the autos are built, or the
 />
 
 Commands that run **between** paths are simply the next step of the auto's sequence. Markers are for work that must overlap the driving.
+
+## Try it: markers on a path
+
+<PathMarkers client:visible lessonId="8.3" />
 
 ## Three pitfalls
 
