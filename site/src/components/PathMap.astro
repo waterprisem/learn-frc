@@ -1,36 +1,26 @@
 ---
-// The whole learning path as a grid of tracks. Data: src/data/path.mjs.
-import { Activity, Blocks, BookOpen, Camera, Cpu, Gauge, Navigation, Rocket, Route, Terminal, Wrench } from 'lucide-react';
+// Home page learning path. Data: src/data/path.mjs plus each lesson's status from its frontmatter.
+import { getCollection } from 'astro:content';
 import { tracks } from '../data/path.mjs';
+import HomePath from './home/HomePath.tsx';
 
-const icons: Record<string, typeof Cpu> = {
-  '0': BookOpen, '1': Cpu, R: Wrench, '2': Terminal, '3': Activity, '4': Gauge,
-  '5': Blocks, '6': Navigation, '7': Camera, '8': Route, '9': Rocket,
-};
+const docs = await getCollection('docs');
+const ready = new Set(docs.filter((d) => d.data.status === 'review' || d.data.status === 'done').map((d) => d.data.id));
+
+const groups = [
+  { title: 'Get ready', blurb: 'Programming basics, the robot itself, and the tools you will use.', keys: ['0', '1', 'R'] },
+  { title: 'Core skills', blurb: 'Everything up to the Week 6 checkpoint: mechanisms, control, and robot actions.', keys: ['2', '3', '4', '5'] },
+  { title: 'Advanced', blurb: 'Driving, vision, autonomous, and life after training.', keys: ['6', '7', '8', '9'] },
+];
+const stages = groups.map((g) => ({
+  title: g.title,
+  blurb: g.blurb,
+  tracks: g.keys.flatMap((k) => tracks.filter((t) => t.key === k)).map((t) => ({
+    key: t.key,
+    label: t.label,
+    blurb: t.blurb,
+    lessons: t.lessons.map(([id, slug, title, , isNew]) => ({ id, title, href: `/${t.dir}/${slug}/`, ready: ready.has(id), isNew })),
+  })),
+}));
 ---
-
-<div class="path-map not-content">
-  {
-    tracks.map((t) => {
-      const Icon = icons[t.key] ?? BookOpen;
-      return (
-        <section class="track">
-          <h3>
-            <span class="track-icon"><Icon size={18} aria-hidden="true" /></span>
-            <span><small>Track {t.key}</small>{t.label}</span>
-          </h3>
-          <p>{t.blurb}</p>
-          <ol>
-            {t.lessons.map(([id, slug, title, , isNew]) => (
-              <li>
-                <span class="num">{id}</span>
-                <a href={`/${t.dir}/${slug}/`}>{title}</a>
-                {isNew && <span class="badge-new">extra</span>}
-              </li>
-            ))}
-          </ol>
-        </section>
-      );
-    })
-  }
-</div>
+<HomePath client:load stages={stages} />

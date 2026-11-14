@@ -151,16 +151,6 @@ Feedforward predicts the voltage from the target alone and never looks at the en
 </details>
 
 <details>
-<summary>What happens if `kP` is much too large? What about `kV` too small?</summary>
-Too much `kP` over-corrects, so the speed swings above and below the target. Too little `kV` leaves the wheel steadily below the target.
-</details>
-
-<details>
-<summary>Which four logged numbers would you look at if the flywheel never reached its target?</summary>
-Target, measured velocity, error, and output voltage. Together they show whether the code asked for the right speed, how far off it is, and whether the controller is pushing at all.
-</details>
-
-<details>
 <summary>Why does reaching the target not end the command?</summary>
 The wheel has to keep holding the speed while the driver is ready to shoot. Readiness is a separate signal (`flywheelAtTarget`) that other commands can wait on.
 </details>

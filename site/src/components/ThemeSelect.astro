@@ -1,12 +1,20 @@
 ---
-// Overrides Starlight's ThemeSelect: keeps the light/dark/auto menu and adds a color-theme menu.
+// Overrides Starlight's ThemeSelect: keeps the light/dark/auto menu and adds color-theme and page-width menus.
 import Default from '@astrojs/starlight/components/ThemeSelect.astro';
 import Select from '@astrojs/starlight/components/Select.astro';
-import { defaultTheme, storageKey, themes } from '../theme/themes.mjs';
+import { defaultTheme, defaultWidth, storageKey, themes, widthKey, widths } from '../theme/themes.mjs';
 ---
 
 <Default />
-<learn-accent-select data-key={storageKey} data-default={defaultTheme}>
+<learn-accent-select data-key={widthKey} data-default={defaultWidth} data-attr="width">
+  <Select
+    label="Page width"
+    icon="laptop"
+    width="7.5em"
+    options={widths.map((w) => ({ label: w.label, value: w.id, selected: w.id === defaultWidth }))}
+  />
+</learn-accent-select>
+<learn-accent-select data-key={storageKey} data-default={defaultTheme} data-attr="accent">
   <Select
     label="Color theme"
     icon="star"
@@ -21,6 +29,7 @@ import { defaultTheme, storageKey, themes } from '../theme/themes.mjs';
       super();
       const key = this.dataset.key ?? 'learn-frc-accent';
       const fallback = this.dataset.default ?? 'slate';
+      const attr = this.dataset.attr ?? 'accent';
       const select = this.querySelector('select');
       if (!select) return;
       const valid = (v: string | null) => [...select.options].some((o) => o.value === v);
@@ -31,9 +40,9 @@ import { defaultTheme, storageKey, themes } from '../theme/themes.mjs';
         // Storage can be blocked; the default theme still works.
       }
       const apply = (value: string, store: boolean) => {
-        document.documentElement.dataset.accent = value;
+        document.documentElement.dataset[attr] = value;
         document
-          .querySelectorAll<HTMLSelectElement>('learn-accent-select select')
+          .querySelectorAll<HTMLSelectElement>(`learn-accent-select[data-attr='${attr}'] select`)
           .forEach((s) => (s.value = value));
         if (!store) return;
         try {

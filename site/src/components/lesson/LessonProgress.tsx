@@ -1,6 +1,6 @@
-import { Circle, CircleCheck, CircleDot } from 'lucide-react';
+import { Circle, CircleCheck, CircleDot, RotateCcw } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { updateLesson, useLessonProgress } from '../../stores/progress';
+import { resetLesson, setLastLesson, updateLesson, useLessonProgress } from '../../stores/progress';
 
 export interface Section { slug: string; text: string }
 
@@ -11,15 +11,18 @@ function kindOf(slug: string): 'guide' | 'quiz' | 'rating' | 'read' {
   if (slug === 'checkpoint') return 'rating';
   return 'read';
 }
-const HOW = { guide: 'Finish the guided steps', quiz: 'Get every question right', rating: 'Rate yourself', read: 'Read through it' };
+const HOW = { guide: 'finish the guided steps', quiz: 'get every question right', rating: 'rate yourself', read: 'read through it' };
 
 /**
  * Replaces "On this page" on lesson pages: a progress bar and a checklist of the lesson's sections.
- * Reading sections tick when you scroll through them; activity sections tick when you complete them.
+ * Sections tick themselves (reading by scrolling, activities by completing them), and the learner
+ * can tick or un-tick any of them by hand.
  */
 export default function LessonProgress({ lessonId, sections }: { lessonId: string; sections: Section[] }) {
   const progress = useLessonProgress(lessonId);
   const [current, setCurrent] = useState<string | null>(null);
+
+  useEffect(() => setLastLesson(lessonId), [lessonId]);
 
   useEffect(() => {
     let queued = false;
@@ -48,15 +51,22 @@ export default function LessonProgress({ lessonId, sections }: { lessonId: strin
     return () => { window.removeEventListener('scroll', onScroll); window.removeEventListener('resize', onScroll); };
   }, [lessonId, sections, progress.seen]);
 
-  const isDone = (slug: string) => {
+  const auto = (slug: string) => {
     const kind = kindOf(slug);
     if (kind === 'guide') return !!progress.guideDone;
     if (kind === 'quiz') return !!progress.quiz && progress.quiz.correct === progress.quiz.total;
     if (kind === 'rating') return !!progress.rating;
     return (progress.seen ?? []).includes(slug);
   };
+  const isDone = (slug: string) => progress.manual?.[slug] ?? auto(slug);
   const done = sections.filter((s) => isDone(s.slug)).length;
+  const complete = sections.length > 0 && done === sections.length;
   const percent = sections.length ? Math.round((done / sections.length) * 100) : 0;
+  const started = Object.keys(progress).length > 0;
+
+  useEffect(() => {
+    if (!!progress.complete !== complete && (complete || progress.complete)) updateLesson(lessonId, { complete });
+  }, [lessonId, complete, progress.complete]);
 
   return (
     <nav className="lf-progress" aria-labelledby="lf-progress-title">
@@ -64,7 +74,7 @@ export default function LessonProgress({ lessonId, sections }: { lessonId: strin
       <div className="bar" role="progressbar" aria-valuemin={0} aria-valuemax={sections.length} aria-valuenow={done} aria-label={`${done} of ${sections.length} sections done`}>
         <span style={{ width: `${percent}%` }} />
       </div>
-      <p className="count">{done === sections.length ? 'Lesson complete' : `${done} of ${sections.length} done`}</p>
+      <p className="count">{complete ? 'Lesson complete' : `${done} of ${sections.length} done`}</p>
       <ol>
         {sections.map((s) => {
           const ok = isDone(s.slug);
@@ -73,18 +83,29 @@ export default function LessonProgress({ lessonId, sections }: { lessonId: strin
           const kind = kindOf(s.slug);
           return (
             <li key={s.slug} className={`${ok ? 'done' : ''}${here ? ' here' : ''}`}>
-              <a href={`#${s.slug}`} aria-current={here ? 'location' : undefined} title={ok ? 'Done' : HOW[kind]}>
+              <button
+                type="button"
+                aria-pressed={ok}
+                aria-label={`${s.text}: mark as ${ok ? 'not done' : 'done'}`}
+                title={ok ? 'Done. Click to mark as not done.' : `To do: ${HOW[kind]}. Click to mark as done.`}
+                onClick={() => updateLesson(lessonId, { manual: { ...progress.manual, [s.slug]: !ok } })}
+              >
                 <Icon size={16} aria-hidden="true" />
-                <span>
-                  {s.text}
-                  {kind === 'quiz' && progress.quiz && !ok && <small> {progress.quiz.correct}/{progress.quiz.total}</small>}
-                  <span className="sr-only">{ok ? ' (done)' : ` (to do: ${HOW[kind]})`}</span>
-                </span>
+              </button>
+              <a href={`#${s.slug}`} aria-current={here ? 'location' : undefined}>
+                {s.text}
+                {kind === 'quiz' && progress.quiz && !ok && <small> {progress.quiz.correct}/{progress.quiz.total}</small>}
               </a>
             </li>
           );
         })}
       </ol>
+      <p className="help">Click a circle to tick or un-tick a section yourself.</p>
+      {started && (
+        <button type="button" className="reset" onClick={() => resetLesson(lessonId)}>
+          <RotateCcw size={13} aria-hidden="true" />Reset this lesson
+        </button>
+      )}
     </nav>
   );
 }

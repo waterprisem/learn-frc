@@ -8,34 +8,59 @@ export interface LessonProgress {
   seen?: string[];
   /** The playground's guided steps were completed. */
   guideDone?: boolean;
+  /** Sections the learner ticked or un-ticked by hand. These win over the automatic checks. */
+  manual?: Record<string, boolean>;
+  /** Every section of the lesson is ticked. */
+  complete?: boolean;
 }
-type State = { version: 1; lessons: Record<string, LessonProgress> };
+export interface ProgressState {
+  version: 1;
+  lessons: Record<string, LessonProgress>;
+  /** The lesson opened most recently. */
+  last?: string;
+}
 
 const KEY = 'learn-frc-progress';
-const empty: State = { version: 1, lessons: {} };
+const empty: ProgressState = { version: 1, lessons: {} };
 const listeners = new Set<() => void>();
-let cache: State | null = null;
+let cache: ProgressState | null = null;
 
-function read(): State {
+function read(): ProgressState {
   if (cache) return cache;
   try {
     const parsed = JSON.parse(localStorage.getItem(KEY) ?? 'null');
-    cache = parsed?.version === 1 ? (parsed as State) : empty;
+    cache = parsed?.version === 1 ? (parsed as ProgressState) : empty;
   } catch {
     cache = empty; // storage blocked or corrupt: start fresh, in memory only
   }
   return cache;
 }
 
-export function updateLesson(id: string, patch: LessonProgress): void {
-  const state = read();
-  cache = { ...state, lessons: { ...state.lessons, [id]: { ...state.lessons[id], ...patch } } };
+function write(next: ProgressState): void {
+  cache = next;
   try {
-    localStorage.setItem(KEY, JSON.stringify(cache));
+    localStorage.setItem(KEY, JSON.stringify(next));
   } catch {
     // Not saved; progress still shows for this visit.
   }
   listeners.forEach((l) => l());
+}
+
+export function updateLesson(id: string, patch: LessonProgress): void {
+  const state = read();
+  write({ ...state, lessons: { ...state.lessons, [id]: { ...state.lessons[id], ...patch } } });
+}
+
+/** Forget everything recorded for one lesson. */
+export function resetLesson(id: string): void {
+  const state = read();
+  const { [id]: _removed, ...rest } = state.lessons;
+  write({ ...state, lessons: rest });
+}
+
+export function setLastLesson(id: string): void {
+  const state = read();
+  if (state.last !== id) write({ ...state, last: id });
 }
 
 const subscribe = (l: () => void) => {
@@ -46,4 +71,8 @@ const none: LessonProgress = {};
 
 export function useLessonProgress(id: string): LessonProgress {
   return useSyncExternalStore(subscribe, () => read().lessons[id] ?? none, () => none);
+}
+
+export function useProgress(): ProgressState {
+  return useSyncExternalStore(subscribe, read, () => empty);
 }

@@ -243,12 +243,27 @@ details.lf-deeper > summary svg { color: var(--sl-color-text-accent); flex: none
 .lf-progress .bar span { display: block; height: 100%; border-radius: 999px; background: var(--sl-color-text-accent); transition: width 400ms ease; }
 .lf-progress .count { margin: 0.35rem 0 0.7rem; font-size: var(--sl-text-xs); color: var(--sl-color-gray-3); }
 .lf-progress ol { list-style: none; margin: 0; padding: 0; }
-.lf-progress li a { display: flex; gap: 0.5rem; align-items: flex-start; padding: 0.3rem 0.4rem; border-radius: 0.3rem; font-size: var(--sl-text-sm); line-height: 1.35; color: var(--sl-color-gray-3); text-decoration: none; }
-.lf-progress li a:hover { color: var(--sl-color-white); background: var(--sl-color-bg-sidebar); }
-.lf-progress li svg { flex: none; margin-top: 0.1rem; }
+.lf-progress li { display: flex; align-items: flex-start; gap: 0.15rem; }
+.lf-progress li button { flex: none; display: grid; place-items: center; width: 1.9rem; height: 1.9rem; border: 0; border-radius: 50%; background: none; color: var(--sl-color-gray-3); cursor: pointer; }
+.lf-progress li button:hover { background: var(--sl-color-bg-sidebar); color: var(--sl-color-white); }
+.lf-progress li a { flex: 1; padding: 0.3rem 0.3rem; border-radius: 0.3rem; font-size: var(--sl-text-sm); line-height: 1.35; color: var(--sl-color-gray-3); text-decoration: none; }
+.lf-progress li a:hover { color: var(--sl-color-white); }
 .lf-progress li.here a { color: var(--sl-color-white); font-weight: 600; }
-.lf-progress li.here svg { color: var(--sl-color-text-accent); }
-.lf-progress li.done svg { color: var(--ok); }
+.lf-progress li.here button { color: var(--sl-color-text-accent); }
+.lf-progress li.done button { color: var(--ok); }
+.lf-progress .help { margin: 0.7rem 0 0.4rem; font-size: var(--sl-text-xs); color: var(--sl-color-gray-3); }
+.lf-progress .reset { display: inline-flex; align-items: center; gap: 0.3rem; border: 0; background: none; padding: 0.2rem 0; font: inherit; font-size: var(--sl-text-xs); color: var(--sl-color-gray-3); text-decoration: underline; cursor: pointer; }
+.lf-progress .reset:hover { color: var(--sl-color-white); }
 .lf-progress small { color: var(--sl-color-gray-3); font-variant-numeric: tabular-nums; }
 
 @media (prefers-reduced-motion: reduce) { .lf-progress .bar span { transition: none; } }
+
+/* ---------- Practice: one question at a time ---------- */
+.lf-practice .pager { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.75rem; font-size: var(--sl-text-sm); }
+.lf-practice .pager .dots { display: flex; gap: 0.3rem; flex-wrap: wrap; list-style: none; margin: 0; padding: 0; }
+.lf-practice .pager .dots button { min-height: 1.75rem; width: 1.75rem; padding: 0; border-radius: 50%; font-size: var(--sl-text-xs); }
+.lf-practice .pager .dots button.ok { border-color: var(--ok); color: var(--ok); }
+.lf-practice .pager .dots button.no { border-color: var(--danger); color: var(--danger); }
+.lf-practice .pager .dots button.current { background: var(--sl-color-text-accent); border-color: var(--sl-color-text-accent); color: var(--sl-color-black); }
+.lf-practice .pager .score { margin: 0 0 0 auto; }
+.lf-practice .turn { display: flex; justify-content: space-between; gap: 0.5rem; margin-top: 0.75rem; }

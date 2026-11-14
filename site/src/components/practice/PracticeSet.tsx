@@ -1,4 +1,4 @@
-import { CircleCheck, CircleX } from 'lucide-react';
+import { ChevronLeft, ChevronRight, CircleCheck, CircleX } from 'lucide-react';
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { flywheelPresets, STANDARD_SECONDS, standardSchedule, type FlywheelPresetId } from '../../sim/flywheelPresets';
 import { runScenario } from '../../sim/flywheelSim';
@@ -36,7 +36,7 @@ function PresetChart({ preset }: { preset: string }) {
 
 const norm = (s: string) => s.replace(/\s+/g, '').toLowerCase();
 
-function Item({ item, n, onResult }: { item: PracticeItem; n: number; onResult: (ok: boolean) => void }) {
+function Item({ item, n, hidden, onResult }: { item: PracticeItem; n: number; hidden: boolean; onResult: (ok: boolean) => void }) {
   const [pick, setPick] = useState<number | null>(null);
   const [text, setText] = useState<string[]>([]);
   const [result, setResult] = useState<boolean | null>(null);
@@ -138,7 +138,7 @@ function Item({ item, n, onResult }: { item: PracticeItem; n: number; onResult: 
   }
 
   return (
-    <li className="lf-q">
+    <div className="lf-q" hidden={hidden}>
       <p className="prompt"><span className="n">{n}</span>{rich(item.prompt)}</p>
       {body}
       {check && (
@@ -157,7 +157,7 @@ function Item({ item, n, onResult }: { item: PracticeItem; n: number; onResult: 
           )}
         </div>
       )}
-    </li>
+    </div>
   );
 }
 
@@ -170,17 +170,40 @@ export default function PracticeSet({ lessonId, items }: { lessonId: string; ite
     if (answered) updateLesson(lessonId, { quiz: { correct, total: items.length } });
   }, [lessonId, correct, answered, items.length]);
 
+  const [at, setAt] = useState(0);
+
   return (
     <div className="lf-practice not-content">
-      <ol>
-        {items.map((item, i) => (
-          <Item key={i} item={item} n={i + 1} onResult={(ok) => setResults((r) => ({ ...r, [i]: ok }))} />
-        ))}
-      </ol>
-      <p className="score" role="status">
-        Score: <b>{correct} / {items.length}</b>
-        {answered === items.length && (correct === items.length ? ' · All correct.' : ' · Retry the ones you missed.')}
-      </p>
+      <div className="pager">
+        <span>Question {at + 1} of {items.length}</span>
+        <ol className="dots">
+          {items.map((_, i) => (
+            <li key={i}>
+              <button
+                type="button"
+                className={`${i === at ? 'current' : ''}${i in results ? (results[i] ? ' ok' : ' no') : ''}`}
+                aria-label={`Question ${i + 1}${i in results ? (results[i] ? ' (correct)' : ' (not yet)') : ''}`}
+                aria-current={i === at ? 'step' : undefined}
+                onClick={() => setAt(i)}
+              >
+                {i + 1}
+              </button>
+            </li>
+          ))}
+        </ol>
+        <p className="score" role="status">
+          <b>{correct} / {items.length}</b> correct
+        </p>
+      </div>
+      {items.map((item, i) => (
+        <Item key={i} item={item} n={i + 1} hidden={i !== at} onResult={(ok) => setResults((r) => ({ ...r, [i]: ok }))} />
+      ))}
+      <div className="turn">
+        <button type="button" disabled={at === 0} onClick={() => setAt(at - 1)}><ChevronLeft size={15} aria-hidden="true" />Previous</button>
+        <button type="button" className={at in results ? 'primary' : ''} disabled={at === items.length - 1} onClick={() => setAt(at + 1)}>
+          Next question<ChevronRight size={15} aria-hidden="true" />
+        </button>
+      </div>
     </div>
   );
 }

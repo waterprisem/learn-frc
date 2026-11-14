@@ -19,5 +19,7 @@ A shareable learning website that teaches FRC Team 1360's (Orbit Robotics) progr
 - Visuals are 2D only (SVG/CSS). Use the signal palette from 04 for every graph/diagram.
 - Reuse components and add presets before creating new components.
 - Verify with `cd site && npm run check`; use the browser only for new visuals or milestone gates.
+- In the browser, check behavior with JavaScript/DOM queries first. Screenshots are costly: take at most one or two, scaled down (0.5), and only to judge appearance.
+- Lesson pages: keep them light. One idea per section, no repeated content between practice, checkpoint and recap, and show one thing at a time (guided steps, one question at a time).
 - No subagents unless the work is truly parallel and independent.
 - Don't push, deploy, or upgrade dependencies without asking.
