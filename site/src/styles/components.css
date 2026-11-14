@@ -1,0 +1,187 @@
+/* Shared styles for lesson boxes, playgrounds, charts and practice. Colors come from the theme and tokens.css. */
+
+/* ---------- Lesson header and boxes ---------- */
+.lf-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1rem;
+  margin-top: 0.6rem;
+  color: var(--sl-color-gray-3);
+  font-size: var(--sl-text-sm);
+}
+.lf-outcomes {
+  margin-top: 1rem;
+  padding: 0.8rem 1rem;
+  border-inline-start: 3px solid var(--sl-color-accent);
+  background: var(--sl-color-bg-sidebar);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  font-size: var(--sl-text-sm);
+}
+.lf-outcomes p { margin: 0 0 0.3rem; font-weight: 600; color: var(--sl-color-white); }
+.lf-outcomes ul { margin: 0; padding-inline-start: 1.2rem; }
+
+.lf-box {
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem;
+  background: var(--sl-color-bg-sidebar);
+}
+.lf-box > .lf-box-label {
+  display: block;
+  margin: 0 0 0.4rem;
+  font-size: var(--sl-text-xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--sl-color-text-accent);
+}
+.lf-box.real { border-color: var(--sl-color-accent); }
+.lf-box > :last-child { margin-bottom: 0; }
+details.lf-deeper {
+  border: 1px dashed var(--sl-color-gray-4);
+  border-radius: var(--radius);
+  padding: 0.6rem 1rem;
+}
+details.lf-deeper > summary { cursor: pointer; font-weight: 600; }
+.lf-notes { margin-top: 0.6rem; padding: 0; list-style: none; font-size: var(--sl-text-sm); }
+.lf-notes li { display: flex; gap: 0.6rem; margin: 0.35rem 0; }
+.lf-notes .tag {
+  flex: none;
+  min-width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 999px;
+  background: var(--sl-color-accent);
+  color: var(--sl-color-black);
+  font-weight: 700;
+  font-size: var(--sl-text-xs);
+  display: grid;
+  place-items: center;
+}
+:root[data-theme='dark'] .lf-notes .tag { background: var(--sl-color-accent-high); }
+
+.lf-diagram { margin: 1rem 0; }
+.lf-diagram svg { width: 100%; height: auto; display: block; }
+.lf-diagram text { fill: var(--sl-color-white); font-size: 13px; font-family: var(--sl-font); }
+.lf-diagram .muted { fill: var(--sl-color-gray-3); font-size: 11.5px; }
+.lf-diagram .node { fill: var(--sl-color-bg-sidebar); stroke: var(--sl-color-gray-3); stroke-width: 1.5; }
+.lf-diagram .wire { fill: none; stroke: var(--sl-color-gray-2); stroke-width: 1.5; }
+.lf-diagram figcaption { color: var(--sl-color-gray-3); font-size: var(--sl-text-sm); margin-top: 0.4rem; }
+
+/* ---------- Buttons and inputs shared by interactive pieces ---------- */
+.lf-playground button, .lf-practice button, .lf-playground select {
+  font: inherit;
+  font-size: var(--sl-text-sm);
+  color: var(--sl-color-white);
+  background: var(--sl-color-bg);
+  border: 1px solid var(--sl-color-gray-4);
+  border-radius: calc(var(--radius) * 0.75);
+  padding: 0.4rem 0.8rem;
+  min-height: 2.5rem;
+  cursor: pointer;
+  transition: background var(--ease), border-color var(--ease);
+}
+.lf-playground button:hover:not(:disabled), .lf-practice button:hover:not(:disabled) { border-color: var(--sl-color-text-accent); }
+.lf-playground button:disabled, .lf-practice button:disabled { opacity: 0.45; cursor: not-allowed; }
+.lf-practice button.primary, .lf-seg button[aria-pressed='true'] {
+  background: var(--sl-color-text-accent);
+  border-color: var(--sl-color-text-accent);
+  color: var(--sl-color-black);
+}
+.lf-playground :focus-visible, .lf-practice :focus-visible, .lf-rating :focus-visible, .lf-chart :focus-visible {
+  outline: 2px solid var(--sl-color-text-accent);
+  outline-offset: 2px;
+}
+
+/* ---------- Playground ---------- */
+.lf-playground {
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: var(--radius);
+  padding: 1rem;
+  background: var(--sl-color-bg-sidebar);
+}
+.lf-pg-top { display: grid; grid-template-columns: minmax(0, 1fr) 11rem; gap: 1rem; align-items: start; }
+@media (max-width: 40rem) { .lf-pg-top { grid-template-columns: 1fr; } .lf-pg-visual svg { max-width: 9rem; } }
+.lf-playground fieldset { border: 0; padding: 0; margin: 0 0 0.9rem; min-width: 0; }
+.lf-playground legend { padding: 0; margin-bottom: 0.4rem; font-size: var(--sl-text-xs); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--sl-color-gray-3); }
+.lf-seg { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.4rem; }
+.lf-seg button { display: flex; flex-direction: column; align-items: center; line-height: 1.2; padding: 0.35rem 0.2rem; }
+.lf-seg small { opacity: 0.85; font-size: 0.72rem; }
+.lf-knob { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.1rem 0.75rem; align-items: center; margin-bottom: 0.6rem; }
+.lf-knob .name { grid-column: 1 / -1; font-size: var(--sl-text-sm); }
+.lf-knob .name code { font-size: 0.72rem; color: var(--sl-color-gray-3); background: none; padding: 0; overflow-wrap: anywhere; }
+.lf-knob input[type='range'] { width: 100%; accent-color: var(--sl-color-text-accent); min-height: 1.75rem; }
+.lf-knob .unit { font-size: var(--sl-text-xs); color: var(--sl-color-gray-3); }
+.lf-knob input[type='number'] {
+  width: 5.2rem; font: inherit; font-size: var(--sl-text-sm); font-variant-numeric: tabular-nums;
+  color: var(--sl-color-white); background: var(--sl-color-bg); border: 1px solid var(--sl-color-gray-4); border-radius: 0.3rem; padding: 0.25rem 0.4rem;
+}
+.lf-playground details > summary { cursor: pointer; font-size: var(--sl-text-sm); color: var(--sl-color-gray-2); margin-bottom: 0.5rem; }
+.lf-check { display: flex; gap: 0.5rem; align-items: center; font-size: var(--sl-text-sm); }
+.lf-pg-visual { text-align: center; }
+.lf-pg-visual svg { width: 100%; max-width: 11rem; }
+.lf-pg-visual .rim { fill: none; stroke: var(--sl-color-gray-2); stroke-width: 5; }
+.lf-pg-visual .spokes line { stroke: var(--sl-color-gray-3); stroke-width: 3; }
+.lf-pg-visual .marker { fill: var(--sig-measurement); }
+.lf-pg-visual .hub { fill: var(--sl-color-gray-2); }
+.lf-pg-visual .support { fill: var(--sl-color-gray-5); }
+.lf-lamp { display: inline-flex; align-items: center; gap: 0.4rem; font-size: var(--sl-text-sm); }
+.lf-lamp span { width: 0.8rem; height: 0.8rem; border-radius: 50%; border: 2px solid var(--sl-color-gray-3); }
+.lf-lamp.on span { background: var(--ok); border-color: var(--ok); }
+.lf-pg-bar { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin-top: 0.75rem; font-size: var(--sl-text-sm); }
+.lf-pg-bar .spacer { flex: 1; }
+
+/* ---------- Chart ---------- */
+.lf-chart { margin: 0.75rem 0 0; }
+.lf-chart > svg { width: 100%; height: auto; display: block; background: var(--sl-color-bg); border: 1px solid var(--sl-color-gray-5); border-radius: calc(var(--radius) * 0.75); touch-action: pan-y; }
+.lf-chart > svg text { fill: var(--sl-color-gray-3); font-size: 11px; font-family: var(--sl-font); font-variant-numeric: tabular-nums; }
+.lf-chart > svg text.axis { fill: var(--sl-color-gray-2); }
+.lf-chart .grid { stroke: var(--sl-color-gray-5); stroke-width: 1; opacity: 0.6; }
+.lf-chart .zero { stroke: var(--sl-color-gray-3); stroke-width: 1; }
+.lf-chart .cursor { stroke: var(--sl-color-gray-2); stroke-width: 1; stroke-dasharray: 3 3; }
+.lf-chart .band { fill: var(--sig-at-target); }
+.lf-chart figcaption { display: flex; flex-wrap: wrap; gap: 0.3rem 0.5rem; margin-top: 0.5rem; font-size: var(--sl-text-xs); color: var(--sl-color-gray-2); }
+.lf-chart .key { display: inline-flex; align-items: center; gap: 0.35rem; white-space: nowrap; }
+.lf-chart .key svg { flex: none; }
+.lf-chart button.key { min-height: 2rem; padding: 0.15rem 0.5rem; font-size: var(--sl-text-xs); background: transparent; }
+.lf-chart button.key[aria-pressed='false'] { opacity: 0.45; text-decoration: line-through; }
+.lf-chart .key b { font-variant-numeric: tabular-nums; min-width: 4.6em; text-align: end; color: var(--sl-color-white); }
+.lf-chart .band-swatch { width: 1rem; height: 0.7rem; background: var(--sig-at-target); border: 1px solid var(--sig-setpoint); }
+.lf-chart.compact figcaption { gap: 0.2rem 0.8rem; }
+
+/* ---------- Practice ---------- */
+.lf-practice ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 1rem; }
+.lf-q { border: 1px solid var(--sl-color-gray-5); border-radius: var(--radius); padding: 1rem; background: var(--sl-color-bg-sidebar); }
+.lf-q .prompt { margin: 0 0 0.75rem; font-weight: 600; color: var(--sl-color-white); }
+.lf-q .n { display: inline-grid; place-items: center; width: 1.6rem; height: 1.6rem; margin-inline-end: 0.5rem; border-radius: 50%; border: 1px solid var(--sl-color-gray-4); font-size: var(--sl-text-xs); }
+.lf-q code { background: var(--sl-color-bg-inline-code); padding: 0.1em 0.3em; border-radius: 0.25em; font-size: 0.9em; }
+.lf-q p { margin: 0.5rem 0 0; }
+.lf-q .row { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin-top: 0.75rem; }
+.lf-choices { display: grid; gap: 0.4rem; margin-top: 0.5rem; }
+.lf-choices label, .lf-graph-choices label { display: flex; gap: 0.6rem; align-items: flex-start; padding: 0.5rem 0.7rem; min-height: 2.75rem; border: 1px solid var(--sl-color-gray-5); border-radius: calc(var(--radius) * 0.75); cursor: pointer; background: var(--sl-color-bg); }
+.lf-choices label.picked, .lf-graph-choices label.picked { border-color: var(--sl-color-text-accent); box-shadow: inset 0 0 0 1px var(--sl-color-text-accent); }
+.lf-choices input, .lf-graph-choices input { margin-top: 0.3rem; accent-color: var(--sl-color-text-accent); }
+.lf-graph-choices { display: grid; gap: 0.6rem; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); }
+.lf-graph-choices label { flex-direction: column; }
+.lf-graph-choices .tag { font-weight: 600; font-size: var(--sl-text-sm); }
+.lf-graph-choices .lf-chart { width: 100%; margin: 0; }
+.lf-fill { margin: 0; padding: 0.8rem; overflow-x: auto; background: var(--sl-color-bg); border: 1px solid var(--sl-color-gray-5); border-radius: calc(var(--radius) * 0.75); font-size: var(--sl-text-sm); line-height: 2; }
+.lf-fill input { font: inherit; color: var(--sl-color-white); background: var(--sl-color-bg-sidebar); border: 0; border-bottom: 2px solid var(--sl-color-text-accent); padding: 0 0.3rem; }
+.lf-q textarea { width: 100%; font: inherit; font-size: var(--sl-text-sm); color: var(--sl-color-white); background: var(--sl-color-bg); border: 1px solid var(--sl-color-gray-4); border-radius: calc(var(--radius) * 0.75); padding: 0.5rem; margin-bottom: 0.5rem; }
+.lf-feedback { margin-top: 0.75rem; padding: 0.6rem 0.8rem; border-radius: calc(var(--radius) * 0.75); border-inline-start: 4px solid var(--sl-color-gray-3); background: var(--sl-color-bg); font-size: var(--sl-text-sm); }
+.lf-feedback p:first-child { margin-top: 0; }
+.lf-feedback.ok { border-color: var(--ok); }
+.lf-feedback.no { border-color: var(--danger); }
+.lf-feedback.info { border-color: var(--sl-color-text-accent); }
+.lf-feedback details { margin-top: 0.4rem; }
+.lf-feedback summary { cursor: pointer; }
+.lf-practice .score { margin: 1rem 0 0; font-size: var(--sl-text-sm); }
+
+/* ---------- Self rating ---------- */
+.lf-rating { border: 0; padding: 0; margin: 1rem 0 0; display: grid; gap: 0.4rem; }
+.lf-rating legend { font-weight: 600; margin-bottom: 0.4rem; padding: 0; }
+.lf-rating label { display: flex; gap: 0.6rem; align-items: baseline; padding: 0.5rem 0.7rem; min-height: 2.75rem; border: 1px solid var(--sl-color-gray-5); border-inline-start-width: 5px; border-radius: calc(var(--radius) * 0.75); cursor: pointer; background: var(--sl-color-bg); font-size: var(--sl-text-sm); }
+.lf-rating label.green { border-inline-start-color: var(--ok); }
+.lf-rating label.yellow { border-inline-start-color: var(--warn); }
+.lf-rating label.red { border-inline-start-color: var(--danger); }
+.lf-rating label.picked { box-shadow: inset 0 0 0 1px var(--sl-color-text-accent); }
+.lf-rating p { margin: 0.3rem 0 0; font-size: var(--sl-text-sm); color: var(--sl-color-gray-2); }

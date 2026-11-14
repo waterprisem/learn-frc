@@ -1,0 +1,6 @@
+---
+// The bridge from the browser to the real tools: WPILib, the simulator, AdvantageScope, the robot.
+interface Props { tools?: string }
+const { tools } = Astro.props;
+---
+<section class="lf-box real"><span class="lf-box-label">Real tools{tools ? ` · ${tools}` : ''}</span><slot /></section>

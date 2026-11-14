@@ -1,0 +1,9 @@
+---
+// Renders a practice bank from src/content/practice/<bank>.yaml.
+import { getEntry } from 'astro:content';
+import PracticeSet from './PracticeSet.tsx';
+interface Props { bank: string }
+const entry = await getEntry('practice', Astro.props.bank);
+if (!entry) throw new Error(`No practice bank "${Astro.props.bank}" in src/content/practice/`);
+---
+<PracticeSet client:visible lessonId={entry.data.lesson} items={entry.data.items} />

@@ -1,0 +1,10 @@
+---
+// Mentor-style questions (answer out loud, then reveal) followed by the Green / Yellow / Red self-rating.
+import SelfRating from './SelfRating.tsx';
+interface Props { lesson: string }
+---
+<section class="lf-box checkpoint">
+  <span class="lf-box-label">Answer out loud, then check</span>
+  <slot />
+  <SelfRating client:visible lessonId={Astro.props.lesson} />
+</section>

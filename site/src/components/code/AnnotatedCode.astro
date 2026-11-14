@@ -1,0 +1,24 @@
+---
+// Real lab code from src/snippets/ with numbered callouts on the lines that matter.
+import { Code } from '@astrojs/starlight/components';
+
+interface Props {
+  /** Snippet id from src/snippets/manifest.json, e.g. "lab4/closed-loop-calculate". */
+  file: string;
+  title?: string;
+  /** `lines` is a line or range within the snippet ("2" or "2-3"). */
+  notes?: Array<{ lines: string; text: string }>;
+}
+const { file, title, notes = [] } = Astro.props;
+const all = import.meta.glob<string>('../../snippets/**/*.java', { query: '?raw', import: 'default', eager: true });
+const code = all[`../../snippets/${file}.java`];
+if (code === undefined) throw new Error(`Unknown snippet "${file}". Add it to src/snippets/manifest.json and run npm run snippets.`);
+---
+<div class="lf-code">
+  <Code code={code.trimEnd()} lang="java" title={title} mark={notes.map((n, i) => ({ range: n.lines, label: String(i + 1) }))} />
+  {notes.length > 0 && (
+    <ol class="lf-notes not-content">
+      {notes.map((n, i) => <li><span class="tag">{i + 1}</span><span set:html={n.text} /></li>)}
+    </ol>
+  )}
+</div>

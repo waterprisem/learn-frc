@@ -10,8 +10,11 @@ export default defineConfig({
     starlight({
       title: 'Learn FRC Programming',
       description: 'An interactive path from zero to contributing robot code on an FRC team.',
-      customCss: ['./src/styles/tokens.css'],
-      components: { ThemeSelect: './src/components/ThemeSelect.astro' },
+      customCss: ['./src/styles/tokens.css', './src/styles/components.css'],
+      components: {
+        ThemeSelect: './src/components/ThemeSelect.astro',
+        PageTitle: './src/components/PageTitle.astro',
+      },
       head: [
         { tag: 'style', content: themeCss() },
         { tag: 'script', content: noFlashScript },

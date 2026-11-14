@@ -1,0 +1,46 @@
+---
+// The closed-loop velocity controller: feedforward predicts, PID corrects, the encoder closes the loop.
+---
+<figure class="lf-diagram not-content">
+  <svg viewBox="0 0 640 262" role="img" aria-labelledby="vl-title vl-desc">
+    <title id="vl-title">Velocity control loop</title>
+    <desc id="vl-desc">The target speed goes to feedforward and to PID. Their voltages are added and sent to the motor. The encoder sends the measured speed back to PID.</desc>
+    <defs>
+      <marker id="vl-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0 0L10 5L0 10z" fill="context-stroke" />
+      </marker>
+    </defs>
+
+    <rect class="node" x="8" y="96" width="104" height="48" rx="6" />
+    <text x="60" y="117" text-anchor="middle">Target</text>
+    <text x="60" y="134" text-anchor="middle" class="muted">40 RPS</text>
+
+    <rect class="node" x="196" y="22" width="170" height="56" rx="6" />
+    <text x="281" y="45" text-anchor="middle">Feedforward</text>
+    <text x="281" y="63" text-anchor="middle" class="muted">predicts: kS + kV × target</text>
+
+    <rect class="node" x="196" y="150" width="170" height="56" rx="6" />
+    <text x="281" y="173" text-anchor="middle">PID</text>
+    <text x="281" y="191" text-anchor="middle" class="muted">corrects: kP × error</text>
+
+    <circle class="node" cx="420" cy="120" r="16" />
+    <text x="420" y="125" text-anchor="middle">+</text>
+
+    <rect class="node" x="486" y="96" width="146" height="48" rx="6" />
+    <text x="559" y="117" text-anchor="middle">Motor + flywheel</text>
+    <text x="559" y="134" text-anchor="middle" class="muted">TalonFX</text>
+
+    <!-- target fans out to both controllers -->
+    <path class="wire" style="stroke: var(--sig-setpoint)" stroke-dasharray="7 5" d="M112 120H154V50H194" marker-end="url(#vl-arrow)" />
+    <path class="wire" style="stroke: var(--sig-setpoint)" stroke-dasharray="7 5" d="M154 120V166H194" marker-end="url(#vl-arrow)" />
+    <!-- both voltages are added -->
+    <path class="wire" d="M366 50H420V102" marker-end="url(#vl-arrow)" />
+    <path class="wire" d="M366 178H420V138" marker-end="url(#vl-arrow)" />
+    <path class="wire" style="stroke: var(--sig-output)" stroke-dasharray="2 3" d="M436 120H484" marker-end="url(#vl-arrow)" />
+    <text x="460" y="110" text-anchor="middle" class="muted">volts</text>
+    <!-- encoder feedback -->
+    <path class="wire" style="stroke: var(--sig-measurement)" stroke-width="2.5" d="M559 144V236H154V190H194" marker-end="url(#vl-arrow)" />
+    <text x="356" y="254" text-anchor="middle" class="muted">encoder: measured RPS (error = target − measured)</text>
+  </svg>
+  <figcaption>Every 20 ms the code reads the encoder, adds the two voltages, and sends the result to the motor.</figcaption>
+</figure>

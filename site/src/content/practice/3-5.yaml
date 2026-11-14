@@ -1,15 +1,90 @@
-# Practice bank for lesson 3.5 (Velocity control: PID + feedforward). Expanded in M1.
+# Practice bank for lesson 3.5 (Velocity control: PID + feedforward).
+# Graph items use the standard test: released for 0.5 s, then hold 40 RPS.
 lesson: "3.5"
 items:
   - type: mcq
-    prompt: "The flywheel settles a few RPS below every target and stays there. Which gain is most likely too small?"
-    choices: ["kP", "kV", "kD", "Velocity tolerance"]
+    prompt: "The target is 40 RPS and the tolerance is 2 RPS. The encoder reads 37.5 RPS. Is `flywheelAtTarget` true?"
+    choices:
+      - "Yes. 37.5 is close enough to 40."
+      - "No. The error is 2.5 RPS, which is outside the 2 RPS tolerance."
+      - "Yes. It becomes true as soon as the button is held."
+      - "No. It is only true at exactly 40.0 RPS."
     answer: 1
-    explain: "kV supplies the voltage needed to hold a speed. If it is too small, feedforward under-predicts and a modest kP cannot close the gap, leaving steady-state error."
+    explain: "Error is target minus measurement: 40 − 37.5 = 2.5 RPS. `atSetpoint()` is true only while the error is inside the tolerance. At 38.5 RPS (error 1.5) it would be true."
+    source: "Lab 4, Step 4"
+  - type: read-graph
+    preset: "flywheel:kv-low"
+    prompt: "This flywheel uses a modest `kP`. What should you change first?"
+    choices:
+      - "Raise `kV`: feedforward is predicting too little voltage."
+      - "Lower `kP`: the controller is over-correcting."
+      - "Raise `kS`: the wheel cannot get moving."
+      - "Nothing. It reached the target."
+    answer: 0
+    explain: "The velocity settles well below the target and stays there (steady error, no At Target band). Feedforward should supply most of the holding voltage, so a `kV` that is too small leaves a gap that a modest `kP` cannot close."
     source: "Lab 4, Experiment 1"
-  - type: mcq
-    prompt: "After raising one gain, the velocity graph swings above and below the target without settling. Which gain did you raise too far?"
-    choices: ["kS", "kV", "kP", "kI"]
+  - type: read-graph
+    preset: "flywheel:kp-high"
+    prompt: "What is wrong with this controller?"
+    choices:
+      - "`kV` is too small."
+      - "`kS` is too large."
+      - "`kP` is too large."
+      - "The tolerance is too small."
     answer: 2
-    explain: "A large kP over-corrects each error, so the flywheel overshoots in both directions and oscillates."
+    explain: "The velocity keeps crossing above and below the target, and the output voltage swings hard each time. That is over-correction: `kP` multiplies every small error into a large voltage."
     source: "Lab 4, Experiment 2"
+  - type: predict-graph
+    prompt: "`kV` is set too **large** and `kP` is modest. Which graph will you see?"
+    presets: ["flywheel:kv-low", "flywheel:tuned", "flywheel:kv-high"]
+    answer: 2
+    explain: "Too much `kV` predicts more voltage than the speed needs, so the wheel settles above the target and the error is negative. Graph A is the opposite problem (too little `kV`), and Graph B is tuned."
+  - type: predict-graph
+    prompt: "The gains are tuned, but `kP` is set to 0 and a load drags on the wheel. Which graph will you see?"
+    presets: ["flywheel:kp-high", "flywheel:no-feedback+load", "flywheel:tuned"]
+    answer: 1
+    explain: "With `kP` = 0 the output is feedforward only. It never reads the encoder, so the voltage stays flat while the load holds the wheel below the target."
+    source: "Lab 4, Experiment 3"
+  - type: read-graph
+    preset: "flywheel:p-only"
+    prompt: "Here `kS` and `kV` are 0 and only `kP` is set. Why does the wheel settle so far below the target?"
+    choices:
+      - "PID is broken without feedforward."
+      - "P output is `kP` × error, so it needs a large error to produce enough voltage to hold the speed."
+      - "The battery cannot supply enough voltage for 40 RPS."
+      - "The tolerance is too small."
+    answer: 1
+    explain: "Holding 40 RPS takes about 5 V. With `kP` alone, voltage only exists while there is error, so the wheel settles where `kP` × error equals the voltage that speed needs. Feedforward removes that burden."
+  - type: fill-blank
+    prompt: "Complete `closedLoopCalculate`. Remember which argument `PIDController.calculate` takes first."
+    code: |
+      public double closedLoopCalculate(double targetRPS) {
+        return flywheelPID.calculate(____, targetRPS)
+            + flywheelFF.calculate(____);
+      }
+    blanks:
+      - ["getFlywheelVelocityRPS()"]
+      - ["targetRPS"]
+    explain: "`calculate(measurement, setpoint)`: the measurement comes first. Swapping them flips the sign of the error and drives the wheel away from the target. Feedforward only needs the target."
+    source: "Lab 4, Step 5"
+  - type: mcq
+    prompt: "In what order do you tune this flywheel?"
+    choices: ["`kP`, then `kV`, then `kS`", "`kS`, then `kV`, then `kP`", "`kV`, then `kP`, then `kS`", "All three at once"]
+    answer: 1
+    explain: "`kS` first (just enough to start moving), then `kV` until feedforward alone gets close at every target, then a modest `kP` to remove what is left. Change one gain at a time."
+    source: "Lab 4, Tuning procedure"
+  - type: mcq
+    prompt: "Where does `SetFlywheelVelocityCommand` reset the PID controller, and why there?"
+    choices:
+      - "In `execute()`, so it is reset every loop."
+      - "In `initialize()`, which runs once when the command starts, so history from an earlier run cannot affect this one."
+      - "In `end()`, so the motor stops."
+      - "In `isFinished()`, when the target is reached."
+    answer: 1
+    explain: "`initialize()` runs once per button press. Resetting in `execute()` would wipe the controller's history 50 times a second."
+    source: "Lab 4, Step 9"
+  - type: free
+    prompt: "Why does a fixed voltage not guarantee a fixed flywheel speed?"
+    modelAnswer: "The same voltage gives different speeds when battery voltage sags, friction changes, or the load changes (for example a game piece passing through). Open-loop code never checks the result."
+    explain: "Closed-loop control measures the speed every loop and adjusts the voltage."
+    source: "Lab 4, Knowledge check 1"

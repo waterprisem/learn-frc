@@ -1,0 +1,26 @@
+---
+// Overrides Starlight's PageTitle to add the lesson header (track, time, session, outcomes, prerequisites).
+import Default from '@astrojs/starlight/components/PageTitle.astro';
+import { lessons } from '../data/path.mjs';
+
+const data = Astro.locals.starlightRoute.entry.data;
+const lesson = data.id && data.status !== 'stub' ? lessons.find((l) => l.id === data.id) : undefined;
+const prereqs = (data.prereqs ?? []).flatMap((id: string) => lessons.find((l) => l.id === id) ?? []);
+---
+<Default />
+{lesson && (
+  <div class="lf-meta not-content">
+    <span>{lesson.trackLabel} · Lesson {lesson.id}</span>
+    {data.minutes && <span>About {data.minutes} min</span>}
+    {data.session && <span>Curriculum session {data.session}</span>}
+    {prereqs.length > 0 && (
+      <span>Before this: {prereqs.map((p, i) => <>{i > 0 && ', '}<a href={p.href}>{p.id} {p.title}</a></>)}</span>
+    )}
+  </div>
+)}
+{lesson && data.outcomes && data.outcomes.length > 0 && (
+  <div class="lf-outcomes not-content">
+    <p>You’ll be able to</p>
+    <ul>{data.outcomes.map((o: string) => <li>{o}</li>)}</ul>
+  </div>
+)}

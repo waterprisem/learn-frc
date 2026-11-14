@@ -1,20 +1,176 @@
 ---
 title: "Velocity control: PID + feedforward"
-description: "Tune a flywheel with live graphs, then do Lab 4."
+description: Make a flywheel hold a target speed by combining a prediction (feedforward) with a correction (PID), then tune it from graphs.
 id: "3.5"
-track: "control"
+track: control
 session: 4
 isNew: false
-status: stub
+minutes: 30
+prereqs: ["3.2", "3.4"]
+outcomes:
+  - Explain what feedforward and PID each contribute to the motor voltage
+  - Tune kS, kV, and kP in order by reading a graph
+  - Recognize "kV too small" and "kP too large" from a graph
+  - Do the same tuning in the WPILib simulator with AdvantageScope
+sources:
+  - curriculum: "labs/Session 4 - PID + Feedforward for Velocity Control/LAB_MANUAL.md"
+  - curriculum: "presentations/Session 4 - PID + Feedforward for Velocity Control/raw_data/slides.md"
+  - doc: "https://docs.wpilib.org/en/stable/docs/software/advanced-controls/introduction/tuning-flywheel.html"
+status: review
 sidebar:
   label: "3.5 Velocity control: PID + feedforward"
   order: 5
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import DoItForReal from '../../../components/lesson/DoItForReal.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import GoDeeper from '../../../components/lesson/GoDeeper.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
+import AnnotatedCode from '../../../components/code/AnnotatedCode.astro';
+import VelocityLoop from '../../../components/diagrams/VelocityLoop.astro';
+import FlywheelTuner from '../../../components/playgrounds/FlywheelTuner.tsx';
 
-**What it will cover:** Tune a flywheel with live graphs, then do Lab 4.
+<WhyItMatters>
+A shooter wheel that spins at 38 rotations per second on a fresh battery might spin at 33 on a tired one, and the shot lands short.
+Sending a fixed voltage (**open loop**) can't notice that. **Closed-loop** control measures the speed 50 times a second and adjusts the voltage to hold it.
+</WhyItMatters>
 
-Based on Session 4 of the Orbit Robotics curriculum.
+## The idea
+
+The code works out a motor voltage from two parts and adds them.
+
+- **Feedforward predicts.** From the target speed alone, it estimates the voltage the wheel should need: `kS + kV × target`.
+  `kS` is the small voltage that overcomes friction. `kV` is the volts needed per rotation per second (RPS).
+- **PID corrects.** It compares the target with what the encoder measured and adds `kP × error`, where error = target − measured.
+  This lab leaves `kI` and `kD` at 0.
+
+<VelocityLoop />
+
+Feedforward does most of the work, because it acts before any error appears. PID handles what the prediction missed, such as a sagging battery or a load.
+
+The code also needs to say when the wheel is ready. The answer is a **tolerance**: the wheel counts as "at target" while the error is within 2 RPS.
+A real wheel never sits at exactly 40.000, so the code never checks for an exact match.
+
+## Try it: tune the flywheel
+
+This is the Lab 4 flywheel running in your browser. The gains start at zero, exactly like the lab's starting code.
+The graph shows the same four signals you will graph in AdvantageScope, with the same names.
+
+<FlywheelTuner client:visible />
+
+Follow the lab's tuning order. Before each step, **predict** what the graph will do.
+
+1. **Nothing happens.** Hold **B** (40 RPS). Every gain is 0, so the output is 0 V.
+2. **Tune `kS`.** Raise `kS` slowly until the wheel just begins to turn (about 0.2). It only needs to beat friction, so the wheel stays slow.
+3. **Tune `kV`.** Raise `kV` until Velocity sits on Target (about 0.12). Check **A** and **Y** too: a good `kV` works at every speed.
+4. **Add `kP`.** Set `kP` to 0.08. The wheel reaches the target a little sooner and the error settles nearer zero.
+5. **Break it on purpose.** Choose the **kV too small** preset and hold **B**: the wheel stalls below the target. Then try **kP too large**: it swings above and below the target and never settles.
+6. **Add a load.** Go back to **Tuned**, hold **B**, and tick **Add a load**. Set `kP` to 0 and watch feedforward alone fall short. Raise `kP` and the error shrinks.
+
+<GoDeeper title="why At Target can stay true after you release the button">
+`flywheelAtTarget` reads `flywheelPID.atSetpoint()`, which remembers the error from the last time the controller ran.
+When you release the button the command ends and the controller stops running, so the last answer sticks until the next command starts and resets it.
+You can see this in the playground: release from a settled speed and the At Target band continues while the wheel coasts down.
+Later lessons add a check so that actions only trust readiness while the command is running.
+</GoDeeper>
+
+## The code
+
+The subsystem does the math, in one line. It returns a voltage and does not apply it.
+
+<AnnotatedCode
+  file="lab4/closed-loop-calculate"
+  title="FlywheelSubsystem.java"
+  notes={[
+    { lines: '2', text: 'PID correction. The <strong>measurement comes first</strong>, then the target. Swapping them flips the error and drives the wheel the wrong way.' },
+    { lines: '3', text: 'Feedforward prediction. It only needs the target.' },
+  ]}
+/>
+
+The command decides when that math runs.
+
+<AnnotatedCode
+  file="lab4/velocity-command"
+  title="SetFlywheelVelocityCommand.java"
+  notes={[
+    { lines: '3', text: 'Runs once when the button is pressed. Clears the controller’s history from any earlier run.' },
+    { lines: '8-9', text: 'Runs every 20 ms while the button is held: calculate a voltage, then apply it.' },
+    { lines: '14', text: 'Runs when the button is released or another command takes over: 0 V. The wheel coasts.' },
+    { lines: '19', text: 'Never finishes by itself. Holding the button controls how long it runs; reaching the speed does not stop it.' },
+  ]}
+/>
+
+Each loop, the subsystem updates the ready flag and publishes the signals you graph.
+
+<AnnotatedCode
+  file="lab4/periodic"
+  title="FlywheelSubsystem.java"
+  notes={[
+    { lines: '4', text: 'True while the error is inside the 2 RPS tolerance. Other commands read it through the <code>flywheelAtTarget</code> trigger.' },
+    { lines: '6-10', text: 'The five topics under <code>/Subsystems/FlywheelSubsystem/</code>: Velocity RPS, Target RPS, Error RPS, Output Voltage, At Target.' },
+  ]}
+/>
+
+## Practice
+
+<Practice bank="3-5" />
+
+## Do it for real
+
+<DoItForReal tools="WPILib simulator + AdvantageScope">
+Now do the same thing with the real code. This is **Lab 4** in the team curriculum repository.
+
+1. In the WPILib VS Code, open `labs/Session 4 - PID + Feedforward for Velocity Control/assignment` as its own project.
+2. Work through the lab manual's Steps 3 to 10. They are the three code blocks above.
+3. Run **WPILib: Simulate Robot Code** and set the Driver Station panel to **Teleoperated**.
+   With the keyboard joystick, <kbd>Z</kbd>, <kbd>X</kbd>, and <kbd>V</kbd> are Xbox **A**, **B**, and **Y**.
+4. Open AdvantageScope, choose **File → Connect to Simulator**, and add these to one line graph from `/Subsystems/FlywheelSubsystem/`:
+   `Target RPS`, `Velocity RPS`, `Error RPS`, `Output Voltage`, and `At Target`.
+5. Tune in `Constants.java` in the same order: `FEEDFORWARD_KS_VOLTS`, then `FEEDFORWARD_KV_VOLTS_PER_RPS`, then `PID_KP`. Restart the simulation after each change.
+
+**You know it worked when** holding A, B, and Y each brings Velocity onto Target within about 2 RPS, At Target turns true, nothing keeps oscillating, and Output Voltage drops to 0 when you release.
+
+**On a real robot, also check**
+
+- A small positive voltage spins the wheel in the direction the encoder counts as positive. If not, fix `FLYWHEEL_MOTOR_INVERTED` before closing the loop.
+- Current limits are set, and nobody is near the wheel when you enable.
+- Start with the lowest target. A real wheel has more friction than the simulation, so expect different `kS` and `kV` values.
+</DoItForReal>
+
+## Checkpoint
+
+<Checkpoint lesson="3.5">
+
+<details>
+<summary>What is the difference between feedforward and feedback?</summary>
+Feedforward predicts the voltage from the target alone and never looks at the encoder. Feedback (PID) reads the encoder and corrects the error that remains.
+</details>
+
+<details>
+<summary>What happens if `kP` is much too large? What about `kV` too small?</summary>
+Too much `kP` over-corrects, so the speed swings above and below the target. Too little `kV` leaves the wheel steadily below the target.
+</details>
+
+<details>
+<summary>Which four logged numbers would you look at if the flywheel never reached its target?</summary>
+Target, measured velocity, error, and output voltage. Together they show whether the code asked for the right speed, how far off it is, and whether the controller is pushing at all.
+</details>
+
+<details>
+<summary>Why does reaching the target not end the command?</summary>
+The wheel has to keep holding the speed while the driver is ready to shoot. Readiness is a separate signal (`flywheelAtTarget`) that other commands can wait on.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- Output voltage = feedforward (`kS + kV × target`) + PID (`kP × error`).
+- Feedforward predicts and does most of the work. PID corrects what is left.
+- Tune one gain at a time: `kS`, then `kV`, then `kP`, checking all three targets.
+- Steady error below the target means `kV` is too small. Swinging around the target means `kP` is too large.
+- "At target" means the error is inside a tolerance, never an exact match.
+</RecapCard>
