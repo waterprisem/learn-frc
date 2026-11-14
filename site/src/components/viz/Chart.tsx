@@ -22,6 +22,9 @@ interface Props {
   rightLabel?: string;
   /** Live charts show only the most recent N seconds. */
   windowSeconds?: number;
+  /** The axes always reach at least this high, so a quiet graph doesn't zoom in on noise. */
+  leftSpan?: number;
+  rightSpan?: number;
   /** Smaller, with no legend toggles or readout (for practice items). */
   compact?: boolean;
   ariaLabel: string;
@@ -44,7 +47,7 @@ function niceScale(min: number, max: number, target = 5): { min: number; max: nu
 
 const fmt = (v: number) => (Math.abs(v) >= 100 ? v.toFixed(0) : v.toFixed(Math.abs(v) < 10 ? 2 : 1));
 
-export default function Chart({ data, series, band, leftLabel, rightLabel, windowSeconds, compact, ariaLabel }: Props) {
+export default function Chart({ data, series, band, leftLabel, rightLabel, windowSeconds, leftSpan = 10, rightSpan = 12, compact, ariaLabel }: Props) {
   const [hidden, setHidden] = useState<Record<string, boolean>>({});
   const [hover, setHover] = useState<number | null>(null);
   const clipId = useId();
@@ -61,7 +64,7 @@ export default function Chart({ data, series, band, leftLabel, rightLabel, windo
     const rows = windowSeconds ? data.filter((d) => d.t >= t0) : data;
     const extent = (axis: 'left' | 'right') => {
       let lo = 0;
-      let hi = axis === 'left' ? 10 : 12;
+      let hi = axis === 'left' ? leftSpan : rightSpan;
       for (const s of series) {
         if ((s.axis ?? 'left') !== axis || hidden[s.key]) continue;
         for (const d of rows) {
@@ -84,7 +87,7 @@ export default function Chart({ data, series, band, leftLabel, rightLabel, windo
       return { min, max: scale.max, ticks };
     };
     return { t0, t1, rows, left: withNegatives(l), right: withNegatives(r) };
-  }, [data, series, hidden, windowSeconds]);
+  }, [data, series, hidden, windowSeconds, leftSpan, rightSpan]);
 
   const { t0, t1, rows, left, right } = view;
   const x = (t: number) => m.l + ((t - t0) / (t1 - t0)) * iw;

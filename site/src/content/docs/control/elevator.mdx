@@ -29,6 +29,8 @@ import RecapCard from '../../../components/lesson/RecapCard.astro';
 import Checkpoint from '../../../components/lesson/Checkpoint.astro';
 import Practice from '../../../components/practice/Practice.astro';
 import AnnotatedCode from '../../../components/code/AnnotatedCode.astro';
+import GoDeeper from '../../../components/lesson/GoDeeper.astro';
+import ElevatorTuner from '../../../components/playgrounds/ElevatorTuner.tsx';
 
 <WhyItMatters>
 A flywheel only has to hold a speed. An elevator has to travel to a height, stop there, and then keep holding the carriage up against gravity, with the motor doing real work even when nothing moves.
@@ -120,6 +122,18 @@ Tune in the order the lab sets things up: PID starting gains, then the constrain
 | Elevator jumps or overshoots at the start of a move | Reduce `PID_KP`, `PID_KD`, or max acceleration; check the reset is in `initialize()` only |
 | Output stays at 0 and nothing moves | A constant, such as the PID or constraints, is still zero |
 | `At Target` never turns true | `setTolerance()` is missing, or `periodic()` does not assign `atGoal()` |
+
+## Try it: tune the elevator
+
+This is the Lab 6 elevator with the lab's solution gains. The graph uses the same signal names you will see in AdvantageScope.
+
+<ElevatorTuner client:visible lessonId="3.7" />
+
+<GoDeeper title="why the height trails the setpoint with the lab gains">
+The simulated elevator needs about 8.6 V for every meter per second, and about 0.18 V to hold still.
+The lab's `kV` of 1.10 predicts far less than that, so during a move the PID has to supply the rest, and it can only do that once the error has grown.
+Raise `kV` toward 8.6 and feedforward does the work instead, so the height stays on the profiled setpoint.
+</GoDeeper>
 
 ## Practice
 

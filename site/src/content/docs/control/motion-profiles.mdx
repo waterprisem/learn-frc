@@ -27,6 +27,7 @@ import RecapCard from '../../../components/lesson/RecapCard.astro';
 import GoDeeper from '../../../components/lesson/GoDeeper.astro';
 import Checkpoint from '../../../components/lesson/Checkpoint.astro';
 import Practice from '../../../components/practice/Practice.astro';
+import ProfilePlayground from '../../../components/playgrounds/ProfilePlayground.tsx';
 
 <WhyItMatters>
 Tell an elevator at the bottom to go to the top and a plain position PID sees a huge error on the first loop. It answers with full voltage, the carriage launches, then overshoots, and a chain or belt can skip a tooth.
@@ -95,6 +96,12 @@ Accelerating from rest at `a` for time `t` gives velocity `a × t` and distance 
 For a move of distance `d` that is too short to cruise, each half covers `d / 2`, so the peak velocity is the square root of `a × d`.
 Here that is the square root of 2.0 × 0.2 = 0.63 m/s, which is below the 1.0 m/s limit, so the triangle case applies.
 </GoDeeper>
+
+## Try it: shape a profile
+
+This starts on the worked move above.
+
+<ProfilePlayground client:visible lessonId="3.6" />
 
 ## The constraints in code
 
