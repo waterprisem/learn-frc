@@ -55,13 +55,13 @@ A real wheel never sits at exactly 40.000, so the code never checks for an exact
 
 ## Try it: tune the flywheel
 
-This is the Lab 4 flywheel running in your browser. The gains start at zero, exactly like the lab's starting code.
-The graph shows the same four signals you will graph in AdvantageScope, with the same names.
-
-<FlywheelTuner client:visible lessonId="3.5" />
+This is the Lab 4 flywheel running in your browser. The gains start at zero, exactly like the lab's starting code,
+and the graph shows the same signals you will graph in AdvantageScope, with the same names.
 
 The **Guide** at the top walks you through the lab's tuning order. It watches what you do, tells you what it sees, and unlocks **Next** when a step is done.
 Before each change, predict what the graph will do.
+
+<FlywheelTuner client:visible lessonId="3.5" />
 
 <GoDeeper title="why At Target can stay true after you release the button">
 `flywheelAtTarget` reads `flywheelPID.atSetpoint()`, which remembers the error from the last time the controller ran.

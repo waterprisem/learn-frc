@@ -189,6 +189,11 @@ details.lf-deeper > summary svg { color: var(--sl-color-text-accent); flex: none
   border-radius: var(--radius);
   background: var(--sl-color-bg);
   overflow: hidden;
+  /* Stays in view while you work the controls and watch the graph. */
+  position: sticky;
+  top: calc(var(--sl-nav-height) + 0.5rem);
+  z-index: 2;
+  box-shadow: 0 6px 16px -8px rgba(0, 0, 0, 0.45);
 }
 .lf-coach > header { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 0.5rem 0.8rem; border-bottom: 1px solid var(--sl-color-gray-5); }
 .lf-coach .who { display: inline-flex; align-items: center; gap: 0.4rem; font-size: var(--sl-text-xs); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--sl-color-text-accent); }

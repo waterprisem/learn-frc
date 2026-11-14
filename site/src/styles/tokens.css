@@ -83,7 +83,7 @@
 .path-map .track p { margin: 0 0 0.6rem; color: var(--sl-color-gray-3); font-size: var(--sl-text-sm); }
 .path-map .track ol { margin: 0; padding: 0; list-style: none; font-size: var(--sl-text-sm); }
 .path-map .track li { margin: 0; padding: 0.12rem 0; }
-.path-map .track .num { display: inline-block; min-width: 2.4em; color: var(--sl-color-gray-3); font-variant-numeric: tabular-nums; }
+.path-map .track .num { display: inline-block; min-width: 3em; color: var(--sl-color-gray-3); font-variant-numeric: tabular-nums; }
 .path-map .track a { text-decoration: none; }
 .path-map .track a:hover { text-decoration: underline; }
 .badge-new { font-size: 0.7em; border: 1px solid var(--sl-color-gray-4); border-radius: 999px; padding: 0 0.45em; margin-inline-start: 0.35em; color: var(--sl-color-gray-2); white-space: nowrap; }
