@@ -472,3 +472,18 @@ details.lf-deeper > summary svg { color: var(--sl-color-text-accent); flex: none
 .lf-wheels { width: 100%; font-size: var(--sl-text-sm); border-collapse: collapse; font-variant-numeric: tabular-nums; }
 .lf-wheels th, .lf-wheels td { padding: 0.25rem 0.5rem; text-align: start; border-bottom: 1px solid var(--sl-color-gray-5); }
 @media (max-width: 40rem) { .lf-swerve .lf-pg-top { grid-template-columns: minmax(0, 1fr); } }
+
+/* ---------- Composition builder (P14) ---------- */
+.lf-compose .lf-seg { margin-bottom: 1rem; }
+.lf-compose-knobs .lf-knob { grid-template-columns: minmax(0, 1fr) auto; }
+.lf-compose-knobs .lf-knob button { min-height: 2rem; padding-block: 0.15rem; }
+.lf-gantt { display: grid; gap: 0.35rem; margin-top: 0.5rem; }
+.lf-gantt .row { display: grid; grid-template-columns: 9rem minmax(0, 1fr); gap: 0.5rem; align-items: center; }
+.lf-gantt .name { font-size: var(--sl-text-xs); color: var(--sl-color-gray-2); }
+.lf-gantt .track { position: relative; height: 1.7rem; background: var(--sl-color-gray-6); border-radius: 4px; }
+.lf-gantt .track i { position: absolute; top: 0; bottom: 0; border-radius: 4px; font-style: normal; font-size: 0.7rem; display: flex; align-items: center; justify-content: flex-end; padding-inline: 0.4rem; color: var(--sl-color-black); white-space: nowrap; overflow: hidden; }
+.lf-gantt .finished { background: var(--ok); }
+.lf-gantt .cancelled { background: var(--danger); }
+.lf-gantt .whole { background: var(--sig-setpoint); }
+.lf-gantt .group { margin-top: 0.4rem; padding-top: 0.5rem; border-top: 1px solid var(--sl-color-gray-5); }
+@media (max-width: 34rem) { .lf-gantt .row { grid-template-columns: 6rem minmax(0, 1fr); } }

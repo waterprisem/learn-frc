@@ -29,6 +29,7 @@ import GoDeeper from '../../../components/lesson/GoDeeper.astro';
 import Checkpoint from '../../../components/lesson/Checkpoint.astro';
 import Practice from '../../../components/practice/Practice.astro';
 import AnnotatedCode from '../../../components/code/AnnotatedCode.astro';
+import CompositionBuilder from '../../../components/playgrounds/CompositionBuilder.tsx';
 
 <WhyItMatters>
 Your robot now has an elevator, an arm, and a flywheel, each with a command that moves it to a setpoint. A driver does not think "elevator, then arm, then flywheel". They think "score".
@@ -47,6 +48,10 @@ Each way answers one question: when is the group finished?
 | `Commands.deadline(main, a, b)` | `main`, `a`, `b` together | `main` ends; the others are cancelled |
 
 Pick **parallel** when the parts cannot get in each other's way. Pick **sequence** when order matters. Use **deadline** when one command is the clock and the others only need to keep running while it counts down.
+
+## Try it: combine three commands
+
+<CompositionBuilder client:visible lessonId="5.1" />
 
 ## The rule that makes it safe
 
