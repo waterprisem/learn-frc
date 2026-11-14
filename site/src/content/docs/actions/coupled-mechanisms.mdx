@@ -26,6 +26,7 @@ import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
 import RecapCard from '../../../components/lesson/RecapCard.astro';
 import Checkpoint from '../../../components/lesson/Checkpoint.astro';
 import Practice from '../../../components/practice/Practice.astro';
+import ArmPoses from '../../../components/diagrams/ArmPoses.astro';
 
 <WhyItMatters>
 The elevator code works. The arm code works. Press one button that moves both, and the arm can swing into the robot's base on the way down.
@@ -53,6 +54,8 @@ Instead of thinking about motors, think about **named poses** (also called state
 | `L3` | 0.70 | 48 |
 | `L4` | 1.08 | -20 |
 | Downward intake (faux pickup) | dips to 0.64 | -90 |
+
+<ArmPoses />
 
 Every pose is safe on its own. The danger is in the moves between them, and in the arm angles that never appear in the table above (such as -90) while the elevator is low.
 

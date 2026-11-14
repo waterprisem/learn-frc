@@ -1,0 +1,43 @@
+---
+// Lab 10 named poses: elevator height (m) and arm angle (deg, 0 = horizontal, positive = up), side view.
+const poses = [
+  { name: 'INTAKE', h: 0.0, a: -22 },
+  { name: 'HOME', h: 0.1, a: 45 },
+  { name: 'L1', h: 0.18, a: -8 },
+  { name: 'L2', h: 0.42, a: -10 },
+  { name: 'L3', h: 0.7, a: 48 },
+  { name: 'L4', h: 1.08, a: -20 },
+];
+const S = 100; // px per metre
+const L = 46; // arm length, px
+const pw = 213;
+const ph = 170;
+const cells = poses.map((p, i) => {
+  const ox = (i % 3) * pw;
+  const oy = Math.floor(i / 3) * ph;
+  const bx = ox + 60; // mast x
+  const floor = oy + ph - 30;
+  const py = floor - 14 - p.h * S; // pivot y
+  const r = (p.a * Math.PI) / 180;
+  return { ...p, ox, oy, bx, floor, py, ex: bx + L * Math.cos(r), ey: py - L * Math.sin(r), cx: ox + pw / 2 };
+});
+---
+<figure class="lf-diagram not-content">
+  <svg viewBox="0 0 640 340" role="img" aria-labelledby="ap-title ap-desc">
+    <title id="ap-title">Lab 10 named poses</title>
+    <desc id="ap-desc">Six side views of an arm on an elevator. INTAKE: elevator 0.0 m, arm -22 degrees. HOME: 0.10 m, 45 degrees. L1: 0.18 m, -8 degrees. L2: 0.42 m, -10 degrees. L3: 0.70 m, 48 degrees. L4: 1.08 m, -20 degrees.</desc>
+    {cells.map((c) => (
+      <g>
+        <text x={c.ox + 8} y={c.oy + 20} font-weight="600">{c.name}</text>
+        <text x={c.ox + 8} y={c.oy + 36} class="muted">{c.h.toFixed(2)} m, {c.a} deg</text>
+        <line class="wire" x1={c.ox + 10} y1={c.floor} x2={c.ox + pw - 14} y2={c.floor} />
+        <rect class="node" x={c.bx - 22} y={c.floor - 14} width="44" height="14" rx="3" />
+        <line class="wire" x1={c.bx} y1={c.floor - 14} x2={c.bx} y2={c.py} stroke-width="3" />
+        <line class="wire" x1={c.bx} y1={c.py} x2={c.bx + L} y2={c.py} stroke-dasharray="2 3" style="stroke: var(--sl-color-gray-4)" />
+        <line class="wire" x1={c.bx} y1={c.py} x2={c.ex} y2={c.ey} stroke-width="5" stroke-linecap="round" style="stroke: var(--sig-measurement)" />
+        <circle class="node" cx={c.bx} cy={c.py} r="5" style="stroke: var(--sig-setpoint)" />
+      </g>
+    ))}
+  </svg>
+  <figcaption>Each pose is one elevator height and one arm angle. Dotted line: horizontal, 0 deg.</figcaption>
+</figure>
