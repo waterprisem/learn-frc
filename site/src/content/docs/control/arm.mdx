@@ -29,6 +29,7 @@ import GoDeeper from '../../../components/lesson/GoDeeper.astro';
 import Checkpoint from '../../../components/lesson/Checkpoint.astro';
 import Practice from '../../../components/practice/Practice.astro';
 import AnnotatedCode from '../../../components/code/AnnotatedCode.astro';
+import ArmTuner from '../../../components/playgrounds/ArmTuner.tsx';
 
 <WhyItMatters>
 An arm that holds perfectly at its home position can sag or jump the moment it lifts, with no error message anywhere.
@@ -98,6 +99,10 @@ The rule is to convert at the edge. Everything inside the subsystem is in degree
 Some code stores angles in radians and converts to degrees for display. The rule is the same: pick one unit for inside the subsystem, put the unit in every name (`targetAngleDegrees`), and convert once at each edge.
 Never convert the same value twice.
 </GoDeeper>
+
+## Try it: the radians bug
+
+<ArmTuner client:visible lessonId="3.8" />
 
 ## Practice
 
