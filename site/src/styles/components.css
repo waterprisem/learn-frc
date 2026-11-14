@@ -487,3 +487,22 @@ details.lf-deeper > summary svg { color: var(--sl-color-text-accent); flex: none
 .lf-gantt .whole { background: var(--sig-setpoint); }
 .lf-gantt .group { margin-top: 0.4rem; padding-top: 0.5rem; border-top: 1px solid var(--sl-color-gray-5); }
 @media (max-width: 34rem) { .lf-gantt .row { grid-template-columns: 6rem minmax(0, 1fr); } }
+
+/* ---------- Safety sandbox (P15) ---------- */
+.lf-seg.six { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.lf-safety .lf-pg-top { grid-template-columns: minmax(0, 1fr) minmax(12rem, 16rem); }
+.lf-safety .lf-pg-visual svg { max-width: 16rem; }
+.lf-safety .floor { fill: var(--sl-color-gray-5); }
+.lf-safety .drive { fill: var(--sl-color-gray-4); }
+.lf-safety .rail { stroke: var(--sl-color-gray-4); stroke-width: 5; stroke-linecap: round; }
+.lf-safety .carriage { fill: var(--sig-output); }
+.lf-safety .clear { stroke: var(--warn); stroke-width: 1.5; stroke-dasharray: 5 4; }
+.lf-safety .envelope { fill: var(--sig-at-target); stroke: none; }
+.lf-safety .link { stroke: var(--sig-measurement); stroke-width: 7; stroke-linecap: round; }
+.lf-safety .link.risk { stroke: var(--danger); }
+.lf-safety .hub { fill: var(--sl-color-gray-1); }
+.lf-readout { display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; margin: 0.8rem 0; }
+.lf-readout div { display: grid; }
+.lf-readout dt { font-size: var(--sl-text-xs); color: var(--sl-color-gray-3); }
+.lf-readout dd { margin: 0; font-size: var(--sl-text-sm); font-family: var(--sl-font-mono); font-variant-numeric: tabular-nums; }
+@media (max-width: 40rem) { .lf-safety .lf-pg-top { grid-template-columns: minmax(0, 1fr); } }
