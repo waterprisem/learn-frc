@@ -89,7 +89,7 @@ this.voltage = voltage;
 The left side is the field (what the object remembers); the right side is the parameter that was just passed in. It means: remember the voltage I was given.
 
 <GoDeeper title="why subsystems hide their motors">
-If any command could talk to the motor directly, two commands could give it different voltages in the same loop. Keeping the motor private forces every request through the subsystem, where the scheduler's requirements make sure only one command at a time is in charge (lesson 2.1).
+If any command could talk to the motor directly, two commands could give it different voltages in the same loop. Keeping the motor private forces every request through the subsystem, where the scheduler's requirements make sure only one command at a time is in charge (lesson 2.4).
 </GoDeeper>
 
 ## Extends and @Override

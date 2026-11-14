@@ -1,0 +1,14 @@
+autoChooser = new SendableChooser<Command>();
+autoChooser.setDefaultOption("Do Nothing", Commands.none());
+autoChooser.addOption("Left Side Turreted 1", leftSideTurretedAuto1);
+autoChooser.addOption("Right Side Turreted 1", rightSideTurretedAuto1);
+autoChooser.addOption("Middle Preload Turreted 1", middleTurretedAuto1);
+autoChooser.addOption("Triple Offensive T-T-T", tripleOffenseAutoTTT);
+autoChooser.addOption("Triple Offensive T-T-B", tripleOffenseAutoTTB);
+autoChooser.addOption("Triple Offensive T-B-T", tripleOffenseAutoTBT);
+autoChooser.addOption("Triple Offensive T-B-B", tripleOffenseAutoTBB);
+autoChooser.addOption("Triple Offensive B-T-T", tripleOffenseAutoBTT);
+autoChooser.addOption("Triple Offensive B-T-B", tripleOffenseAutoBTB);
+autoChooser.addOption("Triple Offensive B-B-T", tripleOffenseAutoBBT);
+autoChooser.addOption("Triple Offensive B-B-B", tripleOffenseAutoBBB);
+SmartDashboard.putData("Auto Chooser", autoChooser);

@@ -12,19 +12,19 @@ items:
     explain: "Open loop means the output never depends on the result. The other choices all use a sensor reading to decide what to do next."
   - type: read-graph
     preset: "flywheel:no-feedback+load"
-    prompt: "A load is added while the wheel holds its target. What does the graph show?"
+    prompt: "This flywheel runs open loop, and a load is dragging on it. What does the graph show?"
     choices:
       - "The voltage rises to bring the speed back"
-      - "The speed drops and the voltage stays flat"
-      - "Both the speed and the voltage drop"
+      - "The speed settles below the target and the voltage stays flat"
+      - "The voltage swings up and down around the target"
       - "The speed stays on target"
     answer: 1
     explain: "With no feedback the code never sees the drop, so it keeps sending the same voltage. The common wrong idea is that the motor compensates by itself. It does not."
   - type: predict-graph
-    prompt: "A closed-loop controller is holding 40 RPS and a load is added. Which graph will you see?"
-    presets: ["flywheel:no-feedback+load", "flywheel:tuned+load", "flywheel:p-only"]
+    prompt: "A closed-loop controller with far too much correction is asked to hold 40 RPS. Which graph will you see?"
+    presets: ["flywheel:no-feedback", "flywheel:kp-high", "flywheel:zero"]
     answer: 1
-    explain: "A closed loop sees the speed fall, raises the voltage, and brings the speed back near the target. Graph A is the open-loop result: speed drops, voltage flat."
+    explain: "Closing the loop means the voltage reacts to the measured speed. With too much reaction it overshoots in both directions, so the velocity keeps crossing the target and the voltage swings. Graph A is open loop with a good prediction (flat voltage), and in Graph C nothing is commanded at all."
   - type: symptom-cause
     prompt: "What is the most likely cause?"
     symptom: "A shooter sends the same voltage every shot. Early in the match it launches well. Late in the match, with a tired battery, shots fall short."

@@ -601,3 +601,78 @@ wpilog:
   short: The log file format WPILib writes; AdvantageScope opens it with File, Open Log(s).
   lessons:
     - R.3
+statement:
+  term: Statement
+  short: One instruction in Java, ending with a semicolon.
+  lessons:
+    - "0.2"
+variable:
+  term: Variable
+  short: A named box that holds one value of a given type, such as a double or an int.
+  lessons:
+    - "0.2"
+type:
+  term: Type
+  short: What kind of value a variable holds - double, int, boolean, String.
+  lessons:
+    - "0.2"
+method:
+  term: Method
+  short: A named group of statements you run by calling its name, optionally with inputs and a returned answer.
+  lessons:
+    - "0.2"
+camel-case:
+  term: camelCase
+  short: Naming style with a lowercase first word and capitalized later words, like targetRPS.
+  lessons:
+    - "0.2"
+class:
+  term: Class
+  short: A blueprint that describes the fields and methods of one kind of object.
+  lessons:
+    - "0.3"
+object:
+  term: Object
+  short: One real thing built from a class with new, such as one TalonFX.
+  lessons:
+    - "0.3"
+field:
+  term: Field
+  short: A variable that belongs to an object and holds what it remembers.
+  lessons:
+    - "0.3"
+override:
+  term: "@Override"
+  short: Marks a method that replaces one the parent class defines; the compiler checks the name matches.
+  lessons:
+    - "0.3"
+interface:
+  term: Interface
+  short: A list of methods a class promises to have.
+  lessons:
+    - "0.3"
+lambda:
+  term: Lambda
+  short: A small unnamed function written as () -> expression, handed over to run later.
+  lessons:
+    - "0.5"
+supplier:
+  term: Supplier
+  short: A lambda that gives back a value when asked (BooleanSupplier, DoubleSupplier, Supplier of T).
+  lessons:
+    - "0.5"
+runnable:
+  term: Runnable
+  short: A lambda that returns nothing and just does an action when called, like the code in Commands.runOnce.
+  lessons:
+    - "0.5"
+method-reference:
+  term: Method reference
+  short: A shorter spelling of a lambda that only calls one method, written object::method with no parentheses.
+  lessons:
+    - "0.5"
+effectively-final:
+  term: Effectively final
+  short: A local variable that never changes after being set. Lambdas may only use local variables like that.
+  lessons:
+    - "0.5"

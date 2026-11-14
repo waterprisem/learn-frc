@@ -304,5 +304,23 @@
     "from": "labs/Session 11 - Mini Scorer Challenge/solution/src/main/java/frc/robot/commands/SuperstructureCommands.java",
     "start": 49,
     "end": 59
+  },
+  {
+    "id": "lab3-0.2/methods",
+    "from": "labs/Session 3 - Open-Loop Flywheel with TalonFX/solution/src/main/java/frc/robot/subsystems/FlywheelSubsystem.java",
+    "start": 57,
+    "end": 63
+  },
+  {
+    "id": "lab3-0.3/subsystem-methods",
+    "from": "labs/Session 3 - Open-Loop Flywheel with TalonFX/solution/src/main/java/frc/robot/subsystems/FlywheelSubsystem.java",
+    "start": 57,
+    "end": 73
+  },
+  {
+    "id": "lab3-0.3/command",
+    "from": "labs/Session 3 - Open-Loop Flywheel with TalonFX/solution/src/main/java/frc/robot/commands/SetFlywheelVoltageCommand.java",
+    "start": 11,
+    "end": 27
   }
 ]

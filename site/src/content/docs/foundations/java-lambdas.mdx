@@ -5,16 +5,180 @@ id: "0.5"
 track: "foundations"
 session: null
 isNew: true
-status: stub
+minutes: 25
+prereqs: ["0.2", "0.3", "0.4"]
+outcomes:
+  - Explain why a command needs "a value to read later" instead of a value now
+  - Read and write a lambda, and tell a Supplier from a Runnable
+  - Spot the bug in drive(controller.getLeftY()) and fix it with a lambda
+  - Say why Lab 10 wraps a number in a one-item array
+sources:
+  - curriculum: "labs/Session 11 - Mini Scorer Challenge/solution/src/main/java/frc/robot/RobotContainer.java"
+  - curriculum: "labs/Session 11 - Mini Scorer Challenge/solution/src/main/java/frc/robot/commands/SuperstructureCommands.java"
+  - curriculum: "labs/Session 10 - Arm on Elevator Safety and Coordination/solution/src/main/java/frc/robot/RobotContainer.java"
+  - doc: "https://docs.oracle.com/javase/tutorial/java/javaOO/lambdaexpressions.html"
+status: review
 sidebar:
   label: "0.5 Java IV: lambdas and suppliers"
   order: 5
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
+import AnnotatedCode from '../../../components/code/AnnotatedCode.astro';
 
-**What it will cover:** Lambdas, suppliers, method references, and the "effectively final" rule.
+<WhyItMatters>
+Robot code is set up once, but the robot runs for minutes. A joystick value, a "ready" flag, or a button action has to be read or run later, many times, and not once at startup.
+Lambdas are how Java hands over "a thing to do later," and the team's code uses them on almost every line of `RobotContainer`.
+</WhyItMatters>
 
-This lesson goes beyond the Orbit Robotics curriculum.
+## The problem: now versus later
+
+The code that connects buttons to commands runs **once**, when the robot program starts. The driver moves the stick **after** that.
+So you often cannot pass a value. You must pass a way to **get** the value when it is needed, or a way to **do** the thing when it is needed.
+
+## A lambda is a small unnamed function
+
+A **lambda** is a function with no name, written as `() -> expression`. The empty parentheses are its inputs (none here), the arrow points at what it does or gives back.
+
+```java
+public final Trigger flywheelAtTarget = new Trigger(() -> flywheelAtVelocity);
+```
+
+This is a real line from the flywheel subsystem. The `Trigger` is handed the little function `() -> flywheelAtVelocity`, and it calls it every loop to ask "is the flywheel ready yet?"
+The code inside runs later, each time someone calls it, and not on this line.
+
+## Suppliers: ask me later, I will give you a value
+
+A **supplier** is a lambda that returns a value when asked. The common ones are named for what they return:
+
+| Type | Returns | Ask with |
+|---|---|---|
+| `BooleanSupplier` | true or false | `getAsBoolean()` |
+| `DoubleSupplier` | a decimal number | `getAsDouble()` |
+| `Supplier<Double>` | any one type (the angle brackets, lesson 0.4) | `get()` |
+
+Lab 11 passes the active side into a command as a `BooleanSupplier`, and the command asks it when it needs to know:
+
+```java
+SuperstructureCommands.intake(elevatorSubsystem, armSubsystem, flywheelSubsystem, () -> isFrontIntake)
+```
+
+```java
+double burstVoltage = isFrontSideSupplier.getAsBoolean() ? RAPID_FIRE_BURST_VOLTAGE : -RAPID_FIRE_BURST_VOLTAGE;
+```
+
+On the robot, this lets the operator flip sides mid-match and the very next burst goes the other way.
+
+## Runnables: do this later
+
+A **Runnable** is a lambda that returns nothing. It is a "do this later" action. The command factory `Commands.runOnce` runs one when the command starts, and `Commands.run` runs one every loop.
+
+```java
+Commands.runOnce(() -> publishTransition("FAUX INTAKE", "RETURN_TO_STARTING_HEIGHT"))
+```
+
+The robot does not publish that message while the code is being set up. It publishes it at the moment this step of the sequence starts.
+
+## The pitfall: reading the stick once
+
+Say a drive command needs the forward speed. Here is a made-up example (the `DoubleSupplier` version is what real drive commands use):
+
+```java
+// BUG: reads the stick one time, at startup
+driveCommand(controller.getLeftY());
+
+// OK: reads the stick again on every loop
+driveCommand(() -> controller.getLeftY());
+```
+
+In the first line, `controller.getLeftY()` runs **now**, while the stick sits at 0. The command gets the plain number 0 and keeps it forever, so the robot never moves.
+In the second line nothing is read yet. The command holds the lambda and calls `getAsDouble()` each 20 ms loop, so it sees the stick move.
+
+**Rule of thumb:** if the value can change while the robot runs, pass a lambda. If it never changes (a constant), pass the value.
+
+## Method references: a shorter spelling
+
+When a lambda only calls one existing method, you can name the method with `::` instead.
+
+```java
+Commands.runOnce(elevatorSubsystem::resetProfiledPIDController)
+```
+
+```java
+this::isElevatorAtOrAboveSafeHeight   // same as () -> isElevatorAtOrAboveSafeHeight()
+```
+
+There are no parentheses after the method name because you are naming the method, not calling it. Use the form that reads more clearly.
+
+## Effectively final
+
+A lambda may use a **local variable** (one made inside a method) only if that variable never changes after it is set. Java calls this **effectively final**. Change it, and the code will not build:
+
+```text
+error: local variables referenced from a lambda expression must be final or effectively final
+```
+
+Lab 10 needs to remember the elevator's height at the moment a command starts, and write that number from inside a lambda. A plain `double` cannot be changed there, so the lab uses a one-item array.
+
+<AnnotatedCode
+  file="lab10-0.5/captured-height"
+  title="RobotContainer.java (Lab 10, shortened)"
+  notes={[
+    { lines: '2', text: 'The array has one slot. The variable <code>startingElevatorHeightMeters</code> never changes, because it always points at the same array. It is effectively final.' },
+    { lines: '5-9', text: 'The lambda writes a new height <em>into</em> the slot: <code>[0] = ...</code> changes the contents, not the variable. This runs when the step starts, not when the method builds the command.' },
+  ]}
+/>
+
+A later step reads that slot, still inside a lambda, which is why the height is correct by then:
+
+<AnnotatedCode
+  file="lab10-0.5/hold-captured"
+  title="RobotContainer.java (Lab 10)"
+  notes={[
+    { lines: '3-5', text: 'The first lambda reads <code>targetHeightMeters[0]</code> every loop. It sees the number stored when the lambda in the earlier step ran.' },
+    { lines: '6', text: 'The second lambda runs when the command ends and sends 0 V.' },
+  ]}
+/>
+
+Two things are always allowed: a **field** (a variable on the class, like `isFrontIntake` in the Mini Scorer) can change freely, and a **parameter you never reassign** is fine. Only a changing local variable is a problem.
+
+<AnnotatedCode
+  file="lab11-0.5/arm-default"
+  title="RobotContainer.java (Lab 11)"
+  notes={[
+    { lines: '4-10', text: 'A multi-line lambda in braces. Its code runs every loop, and it is a <code>Runnable</code> for <code>Commands.run</code>.' },
+    { lines: '6', text: '<code>isFrontIntake</code> is a field, so the arm follows a flipped side with no array. A local variable here would not compile if it changed.' },
+  ]}
+/>
+
+## Practice
+
+<Practice bank="0-5" />
+
+## Checkpoint
+
+<Checkpoint lesson="0.5">
+
+<details>
+<summary>Why does `new Trigger(() -> flywheelAtVelocity)` take a lambda and not just `flywheelAtVelocity`?</summary>
+`flywheelAtVelocity` is a true/false value that changes. Passing it directly would copy its value at construction. The lambda lets the trigger ask again every loop and see the current answer.
+</details>
+
+<details>
+<summary>What is the difference between a Supplier and a Runnable?</summary>
+A Supplier gives back a value when asked ("what is the stick position?"). A Runnable returns nothing and just does an action when called ("publish this message").
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- Setup code runs once, so pass "get it later" (a supplier) or "do it later" (a Runnable) as a lambda: `() -> expression`.
+- `controller.getLeftY()` reads once. `() -> controller.getLeftY()` reads every loop.
+- `object::method` is a shorter lambda, and a lambda can only use local variables that never change.
+- To change a number from inside a lambda, put it in a one-item array or use a field.
+</RecapCard>

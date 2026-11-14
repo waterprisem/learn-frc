@@ -1,0 +1,77 @@
+# Practice bank for lesson 0.5 (Java IV: lambdas and suppliers).
+lesson: "0.5"
+items:
+  - type: mcq
+    prompt: "Which line makes the command read the stick position again on every loop?"
+    choices:
+      - "`driveCommand(controller.getLeftY());`"
+      - "`driveCommand(() -> controller.getLeftY());`"
+      - "`double y = controller.getLeftY(); driveCommand(y);`"
+      - "`driveCommand(controller);`"
+    answer: 1
+    explain: "Only the lambda delays the read. The other forms that call `getLeftY()` read it one time at startup and hand over a plain number that never changes."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "The drive command was written as `driveCommand(controller.getLeftY())`. The robot compiles, deploys, and sits still no matter how far you push the stick."
+    choices:
+      - "The stick was read once at startup (value 0), and the command kept that number."
+      - "The stick is inverted, so every value is negative."
+      - "The loop runs too slowly to see the stick."
+      - "The lambda is missing a semicolon."
+    answer: 0
+    explain: "The value was read when the program set up the button, while the stick rested at 0. The fix is a `DoubleSupplier` lambda so each loop re-reads it. An inverted stick would still move the robot, only backwards."
+  - type: fill-blank
+    prompt: "Finish the trigger so it asks the flag every loop."
+    code: |
+      new Trigger(____ flywheelAtVelocity);
+    blanks:
+      - ["() ->", "()->"]
+    explain: "A lambda is `() -> expression`: the parentheses are the (empty) inputs and the arrow points to what it gives back."
+  - type: mcq
+    prompt: "A command needs to ask \"is the front side active?\" at any moment. Which type should its parameter be?"
+    choices:
+      - "`Runnable`"
+      - "`BooleanSupplier`"
+      - "`DoubleSupplier`"
+      - "`boolean`"
+    answer: 1
+    explain: "A `BooleanSupplier` answers true or false when asked with `getAsBoolean()`. A `Runnable` returns nothing, a `DoubleSupplier` gives a number, and a plain `boolean` is frozen at the moment it is passed in."
+  - type: bug-hunt
+    prompt: "This code does not compile with \"local variables referenced from a lambda expression must be final or effectively final\". Click the line that causes it."
+    code: |
+      private Command remember() {
+        double startHeightMeters = 0.0;
+        return Commands.runOnce(
+            () -> {
+              startHeightMeters = elevator.getElevatorHeightMeters();
+            });
+      }
+    bugLine: 5
+    explain: "A lambda cannot change a local variable. The fix is a one-item array, `double[] startHeightMeters = new double[1];` and then `startHeightMeters[0] = ...`. The array variable itself never changes."
+  - type: parsons
+    prompt: "Put these lines in order to remember a height inside a lambda and read it later."
+    lines:
+      - "double[] heightMeters = new double[1];"
+      - "Commands.runOnce(() -> heightMeters[0] = elevator.getElevatorHeightMeters());"
+      - "Commands.run(() -> elevator.setElevatorVoltage(elevator.closedLoopCalculate(heightMeters[0])));"
+    distractors:
+      - "double heightMeters = 0.0;"
+    explain: "The array is created first as the shared box. One step writes into it and a later step reads from it. A plain `double` would fail the effectively final rule."
+  - type: mcq
+    prompt: "`Commands.runOnce(elevatorSubsystem::resetProfiledPIDController)` is a method reference. What does it mean?"
+    choices:
+      - "The same as `Commands.runOnce(() -> elevatorSubsystem.resetProfiledPIDController())`."
+      - "Call the method right now and pass the result."
+      - "Create a copy of the elevator subsystem."
+      - "Run the method every loop forever."
+    answer: 0
+    explain: "`::` names the method without calling it, so there are no parentheses. It is a shorter spelling of the lambda. It runs once because `runOnce` runs it once, not because of `::`."
+  - type: mcq
+    prompt: "`isFrontIntake` is a field of `RobotContainer` and changes when the operator flips sides. Why can a lambda like `() -> isFrontIntake` still use it?"
+    choices:
+      - "Fields are not local variables, so the effectively final rule does not apply to them."
+      - "Because `isFrontIntake` is secretly final."
+      - "Because a `BooleanSupplier` copies it at startup."
+      - "It cannot. This code would not compile."
+    answer: 0
+    explain: "The rule covers only local variables. A field lives on the object and can change at any time, so the lambda sees the latest value each time it runs."
