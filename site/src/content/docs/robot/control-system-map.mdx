@@ -5,16 +5,82 @@ id: "1.2"
 track: "robot"
 session: 1
 isNew: true
-status: stub
+minutes: 20
+prereqs: ["1.1"]
+outcomes:
+  - Trace the power path from the battery to any device
+  - Trace the CAN chain from the roboRIO to its last device
+  - Explain how a button press on the laptop reaches the roboRIO
+  - Predict what stops working when one wire breaks
+sources:
+  - curriculum: "presentations/Session 1 - Ground Zero - Robot Hardware, Systems, and Programming Philosophy/raw_data/slides.md"
+  - doc: "https://docs.wpilib.org/en/stable/docs/zero-to-robot/step-1/intro-to-frc-robot-wiring.html"
+status: review
 sidebar:
   label: "1.2 The control-system map"
   order: 2
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import GoDeeper from '../../../components/lesson/GoDeeper.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
+import ControlSystemMap from '../../../components/playgrounds/ControlSystemMap.tsx';
 
-**What it will cover:** One wiring diagram with power, CAN, network, and sensor layers you can switch on and off.
+<WhyItMatters>
+"The elevator doesn't move" could be your code, a dead motor, or one unplugged cable.
+If you can picture how every part connects, you can tell which of those it is from the symptoms, often without opening the code.
+</WhyItMatters>
 
-Based on Session 1 of the Orbit Robotics curriculum.
+## Four kinds of connection
+
+A device can be wired in up to four ways. Each one carries something different.
+
+| Layer | Carries | Shape |
+|---|---|---|
+| **Power** | Electricity from the battery | A tree: battery → main breaker → PDH → one channel per device |
+| **CAN** | Commands to devices and readings back | A chain: roboRIO → device → device → … → PDH |
+| **Network** | Driver input, enable and disable, camera results | roboRIO ↔ radio ↔ laptop |
+| **DIO / USB** | One simple signal per cable | A switch straight into the roboRIO; a controller into the laptop |
+
+A motor needs two of these to work: **power** to move and **CAN** to be told what to do. Lose either one and it sits still, but for different reasons.
+
+## Try it: break a wire
+
+This is a small robot: two motors, three sensors, and a camera. Turn on **Break a wire** and work out what will fail before you select each ✕.
+
+<ControlSystemMap client:visible lessonId="1.2" />
+
+<GoDeeper title="why the CAN chain says 120 Ω at both ends">
+A CAN bus needs a 120 ohm resistor at each end to stop signals reflecting back down the wire. The roboRIO has one built in and so does the PDH, which is why the chain usually starts at one and ends at the other. Lesson 1.5 covers this.
+</GoDeeper>
+
+## Practice
+
+<Practice bank="1-2" />
+
+## Checkpoint
+
+<Checkpoint lesson="1.2">
+
+<details>
+<summary>Without looking at the map, trace the power path from the battery to a motor.</summary>
+Battery → 120 A main breaker → PDH → that motor's own channel (protected by a breaker) → the motor.
+</details>
+
+<details>
+<summary>The driver presses a button. Which connections does that signal cross before the code sees it?</summary>
+USB from the controller to the laptop, Wi-Fi from the laptop to the radio, then Ethernet from the radio to the roboRIO.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- Power is a tree that starts at the battery. CAN is a chain that starts at the roboRIO.
+- The laptop reaches the roboRIO through the radio. Nothing else links the drivers to the robot.
+- A broken power wire turns one device off. A broken CAN wire cuts off every device after the break.
+- Symptoms tell you the layer: no lights means power, lights but no response means CAN or code.
+</RecapCard>

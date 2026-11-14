@@ -1,0 +1,53 @@
+---
+// Inside a Kraken X60: code talks to the TalonFX controller over CAN; the controller drives the motor and reports back.
+---
+<figure class="lf-diagram not-content">
+  <svg viewBox="0 0 640 230" role="img" aria-labelledby="kc-title kc-desc">
+    <title id="kc-title">Inside a Kraken X60</title>
+    <desc id="kc-desc">Your code sends a request over CAN to the TalonFX controller inside the motor housing. The controller switches battery power into the motor's three phases, the shaft turns, and a built-in sensor reports position and velocity back over CAN.</desc>
+    <defs>
+      <marker id="kc-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0 0L10 5L0 10z" fill="context-stroke" />
+      </marker>
+    </defs>
+
+    <rect class="node" x="8" y="36" width="130" height="52" rx="6" />
+    <text x="73" y="58" text-anchor="middle">Your code</text>
+    <text x="73" y="75" text-anchor="middle" class="muted">on the roboRIO</text>
+
+    <rect class="node" x="8" y="150" width="130" height="52" rx="6" />
+    <text x="73" y="172" text-anchor="middle">Battery</text>
+    <text x="73" y="189" text-anchor="middle" class="muted">through the PDH</text>
+
+    <!-- The motor housing holds both the controller and the motor -->
+    <rect class="node" x="226" y="14" width="330" height="204" rx="14" stroke-dasharray="5 4" />
+    <text x="391" y="34" text-anchor="middle" class="muted">Kraken X60 housing</text>
+
+    <rect class="node" x="246" y="50" width="130" height="150" rx="6" />
+    <text x="311" y="112" text-anchor="middle">TalonFX</text>
+    <text x="311" y="129" text-anchor="middle" class="muted">controller</text>
+    <text x="311" y="146" text-anchor="middle" class="muted">+ rotor sensor</text>
+
+    <circle class="node" cx="482" cy="125" r="52" />
+    <text x="482" y="121" text-anchor="middle">Motor</text>
+    <text x="482" y="138" text-anchor="middle" class="muted">3 phases</text>
+
+    <!-- request down, readings back -->
+    <path class="wire" style="stroke: var(--layer-can)" stroke-dasharray="9 4" stroke-width="2" d="M138 54H244" marker-end="url(#kc-arrow)" />
+    <text x="191" y="46" text-anchor="middle" class="muted">request</text>
+    <path class="wire" style="stroke: var(--layer-can)" stroke-dasharray="9 4" stroke-width="2" d="M246 78H140" marker-end="url(#kc-arrow)" />
+    <text x="191" y="96" text-anchor="middle" class="muted">position, velocity</text>
+    <text x="191" y="111" text-anchor="middle" class="muted">(CAN)</text>
+
+    <path class="wire" style="stroke: var(--layer-power)" stroke-width="3" d="M138 176H244" marker-end="url(#kc-arrow)" />
+    <text x="191" y="168" text-anchor="middle" class="muted">12 V power</text>
+
+    <path class="wire" d="M376 105H428" marker-end="url(#kc-arrow)" />
+    <path class="wire" d="M376 125H428" marker-end="url(#kc-arrow)" />
+    <path class="wire" d="M376 145H428" marker-end="url(#kc-arrow)" />
+
+    <path class="wire" stroke-width="5" d="M534 125H622" />
+    <text x="592" y="113" text-anchor="middle" class="muted">shaft</text>
+  </svg>
+  <figcaption>The controller sits between your code and the motor. Code never switches the motor's power itself.</figcaption>
+</figure>

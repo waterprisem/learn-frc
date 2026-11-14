@@ -5,16 +5,112 @@ id: "1.4"
 track: "robot"
 session: 1
 isNew: false
-status: stub
+minutes: 15
+prereqs: ["1.3"]
+outcomes:
+  - Explain why your code talks to a motor controller and never to the motor
+  - Choose coast or brake for a mechanism and say what each does at 0 output
+  - Explain what a current limit protects against
+  - Recognize REV NEO, SPARK MAX and Falcon 500 hardware
+sources:
+  - curriculum: "presentations/Session 1 - Ground Zero - Robot Hardware, Systems, and Programming Philosophy/raw_data/slides.md"
+  - curriculum: "presentations/Session 3 - Open-Loop Flywheel with TalonFX/raw_data/slides.md"
+  - doc: "https://v6.docs.ctr-electronics.com/en/stable/"
+status: review
 sidebar:
   label: "1.4 Motors and motor controllers"
   order: 4
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import GoDeeper from '../../../components/lesson/GoDeeper.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
+import ComponentCard from '../../../components/hardware/ComponentCard.tsx';
+import KrakenCutaway from '../../../components/diagrams/KrakenCutaway.astro';
 
-**What it will cover:** Brushless motors, the TalonFX/Kraken, coast vs brake, current limits, and recognizing REV hardware.
+<WhyItMatters>
+Release the button on a shooter wheel and it keeps spinning for several seconds. Release it on an arm and the arm sags.
+Both behaviors come from one setting in the motor controller, and you choose it in code.
+</WhyItMatters>
 
-Based on Session 1 of the Orbit Robotics curriculum.
+## Your code talks to a controller, never to the motor
+
+A **motor controller** sits between your code and the motor. It receives a request over CAN (a voltage, a velocity or a position), switches battery power into the motor, and reports sensor data back.
+
+Modern FRC motors are **brushless**. They have no moving electrical contacts, so electronics must switch power into the motor's windings in the right order as the shaft turns. That is the controller's job, and you never do it yourself.
+
+The **Kraken X60** has its controller, a **TalonFX**, built into the housing. In code it is one object: `new TalonFX(canId)`.
+
+<KrakenCutaway />
+
+<ComponentCard id="kraken" />
+
+<GoDeeper title="what brushless means">
+A brushless motor is driven with three-phase power: three wires, each switched on and off in a repeating pattern. The controller uses the rotor's position to time each switch.
+This lesson does not need the math. You only need to know that the controller does it.
+</GoDeeper>
+
+## Coast or brake
+
+When your code commands 0 output, the motor does one of two things. This is its **neutral mode**.
+
+- **Coast:** the controller lets the motor spin freely. A flywheel keeps turning and slows down gradually.
+- **Brake:** the controller connects the motor's windings together, so the motor resists being turned.
+
+Pick coast for a flywheel, because braking would waste time between shots. Pick brake for an arm, an elevator or a drivetrain, because you want them to stop and stay put.
+
+Brake does not lock anything in place. It only resists motion, so an arm in brake mode can still sag slowly under gravity.
+
+You set it once, when the subsystem is created:
+
+```java
+config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+```
+
+Which direction counts as positive is also a setting (`InvertedValue`), so you can fix a backwards motor in configuration instead of rewiring.
+
+## Current limits
+
+**Current** is how much electric charge flows per second, measured in amps (A). A stalled Kraken, one forced to stop while powered, can draw over 300 A. A **current limit** in the controller's configuration caps that, protecting the motor and the mechanism. Lesson 1.3 covered why the battery and wiring need protecting too.
+
+## Recognizing other hardware
+
+You will see other motors in the pits. This team's labs all use TalonFX, so you only need to recognize them.
+
+| Hardware | What it is | In code |
+| --- | --- | --- |
+| NEO, NEO Vortex | REV brushless motors | `SparkMax` / `SparkFlex` |
+| SPARK MAX, SPARK Flex | Separate controller boxes wired to the NEO and NEO Vortex | REVLib |
+| Falcon 500 | Older CTRE motor with a TalonFX built in | `TalonFX` |
+
+## Practice
+
+<Practice bank="1-4" />
+
+## Checkpoint
+
+<Checkpoint lesson="1.4">
+
+<details>
+<summary>Why does your code never talk to the motor directly?</summary>
+The motor needs electronics to switch its power, and the motor controller does that. Your code sends the controller a request over CAN.
+</details>
+
+<details>
+<summary>Which neutral mode would you pick for an arm, and what are its limits?</summary>
+Brake, so the arm resists motion when output is 0. It does not hold the arm in place, so gravity can still pull it down slowly.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- Your code sends requests to the motor controller over CAN. It never drives the motor.
+- The Kraken X60 has a TalonFX controller and a rotor sensor built in.
+- Coast spins down freely (flywheels). Brake resists motion (arms, elevators, drivetrains) but does not lock.
+- A current limit caps the amps a stalled motor can draw.
+- NEO and NEO Vortex use separate SPARK controllers. The Falcon 500 is an older TalonFX motor.
+</RecapCard>

@@ -5,16 +5,107 @@ id: "1.3"
 track: "robot"
 session: 1
 isNew: false
-status: stub
+minutes: 20
+prereqs: ["1.2"]
+outcomes:
+  - Trace power from the battery to a motor
+  - Explain why battery voltage drops when current rises
+  - Describe what a brownout is and what causes one
+  - Tell apart software current limits and breakers or fuses
+sources:
+  - curriculum: "presentations/Session 1 - Ground Zero - Robot Hardware, Systems, and Programming Philosophy/raw_data/slides.md"
+  - curriculum: "labs/Session 3 - Phoenix 6 Open-Loop Flywheel/LAB_MANUAL.md"
+  - doc: "https://docs.wpilib.org/en/stable/docs/hardware/hardware-basics/robot-battery.html"
+status: review
 sidebar:
   label: "1.3 Power: battery, breaker, PDH"
   order: 3
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
+import ComponentCard from '../../../components/hardware/ComponentCard.tsx';
+import BrownoutDemo from '../../../components/playgrounds/BrownoutDemo.tsx';
 
-**What it will cover:** The battery, main breaker, power distribution, fuses, current draw, and brownouts.
+<WhyItMatters>
+Your robot is pushing another robot when it suddenly stutters, and the driver loses control for a moment. Nothing is broken.
+The robot ran short of electrical power and shut its motors off to protect itself. Knowing how power flows tells you how to prevent it.
+</WhyItMatters>
 
-Based on Session 1 of the Orbit Robotics curriculum.
+## The power path
+
+Everything on the robot is powered by one battery. Power flows in one direction through three devices:
+battery, then the main breaker, then the power distribution hub, which gives each device its own protected channel.
+
+<ComponentCard id="battery" />
+
+<ComponentCard id="breaker" />
+
+<ComponentCard id="pdh" />
+
+The order matters. The breaker protects the whole robot. Each channel protects one wire, so one shorted device does not take down the rest.
+
+## Voltage sags under load
+
+A battery is not a perfect 12 V source. It has **internal resistance**, a small resistance inside the battery itself. Current flowing through it wastes some voltage, so the voltage you actually get drops as current rises:
+
+`battery voltage ≈ resting voltage − current × internal resistance`
+
+The internal resistance is about 0.02 Ω (ohms). At 200 A, that costs about 4 V, so a 12.7 V battery delivers only about 8.7 V. This drop is called **voltage sag**.
+
+If the voltage falls too far, the roboRIO has a safety rule. A **brownout** happens when the roboRIO sees less than 6.75 V (6.3 V on the original roboRIO). It then disables motor outputs to protect itself.
+With the motors off, the current falls, the voltage recovers, and the motors come back. If the demand is still there, it repeats, and the robot stutters.
+
+## Try it: cause a brownout
+
+The robot below is about to push against a wall. Each motor draws up to its current limit while it pushes.
+
+<BrownoutDemo client:visible lessonId="1.3" />
+
+## Two kinds of protection
+
+Brownouts come from asking for too much current. Two layers of protection limit that, and they guard different things.
+
+- **Software current limits** are set in your code. They protect the motor from heat and keep the battery voltage up.
+- **Breakers and fuses** are hardware. They protect the wiring, and they only act after a wire is already carrying too much.
+
+A Kraken X60 motor can draw over 300 A if it stalls with no limit. Phoenix 6 has two limits. The **stator limit** caps the current inside the motor, which sets its force. The **supply limit** caps the current drawn from the battery side, which controls total robot power draw. Setting a value does nothing until you also enable it:
+
+```java
+new CurrentLimitsConfigs()
+    .withSupplyCurrentLimit(FlywheelConstants.FLYWHEEL_SUPPLY_CURRENT_LIMIT_AMPS)
+    .withSupplyCurrentLimitEnable(true);
+```
+
+The numbers in the lab are examples. A real mechanism needs limits chosen for its motor, gearbox and load.
+
+## Practice
+
+<Practice bank="1-3" />
+
+## Checkpoint
+
+<Checkpoint lesson="1.3">
+
+<details>
+<summary>Why does a robot's battery voltage drop when many motors run hard?</summary>
+The battery has internal resistance. More current means more voltage lost inside the battery, so less reaches the robot.
+</details>
+
+<details>
+<summary>What is the difference between a software current limit and a PDH breaker?</summary>
+A software limit protects the motor and keeps battery voltage up. A breaker or fuse protects the wiring from overheating.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- Power flows from the battery through the 120 A main breaker and the PDH to each device.
+- Voltage sag: battery voltage ≈ resting voltage − current × internal resistance.
+- A brownout (below 6.75 V on the roboRIO 2) shuts off motor outputs until the voltage recovers.
+- Current limits in code protect motors and voltage. Breakers and fuses protect wiring.
+</RecapCard>

@@ -271,3 +271,109 @@ details.lf-deeper > summary svg { color: var(--sl-color-text-accent); flex: none
 .lf-tip > button:hover, .lf-tip > button[aria-expanded='true'] { color: var(--sl-color-text-accent); background: var(--sl-color-bg-sidebar); }
 .lf-tip > [role='note'] { position: absolute; z-index: 5; top: calc(100% + 0.3rem); inset-inline-start: 0; width: min(18rem, 70vw); padding: 0.6rem 0.75rem; border-radius: calc(var(--radius) * 0.75); border: 1px solid var(--sl-color-gray-4); background: var(--sl-color-bg); box-shadow: 0 8px 20px -10px rgba(0, 0, 0, 0.5); font-size: var(--sl-text-sm); font-weight: 400; color: var(--sl-color-gray-2); }
 .lf-coach h4 { display: flex; align-items: center; gap: 0.25rem; }
+
+/* ---------- Component card (one hardware device) ---------- */
+.lf-card { border: 1px solid var(--sl-color-gray-5); border-radius: var(--radius); padding: 0.9rem 1rem; margin: 1rem 0; background: var(--sl-color-bg-sidebar); font-size: var(--sl-text-sm); }
+.lf-playground .lf-card { background: var(--sl-color-bg); margin: 0; }
+.lf-card header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.4rem 0.75rem; }
+.lf-card h4 { margin: 0; font-size: var(--sl-text-base); color: var(--sl-color-white); }
+.lf-card .chips { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+.lf-chip { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.05rem 0.5rem; border: 1px solid var(--sl-color-gray-5); border-radius: 999px; font-size: var(--sl-text-xs); color: var(--sl-color-gray-2); white-space: nowrap; }
+.lf-card p { margin: 0.5rem 0; }
+.lf-card dl { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 0.35rem 0.9rem; margin: 0; }
+.lf-card dt { font-weight: 600; color: var(--sl-color-gray-2); white-space: nowrap; }
+.lf-card dd { margin: 0; }
+.lf-card ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 0.25rem; }
+.lf-card code { background: var(--sl-color-bg-inline-code); padding: 0.1em 0.3em; border-radius: 0.25em; font-size: 0.9em; overflow-wrap: anywhere; }
+.lf-card > a { display: inline-flex; align-items: center; gap: 0.3rem; margin-top: 0.6rem; font-weight: 600; text-decoration: none; }
+.lf-card > a:hover { text-decoration: underline; }
+
+/* ---------- Things to try (playground checklist) ---------- */
+.lf-tasks { list-style: none; margin: 0 0 0.9rem; padding: 0 0 0.8rem; display: grid; gap: 0.3rem; border-bottom: 1px solid var(--sl-color-gray-5); font-size: var(--sl-text-sm); }
+.lf-tasks li { display: flex; align-items: center; gap: 0.5rem; }
+.lf-tasks svg { flex: none; color: var(--sl-color-gray-3); }
+.lf-tasks li.done { color: var(--sl-color-gray-3); }
+.lf-tasks li.done svg { color: var(--ok); }
+
+/* ---------- Shared by the hardware playgrounds ---------- */
+.lf-pg-bar.head { margin: 0 0 0.75rem; }
+.lf-seg.two { grid-template-columns: repeat(2, minmax(0, auto)); }
+.lf-seg.two button { padding-inline: 0.9rem; }
+.lf-playground svg text { fill: var(--sl-color-white); font-size: 13px; font-family: var(--sl-font); }
+.lf-playground svg text.muted { fill: var(--sl-color-gray-3); font-size: 11.5px; }
+.lf-playground [role='button'] { cursor: pointer; outline-offset: 3px; }
+.lf-playground output { font-size: var(--sl-text-sm); font-variant-numeric: tabular-nums; min-width: 3.5em; text-align: end; color: var(--sl-color-white); }
+.lf-playground p.lf-feedback { margin: 0.75rem 0 0; }
+.lf-playground .lf-feedback svg { vertical-align: -0.2em; margin-inline-end: 0.3rem; }
+
+/* ---------- Robot tour ---------- */
+.lf-tour .split { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 1rem; align-items: start; }
+@media (max-width: 50rem) { .lf-tour .split { grid-template-columns: 1fr; } }
+.lf-tour .split > svg { width: 100%; height: auto; display: block; }
+.lf-tour .bumper { fill: none; stroke: var(--sl-color-gray-4); stroke-width: 10; }
+.lf-tour .frame { fill: var(--sl-color-bg); stroke: var(--sl-color-gray-4); stroke-width: 1.5; }
+.lf-tour .deco rect { fill: none; stroke: var(--sl-color-gray-4); stroke-width: 1.5; }
+.lf-tour .part > :first-child { fill: var(--sl-color-bg-sidebar); stroke: var(--sl-color-gray-2); stroke-width: 1.5; transition: fill var(--ease), stroke var(--ease); }
+.lf-tour .part:hover > :first-child { stroke: var(--sl-color-text-accent); }
+.lf-tour .part.sel > :first-child { stroke: var(--sl-color-text-accent); stroke-width: 3; fill: var(--sl-color-accent-low); }
+.lf-tour .part.found > :first-child { stroke: var(--ok); }
+.lf-tour .part.miss > :first-child { stroke: var(--danger); stroke-dasharray: 5 3; }
+.lf-tour .part text { pointer-events: none; font-size: 12px; }
+.lf-tour .quest { display: flex; align-items: flex-start; gap: 0.4rem; margin: 0 0 0.75rem; }
+.lf-tour .quest svg { flex: none; margin-top: 0.2rem; }
+.lf-tour .quest .ok { color: var(--ok); }
+.lf-tour .quest .warn { color: var(--warn); }
+.lf-tour .empty { margin: 0; color: var(--sl-color-gray-3); font-size: var(--sl-text-sm); }
+
+/* ---------- Control-system map ---------- */
+.lf-map .layers { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.lf-map .layers button { padding: 0.2rem 0.35rem; }
+.lf-map .layers button[aria-pressed='false'] { opacity: 0.45; }
+.lf-map .layers .lf-chip { border: 0; color: inherit; font-size: var(--sl-text-sm); }
+.lf-map .scroll { overflow-x: auto; }
+.lf-map .scroll > svg { width: 100%; min-width: 36rem; height: auto; display: block; }
+.lf-map .wire path { fill: none; }
+.lf-map .wire.cut path { opacity: 0.25; }
+.lf-map .node rect { fill: var(--sl-color-bg); stroke: var(--sl-color-gray-2); stroke-width: 1.5; }
+.lf-map .node:hover rect { stroke: var(--sl-color-text-accent); }
+.lf-map .node.sel rect { stroke: var(--sl-color-text-accent); stroke-width: 3; }
+.lf-map .node.off { opacity: 0.35; }
+.lf-map .node.lost rect { stroke: var(--danger); stroke-dasharray: 5 3; }
+.lf-map .node text { pointer-events: none; }
+.lf-map .cutter circle { fill: var(--sl-color-bg); stroke: var(--sl-color-gray-2); stroke-width: 1.5; }
+.lf-map .cutter path { stroke: var(--sl-color-gray-2); stroke-width: 1.5; }
+.lf-map .cutter:hover circle { stroke: var(--danger); }
+.lf-map .cutter.on circle { fill: var(--danger); stroke: var(--danger); }
+.lf-map .cutter.on path { stroke: var(--sl-color-black); }
+.lf-map .fault p { margin: 0.35rem 0 0; }
+.lf-map .lf-card { margin-top: 0.75rem; }
+
+/* ---------- Brownout demo ---------- */
+.lf-brownout .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: 0.25rem 1.25rem; align-items: end; }
+.lf-brownout .lf-seg { margin-bottom: 0.6rem; }
+.lf-lamp[role='status']:not(.on) span { background: var(--danger); border-color: var(--danger); }
+
+/* ---------- CAN bus simulator ---------- */
+.lf-can > svg { width: 100%; height: auto; display: block; }
+.lf-can .node, .lf-can .body { fill: var(--sl-color-bg); stroke: var(--sl-color-gray-2); stroke-width: 1.5; }
+.lf-can .bus { fill: none; stroke: var(--layer-can); stroke-width: 2; stroke-dasharray: 9 4; }
+.lf-can .rotor path { stroke: var(--sl-color-gray-3); stroke-width: 3; fill: none; }
+.lf-can .frame { fill: var(--layer-can); animation: lf-can-travel linear both; }
+@keyframes lf-can-travel { from { cx: 140px; } to { cx: 610px; } }
+.lf-can .spin .body { stroke: var(--ok); stroke-width: 3; }
+.lf-can .spin .rotor { animation: lf-spin 0.7s linear infinite; }
+.lf-can .spin .rotor path { stroke: var(--sig-measurement); }
+.lf-can .clash .body { stroke: var(--danger); stroke-width: 3; stroke-dasharray: 5 3; }
+@keyframes lf-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .lf-can .spin .rotor { animation: none; } }
+.lf-can .ids { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; margin: 0.25rem 0 0.9rem; padding-inline-start: 28%; font-size: var(--sl-text-sm); }
+.lf-can .ids label { display: grid; justify-items: center; gap: 0.2rem; }
+.lf-can input[type='number'] { width: 4rem; font: inherit; font-size: var(--sl-text-sm); font-variant-numeric: tabular-nums; color: var(--sl-color-white); background: var(--sl-color-bg); border: 1px solid var(--sl-color-gray-4); border-radius: 0.3rem; padding: 0.25rem 0.4rem; }
+.lf-can input[aria-invalid='true'] { border-color: var(--danger); }
+.lf-can .code { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+.lf-can .code pre { flex: 1 1 18rem; margin: 0; padding: 0.6rem 0.8rem; overflow-x: auto; background: var(--sl-color-bg); border: 1px solid var(--sl-color-gray-5); border-radius: calc(var(--radius) * 0.75); font-size: var(--sl-text-sm); line-height: 2; }
+.lf-can .code code { background: none; padding: 0; font-family: var(--sl-font-mono); }
+.lf-can .code pre input { width: 3.4rem; border: 0; border-bottom: 2px solid var(--sl-color-text-accent); border-radius: 0; background: var(--sl-color-bg-sidebar); }
+.lf-q .symptom { margin: 0 0 0.5rem; padding: 0.5rem 0.7rem; border-inline-start: 4px solid var(--warn); background: var(--sl-color-bg); border-radius: calc(var(--radius) * 0.75); }
+.lf-tasks li, .lf-map .layers button, .lf-seg.two button, .lf-can .ids label { margin: 0; }
+.lf-playground .lf-feedback svg { display: inline; }

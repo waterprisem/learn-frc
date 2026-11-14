@@ -1,0 +1,45 @@
+# Practice bank for lesson 1.1 (Robot tour).
+lesson: "1.1"
+items:
+  - type: mcq
+    prompt: "Where does your Java code run?"
+    choices:
+      - "On the Driver Station laptop"
+      - "On the roboRIO"
+      - "Inside each motor"
+      - "On the radio"
+    answer: 1
+    explain: "You write the code on a laptop, but you deploy it to the roboRIO, and that is where it runs. The laptop only sends the driver's input."
+  - type: multi
+    prompt: "Which of these are sensors? Select all that apply."
+    choices:
+      - "CANcoder"
+      - "Main breaker"
+      - "Limit switch"
+      - "Pigeon 2"
+      - "PDH"
+    answers: [0, 2, 3]
+    explain: "The CANcoder measures an angle, the limit switch reports the end of travel, and the Pigeon 2 measures heading. The breaker and the PDH are part of the power system."
+  - type: mcq
+    prompt: "There is a spark and a smell of burning from the robot. What do you reach for first?"
+    choices:
+      - "The Disable button on the laptop"
+      - "The battery connector"
+      - "The main breaker"
+      - "The radio's power cable"
+    answer: 2
+    explain: "The main breaker cuts power to everything at once, and it is built to be hit quickly. Disabling only stops the code from driving the motors; the wiring is still live."
+  - type: symptom-cause
+    prompt: "Which part is the most likely cause?"
+    symptom: "The robot drives, but it has no idea which way it is facing, so field-relative driving goes the wrong way."
+    choices:
+      - "The limit switch"
+      - "The Pigeon 2"
+      - "The PDH"
+      - "The radio"
+    answer: 1
+    explain: "Heading comes from the IMU, which is the Pigeon 2 on this team's robots. If it was not zeroed while the robot faced the right way, every direction is off by the same angle."
+  - type: free
+    prompt: "A Kraken X60 is a motor. Why does it count as more than a muscle?"
+    modelAnswer: "It has a TalonFX motor controller and a sensor built in. So it also reports its position and velocity back to the code, which makes it a sense as well."
+    explain: "This is why one line of code, `new TalonFX(5)`, gives you both a motor to command and an encoder to read."

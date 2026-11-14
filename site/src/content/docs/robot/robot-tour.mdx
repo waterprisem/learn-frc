@@ -5,16 +5,75 @@ id: "1.1"
 track: "robot"
 session: 1
 isNew: false
-status: stub
+minutes: 15
+prereqs: []
+outcomes:
+  - Name ten parts of an FRC robot and say what each one does
+  - Sort the parts into power, brain, muscles, and senses
+  - Find each part on a robot without labels
+sources:
+  - curriculum: "presentations/Session 1 - Ground Zero - Robot Hardware, Systems, and Programming Philosophy/raw_data/slides.md"
+  - doc: "https://docs.wpilib.org/en/stable/docs/controls-overviews/control-system-hardware.html"
+status: review
 sidebar:
   label: "1.1 Robot tour"
   order: 1
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
+import RobotTour from '../../../components/playgrounds/RobotTour.tsx';
 
-**What it will cover:** An interactive labeled robot: click a part to see what it does.
+<WhyItMatters>
+Robot code does nothing by itself. Every line you write ends up reading a sensor or moving a motor.
+When something goes wrong, the first question is "which part is this?", so you need to know the parts before you write code for them.
+</WhyItMatters>
 
-Based on Session 1 of the Orbit Robotics curriculum.
+## Four jobs
+
+Every part on the robot does one of four jobs.
+
+| Job | Parts | What they do |
+|---|---|---|
+| **Power** | Battery, main breaker, PDH | Supply electricity and share it out safely |
+| **Brain** | roboRIO, radio | Run your code and keep it in touch with the drivers |
+| **Muscles** | Motors | Turn electricity into motion |
+| **Senses** | Encoders, limit switches, the IMU, cameras | Tell the code what the robot is doing |
+
+Your code lives in the brain. It reads the senses, decides, and commands the muscles, 50 times every second.
+
+## Try it: tour the robot
+
+This is a robot seen from above. **Explore** shows each part's card. **Find it** hides the labels and asks you to find each part from its job.
+
+<RobotTour client:visible lessonId="1.1" />
+
+## Practice
+
+<Practice bank="1-1" />
+
+## Checkpoint
+
+<Checkpoint lesson="1.1">
+
+<details>
+<summary>Point to any part and describe it in one sentence. Can you do all ten?</summary>
+Use **Find it** above as your check. On a real robot, do the same thing by touching each part with the robot switched off.
+</details>
+
+<details>
+<summary>Which parts does your code talk to directly?</summary>
+Motor controllers and sensors. The battery, breaker, and radio have no code of their own; your code only notices them when they fail.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- A robot has four kinds of parts: power, brain, muscles, and senses.
+- Your code runs on the roboRIO. It reads sensors and commands motors.
+- Each part has a card: what it is, where it sits, how it connects, how code sees it, and how it fails.
+</RecapCard>

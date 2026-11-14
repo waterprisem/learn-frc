@@ -1,0 +1,54 @@
+# Practice bank for lesson 1.2 (The control-system map).
+lesson: "1.2"
+items:
+  - type: mcq
+    prompt: "The CAN chain runs roboRIO → Kraken 5 → Kraken 6 → CANcoder → Pigeon 2 → PDH. The cable between Kraken 6 and the CANcoder comes unplugged. Which devices can the code still reach?"
+    choices:
+      - "All of them. CAN finds another route."
+      - "Kraken 5 and Kraken 6 only"
+      - "The CANcoder, the Pigeon 2, and the PDH only"
+      - "None of them"
+    answer: 1
+    explain: "CAN is a single chain with no other route. Everything after the break is cut off from the roboRIO, and what is left has lost a terminating resistor, so even those two may report errors."
+  - type: symptom-cause
+    prompt: "Which wire has failed?"
+    symptom: "One motor has no status light at all. Every other device works normally."
+    choices:
+      - "That motor's CAN cable"
+      - "That motor's power wire from the PDH"
+      - "The Ethernet cable to the radio"
+      - "The cable from the battery to the main breaker"
+    answer: 1
+    explain: "No light means no power, and only one device is affected, so the fault is on that device's own branch of the power tree. A CAN fault would leave the light on. A battery fault would turn everything off."
+  - type: symptom-cause
+    prompt: "Which connection has failed?"
+    symptom: "Every device on the robot has its lights on, but the Driver Station says “No Robot Communication”."
+    choices:
+      - "The CAN chain"
+      - "The limit switch cable"
+      - "The network path between the laptop and the roboRIO"
+      - "The main breaker"
+    answer: 2
+    explain: "The lights show that power is fine. “No Robot Communication” means the laptop cannot reach the roboRIO, which goes laptop → Wi-Fi → radio → Ethernet → roboRIO. Check the radio and both of those links."
+  - type: multi
+    prompt: "Which connections does a Kraken X60 need before your code can spin it? Select all that apply."
+    choices:
+      - "Power from the PDH"
+      - "CAN to the roboRIO"
+      - "Ethernet to the radio"
+      - "A DIO cable to the roboRIO"
+    answers: [0, 1]
+    explain: "Power to move, CAN to be told what to do. Its sensor readings come back over the same CAN cable, so it needs nothing else."
+  - type: mcq
+    prompt: "The camera's coprocessor sends AprilTag results to the roboRIO. Which layer carries them?"
+    choices:
+      - "CAN"
+      - "Network"
+      - "DIO"
+      - "Power"
+    answer: 1
+    explain: "The coprocessor is a small computer on the robot's network. It is not a CAN device. The camera itself plugs into the coprocessor by USB."
+  - type: free
+    prompt: "A teammate says: “The intake motor's light is on, so the wiring is fine and it must be a code bug.” What is wrong with that reasoning?"
+    modelAnswer: "The light only proves the motor has power. Its CAN cable could still be unplugged, or its CAN ID could differ from the one in code. Check the Driver Station for CAN errors before reading the code."
+    explain: "A device needs both power and a working CAN connection. The status light speaks for one layer only."

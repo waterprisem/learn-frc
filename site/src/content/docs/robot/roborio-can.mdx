@@ -5,16 +5,105 @@ id: "1.5"
 track: "robot"
 session: 1
 isNew: false
-status: stub
+minutes: 20
+prereqs: ["1.4"]
+outcomes:
+  - Explain what the roboRIO does and why code that runs every 20 ms must stay cheap
+  - Describe how CAN devices are wired in a chain with a terminator at each end
+  - Match the CAN ID set on a device to the ID in code
+  - Recognize wrong-ID, duplicate-ID, and broken-wire symptoms
+sources:
+  - curriculum: "presentations/Session 1 - Ground Zero - Robot Hardware, Systems, and Programming Philosophy/raw_data/slides.md"
+  - doc: "https://docs.wpilib.org/en/stable/docs/hardware/hardware-basics/can-wiring-basics.html"
+status: review
 sidebar:
   label: "1.5 roboRIO and the CAN bus"
   order: 5
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import GoDeeper from '../../../components/lesson/GoDeeper.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
+import ComponentCard from '../../../components/hardware/ComponentCard.tsx';
+import CanBusSim from '../../../components/playgrounds/CanBusSim.tsx';
 
-**What it will cover:** What runs on the robot controller, CAN IDs, bus wiring, and CAN fault symptoms.
+<WhyItMatters>
+Your code can compile, deploy, and run with no errors, and the intake still does nothing. A very common cause is a single wrong number that links your code to a motor controller.
+Knowing how the robot's computer talks to its devices lets you find that kind of fault in minutes.
+</WhyItMatters>
 
-Based on Session 1 of the Orbit Robotics curriculum.
+## The roboRIO runs your code
+
+The **roboRIO** is the robot's computer. Your Java program runs on it, and you **deploy** (copy and start) your code on it from your laptop.
+
+It is not a powerful computer. Robot code repeats a loop every 20 ms (50 times per second), so anything slow inside that loop, such as `periodic()`, makes the whole robot lag. Keep that code cheap.
+
+<ComponentCard id="roborio" />
+
+## One bus, many devices
+
+A motor controller needs a way to receive commands. Instead of one cable per device, the robot uses one shared network called the **CAN bus** (Controller Area Network). It has two wires: yellow **CAN-H** and green **CAN-L**.
+
+The devices are **daisy-chained**: the cable goes from one device to the next, like a string of lights. The motor controllers (TalonFX), CANcoders, the Pigeon 2 IMU, and the PDH all sit on the same chain.
+
+Each end of the chain needs a **120 ohm terminating resistor**, which stops signals from bouncing back along the wire. The roboRIO has one built in, and the PDH has a switchable one. That is why the chain usually starts at the roboRIO and ends at the PDH.
+
+## CAN IDs connect hardware to code
+
+Every device on the bus has a **CAN ID**, a number from 0 to 62. You set it on the device itself with Phoenix Tuner X (lesson R.6), not in code.
+
+In code, the ID says which device you mean. `new TalonFX(5)` means "the TalonFX whose ID is 5". The labs keep these numbers in `Constants.java`.
+
+The ID in code must match the ID on the device. Give every device its own ID.
+
+<GoDeeper title="when two devices can share a number">
+The model of the device is part of its address, so a TalonFX and a CANcoder can both be ID 5 and still work. Two TalonFXs with the same ID cannot.
+Teams still give every device a unique ID, so that "ID 5" never has two meanings in a conversation or a wiring diagram.
+</GoDeeper>
+
+## Try it: send a command
+
+This bus has a roboRIO and three TalonFX motors.
+
+<CanBusSim client:visible lessonId="1.5" />
+
+## When the bus goes wrong
+
+Most CAN problems look the same at first: a motor does nothing. The pattern tells you the cause.
+
+- **Wrong ID in code:** no error when the code starts. The motor never moves, readings stay at 0, and the Driver Station reports that the device was not found.
+- **Two devices with the same ID:** unpredictable. Commands may reach either device, or neither.
+- **Broken or unplugged wire:** every device past the break disappears, because the chain is cut there.
+- **Missing terminator:** intermittent errors that come and go, often when the robot moves or vibrates.
+
+## Practice
+
+<Practice bank="1-5" />
+
+## Checkpoint
+
+<Checkpoint lesson="1.5">
+
+<details>
+<summary>A TalonFX is set to CAN ID 5 in hardware, but the code says `new TalonFX(6)`. What happens when you command the motor?</summary>
+The command goes nowhere. No device has ID 6, so the motor ignores it. Nothing is thrown when the object is created, which is why it surprises people. The Driver Station reports the device missing.
+</details>
+
+<details>
+<summary>Why does the chain usually start at the roboRIO and end at the PDH?</summary>
+The bus needs a terminating resistor at each end. The roboRIO has one built in and the PDH has a switchable one, so those two devices make natural end points.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- The roboRIO runs your Java code every 20 ms, so keep that code cheap.
+- CAN is two wires (CAN-H and CAN-L) shared by all devices, wired as a chain with a 120 ohm terminator at each end.
+- A CAN ID (0 to 62) is set on the device and matched in code, for example `new TalonFX(5)`.
+- Give every device its own ID.
+- A wrong ID fails silently in code. Check the Driver Station for a missing-device message.
+</RecapCard>

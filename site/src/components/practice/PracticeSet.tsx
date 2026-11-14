@@ -11,6 +11,8 @@ export type PracticeItem =
   | (Base & { type: 'mcq'; choices: string[]; answer: number })
   | (Base & { type: 'read-graph'; preset: string; choices: string[]; answer: number })
   | (Base & { type: 'predict-graph'; presets: string[]; answer: number })
+  | (Base & { type: 'symptom-cause'; symptom: string; choices: string[]; answer: number })
+  | (Base & { type: 'multi'; choices: string[]; answers: number[] })
   | (Base & { type: 'fill-blank'; code: string; blanks: string[][] })
   | (Base & { type: 'free'; modelAnswer: string })
   | (Base & { type: string });
@@ -38,6 +40,7 @@ const norm = (s: string) => s.replace(/\s+/g, '').toLowerCase();
 
 function Item({ item, n, hidden, onResult }: { item: PracticeItem; n: number; hidden: boolean; onResult: (ok: boolean) => void }) {
   const [pick, setPick] = useState<number | null>(null);
+  const [picks, setPicks] = useState<number[]>([]);
   const [text, setText] = useState<string[]>([]);
   const [result, setResult] = useState<boolean | null>(null);
   const [revealed, setRevealed] = useState(false);
@@ -62,6 +65,7 @@ function Item({ item, n, hidden, onResult }: { item: PracticeItem; n: number; hi
     body = (
       <>
         {'preset' in item && <PresetChart preset={(item as { preset: string }).preset} />}
+        {'symptom' in item && <p className="symptom"><b>Symptom.</b> {rich((item as { symptom: string }).symptom)}</p>}
         <div className="lf-choices" role="radiogroup" aria-label={`Question ${n} choices`}>
           {it.choices.map((c, i) => (
             <label key={i} className={pick === i ? 'picked' : ''}>
@@ -71,6 +75,23 @@ function Item({ item, n, hidden, onResult }: { item: PracticeItem; n: number; hi
           ))}
         </div>
       </>
+    );
+  } else if (item.type === 'multi') {
+    const it = item as Extract<PracticeItem, { type: 'multi' }>;
+    ready = picks.length > 0;
+    check = () => finish(picks.length === it.answers.length && it.answers.every((a) => picks.includes(a)));
+    body = (
+      <div className="lf-choices" role="group" aria-label={`Question ${n} choices (select all that apply)`}>
+        {it.choices.map((c, i) => (
+          <label key={i} className={picks.includes(i) ? 'picked' : ''}>
+            <input
+              type="checkbox" checked={picks.includes(i)}
+              onChange={() => { setPicks(picks.includes(i) ? picks.filter((p) => p !== i) : [...picks, i]); setResult(null); }}
+            />
+            <span>{rich(c)}</span>
+          </label>
+        ))}
+      </div>
     );
   } else if (item.type === 'predict-graph') {
     const it = item as Extract<PracticeItem, { type: 'predict-graph' }>;

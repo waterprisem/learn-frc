@@ -1,0 +1,57 @@
+# Practice bank for lesson 1.5 (roboRIO and the CAN bus).
+lesson: "1.5"
+items:
+  - type: mcq
+    prompt: "Where do you deploy your robot code?"
+    choices:
+      - "To the motor controller"
+      - "To the roboRIO"
+      - "To the PDH"
+      - "To the radio"
+    answer: 1
+    explain: "The roboRIO is the robot's computer and runs your Java program. Motor controllers only receive commands from it over the CAN bus."
+    source: "Session 1, slide 8"
+  - type: multi
+    prompt: "Which of these are devices you would find on the CAN bus? Select all that apply."
+    choices:
+      - "TalonFX motor controller"
+      - "CANcoder"
+      - "Pigeon 2 IMU"
+      - "PDH"
+    answers: [0, 1, 2, 3]
+    explain: "All four connect to the roboRIO over the same two-wire bus, each with its own CAN ID."
+    source: "Session 1, slide 9"
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "After a hard hit, the elevator and every device wired after it stop responding at once."
+    choices:
+      - "Two devices share a CAN ID."
+      - "A wire in the chain broke or came unplugged."
+      - "The code uses the wrong ID."
+      - "The roboRIO loop is taking more than 20 ms."
+    answer: 1
+    explain: "The devices are chained, so a break cuts off everything past it. A wrong or duplicate ID would affect one device, not everything downstream."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "The intake motor never moves, and the Driver Station says a device is missing."
+    choices:
+      - "The ID in code does not match the ID set on the device."
+      - "The terminating resistor is too large."
+      - "The battery is low."
+      - "The roboRIO has too many ports."
+    answer: 0
+    explain: "Code with an ID that no device has fails silently at construction. The only clues are a motor that never moves and a not-found message on the Driver Station."
+  - type: mcq
+    prompt: "Why is it risky to give two TalonFX motors the same CAN ID?"
+    choices:
+      - "The code will not compile."
+      - "The robot will not deploy."
+      - "Commands for that ID are unpredictable because both devices answer to it."
+      - "The bus runs slower but works."
+    answer: 2
+    explain: "The ID is the device's address. With a shared address, a command can reach either motor or neither. Nothing stops the code from compiling, so the fault only shows up on the robot."
+  - type: free
+    prompt: "Where is a CAN ID set, and where is it used?"
+    modelAnswer: "It is set on the device itself with Phoenix Tuner X, and it is used in code, usually from Constants.java, in a call such as new TalonFX(5). The two numbers must match."
+    explain: "The ID is the link between the physical device and your code. Changing one side without the other breaks that link."
+    source: "Session 1, slide 9"

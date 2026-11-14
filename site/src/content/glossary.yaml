@@ -31,3 +31,71 @@ command:
   term: Command
   short: A class or object that describes one robot behavior and runs through the scheduler.
   lessons: ["2.3"]
+roborio:
+  term: roboRIO
+  short: The robot's computer. Your Java program runs on it, and you deploy code to it.
+  lessons: ["1.1", "1.5"]
+pdh:
+  term: PDH
+  short: Power Distribution Hub. Sends battery power to each device through its own protected channel.
+  lessons: ["1.3"]
+main-breaker:
+  term: Main breaker
+  short: The 120 A switch next to the battery that turns the whole robot on and off.
+  lessons: ["1.3"]
+internal-resistance:
+  term: Internal resistance
+  short: A small resistance inside the battery. It makes the voltage drop as current rises.
+  lessons: ["1.3"]
+voltage-sag:
+  term: Voltage sag
+  short: "The drop in battery voltage under load: resting voltage minus current times internal resistance."
+  lessons: ["1.3"]
+brownout:
+  term: Brownout
+  short: Battery voltage below 6.75 V (roboRIO 2). The roboRIO disables motor outputs until it recovers.
+  lessons: ["1.3"]
+current-limit:
+  term: Current limit
+  short: A motor controller setting that caps the amps a motor can draw.
+  lessons: ["1.3", "1.4"]
+motor-controller:
+  term: Motor controller
+  short: Electronics between your code and a motor. It takes requests over CAN and switches power into the motor.
+  lessons: ["1.4"]
+talonfx:
+  term: TalonFX
+  short: CTRE's motor controller, built into the Kraken X60. In code it is new TalonFX(canId).
+  lessons: ["1.4"]
+brushless-motor:
+  term: Brushless motor
+  short: A motor with no moving electrical contacts. A controller switches power into its windings.
+  lessons: ["1.4"]
+neutral-mode:
+  term: Neutral mode
+  short: "What a motor does at 0 output: coast (spins freely) or brake (resists turning)."
+  lessons: ["1.4"]
+stall:
+  term: Stall
+  short: A powered motor that is held still. It draws very high current.
+  lessons: ["1.4"]
+can-bus:
+  term: CAN bus
+  short: The shared two-wire network that links the roboRIO to motor controllers, sensors and the PDH.
+  lessons: ["1.2", "1.5"]
+can-id:
+  term: CAN ID
+  short: A number from 0 to 62 set on a device. Code uses it to say which device it means.
+  lessons: ["1.5"]
+terminating-resistor:
+  term: Terminating resistor
+  short: A 120 ohm resistor at each end of the CAN chain that stops signals reflecting back.
+  lessons: ["1.5"]
+deploy:
+  term: Deploy
+  short: Copy your built robot code from the laptop to the roboRIO and start it.
+  lessons: ["1.5"]
+imu:
+  term: IMU
+  short: Inertial measurement unit. Measures the robot's heading (yaw), pitch and roll.
+  lessons: ["1.1"]

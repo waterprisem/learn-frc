@@ -1,0 +1,54 @@
+# Practice bank for lesson 1.4 (Motors and motor controllers).
+lesson: "1.4"
+items:
+  - type: mcq
+    prompt: "What does a motor controller do with a request from your code?"
+    choices:
+      - "It passes the request straight to the motor's wires."
+      - "It switches battery power into the motor and reports sensor data back over CAN."
+      - "It stores the code that runs the robot."
+      - "It only measures the battery voltage."
+    answer: 1
+    explain: "The controller sits between your code and the motor. Your code never touches the motor's power directly."
+  - type: multi
+    prompt: "Which of these does the Kraken X60 have built in? Select all that apply."
+    choices:
+      - "A TalonFX motor controller"
+      - "A sensor that reports rotor position and velocity"
+      - "A SPARK MAX controller"
+      - "A battery"
+    answers: [0, 1]
+    explain: "The TalonFX controller and the rotor sensor are inside the housing, so code gets position and velocity with no extra wiring. SPARK MAX is REV's separate controller."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "You release the shooter button and the flywheel stops almost instantly, so the next shot has to spin up from zero again."
+    choices:
+      - "The flywheel is in brake mode. Use coast."
+      - "The flywheel is in coast mode. Use brake."
+      - "The current limit is too high."
+      - "The motor is inverted."
+    answer: 0
+    explain: "Brake resists motion, so the wheel stops fast. A flywheel should coast so it keeps its speed between shots."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "The arm is in brake mode, but when the robot is disabled it still droops slowly."
+    choices:
+      - "Brake mode failed to apply."
+      - "Brake only resists motion. It does not lock the arm against gravity."
+      - "The arm must be in coast mode to hold still."
+      - "The CAN bus is disconnected."
+    answer: 1
+    explain: "Brake slows motion but does not hold a position. Holding an arm up takes active control, which later lessons cover."
+  - type: mcq
+    prompt: "A teammate shows you a NEO motor wired to a SPARK MAX. In code, which class would drive it?"
+    choices:
+      - "TalonFX"
+      - "SparkMax"
+      - "VoltageOut"
+      - "Kraken"
+    answer: 1
+    explain: "NEO plus SPARK MAX is REV hardware, driven with REVLib's SparkMax class. TalonFX is for Kraken X60 and Falcon 500."
+  - type: free
+    prompt: "Why do we set a current limit on a motor?"
+    modelAnswer: "A stalled motor can draw hundreds of amps. A current limit in the controller caps that, protecting the motor and mechanism."
+    explain: "Without a limit, a jammed mechanism can pull over 300 A from a Kraken."
