@@ -28,6 +28,7 @@ import GoDeeper from '../../../components/lesson/GoDeeper.astro';
 import Checkpoint from '../../../components/lesson/Checkpoint.astro';
 import Practice from '../../../components/practice/Practice.astro';
 import AnnotatedCode from '../../../components/code/AnnotatedCode.astro';
+import GearingPlayground from '../../../components/playgrounds/GearingPlayground.tsx';
 
 <WhyItMatters>
 A motor reports how far it has turned in rotations. Your elevator needs meters, and your arm needs degrees.
@@ -44,6 +45,10 @@ A ratio above 1 is a **reduction**. It trades speed for torque (turning force):
 - The mechanism pushes harder by about the same ratio, before losses.
 
 That is why an arm uses a big reduction and a flywheel uses almost none. The same trade holds for sprockets and pulleys: a small one driving a large one is a reduction.
+
+## Try it: the speed and torque trade
+
+<GearingPlayground client:visible lessonId="1.8" />
 
 ## Motor rotations to meters
 
