@@ -103,3 +103,20 @@
 .lf-pathm-timeline .flag.unbound line, .lf-pathm-timeline .flag.unbound circle { stroke: var(--sig-error); fill: none; stroke-width: 2; }
 .lf-pathm-timeline .cursor { stroke: var(--sig-measurement); stroke-width: 2; }
 .lf-pathm .lf-pg-bar input[type='range'] { flex: 1 1 8rem; min-width: 6rem; accent-color: var(--sl-color-text-accent); }
+
+/* ---------- Encoder demo (1.6) ---------- */
+.lf-enc-dials { display: flex; justify-content: center; gap: clamp(1rem, 6vw, 3rem); margin-bottom: 0.6rem; }
+.lf-enc-dial { text-align: center; width: 9rem; }
+.lf-enc-dial svg { width: 100%; }
+.lf-enc-dial .rim { fill: none; stroke: var(--sl-color-gray-4); stroke-width: 3; }
+.lf-enc-dial .home-mark { stroke: var(--sl-color-white); stroke-width: 3; }
+.lf-enc-dial .zero-mark { stroke: var(--sig-error); stroke-width: 3; stroke-dasharray: 3 2; }
+.lf-enc-dial .zero-mark.ok { stroke: none; }
+.lf-enc-dial .shaft { transition: transform 0.4s ease; }
+.lf-enc-dial .pointer { stroke: var(--sig-measurement); stroke-width: 5; stroke-linecap: round; }
+.lf-enc-dial .hub { fill: var(--sl-color-gray-3); }
+.lf-enc-dial .name { font-size: var(--sl-text-sm); color: var(--sl-color-gray-2); }
+.lf-enc-dial .reading { font-size: var(--sl-text-lg); font-weight: 700; font-variant-numeric: tabular-nums; color: var(--sl-color-white); }
+.lf-enc-dial .reading.bad { color: var(--sig-error); }
+.lf-enc-status { font-size: var(--sl-text-sm); color: var(--sl-color-gray-2); }
+@media (prefers-reduced-motion: reduce) { .lf-enc-dial .shaft { transition: none; } }

@@ -26,6 +26,7 @@ import RecapCard from '../../../components/lesson/RecapCard.astro';
 import Checkpoint from '../../../components/lesson/Checkpoint.astro';
 import Practice from '../../../components/practice/Practice.astro';
 import ComponentCard from '../../../components/hardware/ComponentCard.tsx';
+import EncoderDemo from '../../../components/playgrounds/EncoderDemo';
 
 <WhyItMatters>
 Power on a robot and ask its elevator to go to 1 meter. If the code wrongly believes the elevator is already there, nothing moves. If it believes the elevator is at 0 when it is really at the top, the motor drives it into the frame.
@@ -58,6 +59,10 @@ A relative position needs a known reference. **Homing** creates one by moving th
 4. Only now enable position control.
 
 Skip step 3 and every target is measured from wherever the mechanism started. In the simulator the labs skip homing and trust the start position. A real robot cannot.
+
+## Try it: lose the zero
+
+<EncoderDemo client:visible lessonId="1.6" />
 
 ## Heading and vision
 
