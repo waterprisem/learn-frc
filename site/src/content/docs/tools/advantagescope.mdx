@@ -43,7 +43,7 @@ You cannot tune a flywheel or check a profile by watching it. AdvantageScope tur
 ## Connect to the simulator or a robot
 
 1. Start the simulator and enable the robot.
-2. In AdvantageScope, open the **File** menu, choose **Connect to Simulator**, then **Default**. The window title shows the address (127.0.0.1) and "Searching" until the connection is made.
+2. In AdvantageScope, open the **File** menu, choose **Connect to Simulator**, then **Default**. The window title shows the address (127.0.0.1) and Searching until the connection is made.
 
 For a real robot, first set the address in preferences: **App** then **Show Preferences...** on Windows and Linux, or **AdvantageScope** then **Settings...** on macOS. Enter it in **Robot Address** in the form 10.TE.AM.2 (for team 1360, 10.13.60.2).
 Then choose **File**, **Connect to Robot**, **Default**. For a robot connected by USB, **File** then **Use USB roboRIO Address** temporarily uses the USB address.
@@ -82,7 +82,7 @@ The animation is a sanity check. The graph is the precise measurement.
 
 | What you see | Likely cause | Fix |
 |---|---|---|
-| Title bar says "Searching" and no topics appear | The simulator is not running, or the robot is unreachable | Start the simulator first; for a robot, check the address and network |
+| Title bar says Searching and no topics appear | The simulator is not running, or the robot is unreachable | Start the simulator first; for a robot, check the address and network |
 | Topics appear but the lines are flat | The robot is Disabled | Enable it in the simulator and hold a button |
 | A topic you expect is missing | The code never publishes it, or you are looking in the wrong folder | Check the topic name in the lab and expand `Subsystems` |
 | Two signals share one scale and one looks flat | Different units on the same axis | Move one to the other axis |
