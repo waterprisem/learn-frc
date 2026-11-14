@@ -5,16 +5,68 @@ id: "8.5"
 track: "auto"
 session: 18
 isNew: false
-status: stub
+minutes: 10
+prereqs: ["8.4", "0.7", "4.5"]
+outcomes:
+  - Order the steps from a requirement to tested code on the robot
+  - Say which lesson teaches each step
+  - Know what to own and when to ask for help
+sources:
+  - curriculum: "misc/v1/frc1360_programming_curriculum_plan.md"
+status: review
 sidebar:
   label: "8.5 Build-season workflow"
   order: 5
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
 
-**What it will cover:** From a requirement to tested code on the robot.
+<WhyItMatters>
+In build season, a mechanism arrives with a few days before a competition. A repeatable path from "we need it to do X" to "it works on the robot" keeps you fast without breaking what already works.
+</WhyItMatters>
 
-Based on Session 18 of the Orbit Robotics curriculum.
+## The path from requirement to robot
+
+1. **Requirement.** Read the mechanism spec or game need until you can say what must be measured and what must move. (Lesson 1.7.)
+2. **Subsystem and constants.** Find the closest existing subsystem in the team repo and edit the minimum. Put numbers in `Constants.java` with units in their names. (Lessons 2.2, 4.1.)
+3. **Commands.** Write commands that use the subsystem, and compose them into actions. (Lessons 2.3, 5.1.)
+4. **Simulate and graph.** Run the simulator and look at the signals in AdvantageScope before touching hardware. (Lessons R.2, 4.4.)
+5. **Code review and pull request.** Work on a branch, open a pull request, and have a teammate review it before it merges. (Lessons 0.7, 4.5.)
+6. **Deploy and bring-up.** Deploy with a mentor present, then follow the bring-up checks for the new mechanism. (Lessons R.5, 9.1.)
+7. **Tune on the real mechanism.** Real friction and load differ from the simulation, so retune gains live. (Lessons 3.5, 4.3.)
+8. **Log review.** Read the logs after a run to see what really happened, and fix what they show. (Lesson 4.6.)
+
+## What you can own, and when to ask
+
+You can now own small changes to commands, constants, bindings, and autos, and review a teammate's code. Ask a mentor first before changing power, CAN wiring, safety limits, or anything you have not seen run in simulation, and before the first enable of any new mechanism.
+
+## Practice
+
+<Practice bank="8-5" />
+
+## Checkpoint
+
+<Checkpoint lesson="8.5">
+
+<details>
+<summary>Why simulate before deploying?</summary>
+Bugs show up on a graph instead of as a moving mechanism. It is faster, safer, and does not need robot time.
+</details>
+
+<details>
+<summary>Why does review come before deploy?</summary>
+A second person catches mistakes cheaply, and it keeps untested code off the shared main branch.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- Requirement, subsystem and constants, commands, simulate, review, deploy, tune, log review.
+- Edit the minimum surface, and use a branch and a pull request.
+- Real hardware always needs retuning, and a mentor is present for first enable.
+</RecapCard>

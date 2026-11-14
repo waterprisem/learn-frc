@@ -1,0 +1,58 @@
+# Practice bank for lesson 6.4 (CTRE SwerveGen).
+lesson: "6.4"
+items:
+  - type: multi
+    prompt: "Which of these does the Tuner X generator write for you? Select all that apply."
+    choices:
+      - "The CAN IDs, gear ratios and module positions in `TunerConstants`"
+      - "The joystick deadband and curve in `DriveCommands`"
+      - "The encoder offsets, measured with the wheels aligned"
+      - "The button bindings in `RobotContainer`"
+    answers: [0, 2]
+    explain: "The generator covers hardware facts. Driving feel (deadband, curve) and bindings are team code, because they depend on your drivers and your game."
+  - type: mcq
+    prompt: "Where does the team's robot code create the drivetrain object?"
+    choices:
+      - "Inside every drive command, so each one has its own copy"
+      - "Once in `RobotContainer`, with `TunerConstants.createDrivetrain()`"
+      - "In `Robot.java`, on every `teleopPeriodic` loop"
+      - "Inside `TunerConstants`, as soon as the class loads"
+    answer: 1
+    explain: "The factory builds all the motors, encoders and the gyro, so it runs once. Commands receive the single drivetrain as a parameter."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "After a repair the team swaps in a spare module. It powers up fine, but that wheel points sideways when the others point forward."
+    choices:
+      - "The deadband is too small."
+      - "The spare module's encoder offset in `TunerConstants` is still the old module's value."
+      - "`createDrivetrain()` was called twice."
+      - "The drive gain kV is too high."
+    answer: 1
+    explain: "The offset says what encoder reading means 'straight forward'. A different encoder or mounting needs a freshly measured offset. kV and the deadband do not affect wheel angle."
+  - type: mcq
+    prompt: "You change a CAN ID by hand in a generated file and later regenerate the project in Tuner X. What happens to your hand edit?"
+    choices:
+      - "It is kept, because Tuner X merges changes."
+      - "It is overwritten by the generator's output."
+      - "The build fails with an error."
+      - "It moves into `CommandSwerveDrivetrain`."
+    answer: 1
+    explain: "Generated files are rewritten from the Tuner X settings. Fix the value in Tuner X so the next generation is right, instead of editing the output."
+  - type: bug-hunt
+    prompt: "A student wants to add a feature that publishes data every loop. Click the line that is a mistake, given the rule 'do not hand-edit generated code'."
+    code: |
+      // File: TunerConstants.java (generated)
+      public static class TunerSwerveDrivetrain
+              extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> {
+          // ... constructors ...
+
+          public void publishMyData() { // added by hand
+              System.out.println("hello");
+          }
+      }
+    bugLine: 6
+    explain: "New behavior belongs in `CommandSwerveDrivetrain`, which extends this class and is the team's place for additions. Anything added to the generated class can disappear on regeneration."
+  - type: free
+    prompt: "In your own words: why is it useful that Tuner X measures the encoder offsets instead of you typing them in?"
+    modelAnswer: "The offset depends on exactly how each encoder is mounted, so it can only be found by pointing the wheels straight and reading the encoder. A hand-typed guess would leave wheels slightly off, and the robot would drive at an angle."
+    explain: "Offsets are measurements, not design choices. The wrong idea is that they are part of the robot's design and can be copied from another robot."

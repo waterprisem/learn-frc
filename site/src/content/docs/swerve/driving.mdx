@@ -5,16 +5,128 @@ id: "6.3"
 track: "swerve"
 session: 13
 isNew: false
-status: stub
+minutes: 30
+prereqs: ["0.5", "6.1", "6.2"]
+outcomes:
+  - Explain robot-relative versus field-relative driving
+  - Explain why the stick values are negated
+  - Apply a deadband and curve and say what each does
+  - Read the team's drive command and name its parts
+sources:
+  - curriculum: "misc/v1/frc1360_programming_curriculum_plan.md"
+  - doc: "https://v6.docs.ctr-electronics.com/en/stable/docs/api-reference/mechanisms/swerve/swerve-requests.html"
+  - doc: "https://github.com/FRC1360/Rebuilt2026"
+status: review
 sidebar:
   label: "6.3 Field-relative driving"
   order: 3
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import GoDeeper from '../../../components/lesson/GoDeeper.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
+import AnnotatedCode from '../../../components/code/AnnotatedCode.astro';
 
-**What it will cover:** Field vs robot relative, deadband, and input curves.
+<WhyItMatters>
+When a driver spins the robot to pick up a game piece, they should not have to think about which way the robot faces.
+Field-relative driving makes "push away from me" always mean "robot moves away from me", and the code that does it is about 15 lines.
+</WhyItMatters>
 
-Based on Session 13 of the Orbit Robotics curriculum.
+## Robot-relative versus field-relative
+
+In **robot-relative** driving the stick is in the robot's frame: forward on the stick moves the robot toward its own front.
+In **field-relative** driving the stick is in the driver's frame: forward moves the robot away from the driver, whichever way it faces. It needs the robot's heading, which comes from the Pigeon 2 gyro.
+
+Say the stick is pushed forward and the robot faces left (+Y on the field).
+
+| Mode | Robot moves |
+| --- | --- |
+| Robot-relative | Left (its own front), so it appears to go sideways to the driver |
+| Field-relative | Away from the driver (+X), by steering the wheels at −90° in the robot frame |
+
+If the gyro heading is wrong, field-relative drives in a rotated direction. A heading that is 90° off sends "forward" off to the side.
+
+## Cleaning up the stick
+
+A raw stick is not ready to drive with. Three steps fix that.
+
+1. **Deadband.** A released stick may read 0.02 instead of 0. Treat anything under a small threshold as 0, or the robot creeps.
+2. **Curve.** Raising the value to a power above 1 (the team uses 1.25) makes small pushes gentler, for fine aiming, while full push still reaches 1.
+3. **Scale.** Multiply by the maximum speed, so full stick means the robot's top speed.
+
+Team values: deadband 0.01, exponent 1.25, top speed 4.95 m/s, top turn rate one rotation per second (6.28 rad/s).
+
+| Stick magnitude | After deadband and curve | Speed (m/s) |
+| --- | --- | --- |
+| 0.005 | 0 | 0 |
+| 0.5 | 0.415 | 2.06 |
+| 1.0 | 1.0 | 4.95 |
+
+<AnnotatedCode
+  file="rebuilt2026-6.3/constants"
+  title="DriveCommands.java (2026)"
+  notes={[
+    { lines: '1-2', text: 'Top speeds. The translation speed comes from the generated <code>TunerConstants</code>; turning is one rotation per second converted to radians.' },
+    { lines: '4-5', text: 'The deadband and curve exponent, tuned for driving feel.' },
+    { lines: '9-10', text: 'One reusable <code>FieldCentric</code> request. Open loop voltage means the wheels are driven by voltage rather than a speed controller.' },
+  ]}
+/>
+
+<AnnotatedCode
+  file="rebuilt2026-6.3/joystick-curve"
+  title="DriveCommands.java (2026)"
+  notes={[
+    { lines: '2-4', text: 'The two stick axes are treated as one vector, so the curve works on its length and keeps the direction.' },
+    { lines: '7-9', text: 'Inside the deadband the output stays 0. Outside it, subtract the deadband, raise to the curve power, and divide so full stick still equals 1.' },
+  ]}
+/>
+
+## The team's drive command
+
+<AnnotatedCode
+  file="rebuilt2026-6.3/joystick-drive"
+  title="DriveCommands.java (2026)"
+  notes={[
+    { lines: '1-2', text: '<code>applyRequest</code> takes a lambda (lesson 0.5), so the stick is read again every 20 ms. A plain number would freeze the stick at one moment.' },
+    { lines: '3-5', text: 'Negated: pushing a stick forward gives a negative Y value, but forward must be positive vx. Left on the stick is negative X, but left must be positive vy.' },
+    { lines: '6-8', text: 'Turning: stick right is positive, but clockwise must be negative omega, so it is negated too.' },
+    { lines: '10-17', text: 'The request takes speeds in m/s and rad/s: stick amount times top speed times a scalar. The scalar lets other buttons slow the robot down.' },
+  ]}
+/>
+
+The drivetrain's default command is this one with scalars of 1.0, so the robot is driven whenever nothing else needs the drivetrain. The team's slow mode passes 0.3 for translation and 0.8 for turning.
+
+<GoDeeper title="what the alliance has to do with it">
+`FieldCentric` also applies the operator perspective from lesson 6.1. That is why this code has no red or blue branch: on red, "forward" is already rotated 180°.
+</GoDeeper>
+
+## Practice
+
+<Practice bank="6-3" />
+
+## Checkpoint
+
+<Checkpoint lesson="6.3">
+
+<details>
+<summary>Why does the code negate the left stick's Y value?</summary>
+An Xbox stick pushed forward reads negative, but forward must be positive vx. Negating makes forward positive.
+</details>
+
+<details>
+<summary>What happens to a stick pushed 0.5 with the team's curve, and why use a curve at all?</summary>
+It becomes about 0.415 of top speed (2.06 m/s). The curve makes small pushes gentler for fine control while full push still gives full speed.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- Field-relative: stick directions refer to the field and use the gyro heading.
+- Clean the stick with a deadband, a curve, and a top-speed scale.
+- Stick signs are negated: forward Y, left X, and right X all flip.
+- A lambda makes the command read the stick each loop.
+</RecapCard>

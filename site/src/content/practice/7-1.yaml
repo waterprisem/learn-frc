@@ -1,0 +1,44 @@
+# Practice bank for lesson 7.1 (AprilTags and PhotonVision).
+lesson: "7.1"
+items:
+  - type: mcq
+    prompt: "Why does PhotonVision need to know the tag's real size?"
+    choices:
+      - "To choose which pipeline to run."
+      - "A tag looks smaller the farther away it is, so the size turns apparent size into distance."
+      - "To read the ID number."
+      - "To set the camera's frame rate."
+    answer: 1
+    explain: "Apparent size alone is ambiguous (a small tag nearby looks like a big tag far away). With the real size and the lens calibration, the software can compute distance. The ID comes from the pattern, not the size."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "The PhotonVision web page shows the camera detecting tags, but your robot code never sees any results. There are no errors."
+    choices:
+      - "The tags are too small."
+      - "The name in `new PhotonCamera(...)` does not match the camera name in the PhotonVision UI."
+      - "The roboRIO is running out of memory."
+      - "The pose ambiguity is too high."
+    answer: 1
+    explain: "A wrong name silently subscribes to a table that nothing publishes. The coprocessor is fine, so the web page works. Ambiguity would not hide results, it only describes them."
+  - type: mcq
+    prompt: "Which field would you use to look up where a detected tag sits on the field?"
+    choices:
+      - "Yaw"
+      - "Area"
+      - "Fiducial ID"
+      - "Pitch"
+    answer: 2
+    explain: "The ID is the key into the field layout, which lists each tag's position. Yaw, pitch, and area describe how the tag appears in the image."
+  - type: multi
+    prompt: "A result's timestamp is 0.04 s before the time your code reads it. What is true? Select all that apply."
+    choices:
+      - "The robot may have moved since the picture was taken."
+      - "The timestamp is when the frame was captured."
+      - "The timestamp is when your code called `getAllUnreadResults()`."
+      - "The result should be matched to where the robot was at the capture time."
+    answers: [0, 1, 3]
+    explain: "The timestamp marks the capture moment, so the result describes the past. Using it as if it were current is the classic latency mistake."
+  - type: free
+    prompt: "In one or two sentences: why is a result with pose ambiguity near 1 less trustworthy than one near 0?"
+    modelAnswer: "A single flat tag can look the same from two different positions. High ambiguity means the software cannot tell which one is right, so the position might be the wrong one."
+    explain: "Ambiguity measures how close the best answer is to the second-best. Low means one clear answer."

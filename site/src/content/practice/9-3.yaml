@@ -1,0 +1,27 @@
+lesson: "9.3"
+items:
+  - type: mcq
+    prompt: "What replaces the roboRIO in the 2027 WPILib documentation?"
+    choices: ["The Raspberry Pi", "SystemCore", "The Control Hub", "Nothing changes"]
+    answer: 1
+    explain: "The 2027 changelog describes the move from the roboRIO to SystemCore. The Control Hub is an FTC device."
+  - type: mcq
+    prompt: "Which import prefix do WPILib Java packages move to in 2027?"
+    choices: ["`edu.wpi.first`", "`org.wpilib`", "`frc.wpi`", "`com.firstinspires`"]
+    answer: 1
+    explain: "Java packages moved from `edu.wpi.first` to `org.wpilib`. Your 2026 imports are the old form."
+  - type: multi
+    prompt: "Which of these concepts stay the same in 2027? Select all that apply."
+    choices: ["Feedforward plus PID", "Subsystems and commands", "Motion profiles", "The exact name of every class"]
+    answers: [0, 1, 2]
+    explain: "Concepts carry over. Class and package names are what change."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "You open your 2026 project in the 2027 WPILib and the build fails on imports from `edu.wpi.first`."
+    choices: ["Package rename", "Bad battery", "Wrong CAN ID", "Brownout"]
+    answer: 0
+    explain: "The packages were renamed to `org.wpilib`. The VS Code importer tries to fix this, but check what it missed."
+  - type: free
+    prompt: "A teammate says a feature is final for 2027. How do you check?"
+    modelAnswer: "Check the current official WPILib docs and release notes. In November 2026 the 2027 releases were alpha, so details could still change."
+    explain: "Official docs and release notes are the source. Pre-release details may change."

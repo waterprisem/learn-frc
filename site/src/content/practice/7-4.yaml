@@ -1,0 +1,55 @@
+# Practice bank for lesson 7.4 (Align to a tag).
+lesson: "7.4"
+items:
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "During alignment the robot drives away from the target, getting farther each loop."
+    choices:
+      - "The tolerance is too small."
+      - "A sign or frame error: the error or output has the wrong sign, or is in the wrong frame."
+      - "The camera is too slow."
+      - "The ambiguity cutoff is 0.2."
+    answer: 1
+    explain: "Moving away means the correction pushes the wrong way. Check error = target minus measurement in the order PIDController expects, and that field-centric speeds match the pose frame. Tolerances only decide when to stop."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "The robot reaches the target, then keeps wiggling back and forth and the command never finishes."
+    choices:
+      - "The tolerance is tighter than the robot can hold, or the gains are too high."
+      - "The tag ID is wrong."
+      - "Vision is stale."
+      - "The speed limit is too low."
+    answer: 0
+    explain: "Oscillation near the goal means over-correction (kP too high) or tolerances smaller than the pose noise. A wrong tag ID would send the robot to the wrong place instead."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "You cover the camera mid-alignment and the robot keeps driving toward where it thinks the target is."
+    choices:
+      - "There is no check that vision is fresh."
+      - "The PID gains are too low."
+      - "The tag is too far away."
+      - "The robot-to-camera transform is wrong."
+    answer: 0
+    explain: "Without a freshness check the command trusts odometry-only pose indefinitely. Add a time limit since the last vision update and stop when it is exceeded."
+  - type: mcq
+    prompt: "Why use one PID per axis (x, y, rotation) instead of one for distance?"
+    choices:
+      - "PID controllers can only handle one number."
+      - "The robot must fix position and heading, and each has its own error, units, and tuning."
+      - "It uses less memory."
+      - "WPILib requires three."
+    answer: 1
+    explain: "Meters and radians behave differently and need different gains and tolerances."
+  - type: mcq
+    prompt: "When is a path a better choice than an alignment command?"
+    choices:
+      - "Moving across the field to get near the tag."
+      - "The last 20 cm before scoring."
+      - "Holding a position for a shot."
+      - "Correcting a 2 degree heading error."
+    answer: 0
+    explain: "Paths plan a whole route. Alignment is feedback to one pose and is best for the final approach."
+  - type: free
+    prompt: "Why clamp the PID output speeds?"
+    modelAnswer: "A large starting error gives a large output, so the robot would lunge toward the target. A maximum speed keeps the approach safe and controlled."
+    explain: "P output is proportional to error, so a 3 m error gives a very large command without a limit."

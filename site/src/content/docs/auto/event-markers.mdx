@@ -5,16 +5,97 @@ id: "8.3"
 track: "auto"
 session: 17
 isNew: false
-status: stub
+minutes: 20
+prereqs: ["8.2", "5.1", "5.2"]
+outcomes:
+  - Explain what an event marker is and how its name reaches your code
+  - Register a named command and bind an event trigger
+  - Diagnose a marker that does nothing, a path that stops early, and an auto that hangs
+sources:
+  - curriculum: "misc/v1/frc1360_programming_curriculum_plan.md"
+  - doc: "https://pathplanner.dev/pplib-named-commands.html"
+  - doc: "https://github.com/FRC1360/Rebuilt2026"
+status: review
 sidebar:
   label: "8.3 Event markers"
   order: 3
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import GoDeeper from '../../../components/lesson/GoDeeper.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
+import AnnotatedCode from '../../../components/code/AnnotatedCode.astro';
 
-**What it will cover:** Firing mechanism commands at points along a path.
+<WhyItMatters>
+A scoring auto that drives to the goal and only then starts spinning up the shooter wastes seconds. An **event marker** is a named point on a path: when the robot reaches it, your code starts a mechanism command while the robot keeps driving.
+</WhyItMatters>
 
-Based on Session 17 of the Orbit Robotics curriculum.
+## Names connect the app to your code
+
+The path file stores only a name, such as `PREPARE_TO_SHOOT`, at a position along the path. It holds no code. Your robot code decides what that name means, and there are two ways to say so.
+
+| Style | Code | Used when |
+| --- | --- | --- |
+| Named command | `NamedCommands.registerCommand("name", command)` | The same name should work in any auto |
+| Event trigger | `auto.event("name").onTrue(command)` | A name should do different things in different autos |
+
+Team 1360 uses event triggers, because the left and right autos prepare their shot differently. Either way, the name in code and the name in the app must match **exactly**, including case. The team writes names in all capitals.
+
+For named commands, registration must run **before** the autos are built, or the lookup finds nothing. That is why the team creates its autos and binds events in one method, `configureAllAutos()`, called from the `RobotContainer` constructor.
+
+## The team's bindings
+
+<AnnotatedCode
+  file="rebuilt2026-8.3/event-bindings"
+  title="RobotContainer.java"
+  notes={[
+    { lines: '1-4', text: 'Intake down with rollers on at one marker, rollers off at another. The boolean selects which behavior.' },
+    { lines: '5', text: 'This side builds its own prepare-to-shoot command, a parallel group of hood, flywheel, and turret commands (lesson 5.1).' },
+    { lines: '7', text: 'This shot command was built earlier with <code>until(...)</code> on a different marker, <code>STOP_TURRETED_SHOOTING</code>, so another marker ends it.' },
+  ]}
+/>
+
+Commands that run **between** paths are simply the next step of the auto's sequence. Markers are for work that must overlap the driving.
+
+## Three pitfalls
+
+| Symptom | Cause | Fix |
+| --- | --- | --- |
+| The marker does nothing | The name differs by one letter or case, or a named command was registered after the autos were built | Copy the name from the app; register before building |
+| The path stops early or acts oddly | The marker command requires the drivetrain, which cancels path following | Give mechanism commands only their own subsystems (lesson 2.4) |
+| The auto hangs after a marker | A mechanism command never ends, so a sequence waiting on it never moves on | Add a timeout or end condition (lesson 5.2) |
+
+<GoDeeper title="markers with a zone">
+A marker can cover a stretch of the path instead of one point. Then the command runs for that stretch and is cancelled at its end, which is a clean way to run a roller only while crossing a game piece.
+</GoDeeper>
+
+## Practice
+
+<Practice bank="8-3" />
+
+## Checkpoint
+
+<Checkpoint lesson="8.3">
+
+<details>
+<summary>The marker is named `Prepare_Shot` in the app and `PREPARE_SHOT` in code. What happens?</summary>
+Nothing. The names must match exactly, so the code never sees the marker.
+</details>
+
+<details>
+<summary>Why must a mechanism command in a marker not require the drivetrain?</summary>
+The path-following command already requires it. The scheduler would cancel one of them, so the path would stop or the marker would never run.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- An event marker is a name at a point on a path; your code gives the name meaning.
+- Use `NamedCommands.registerCommand` or `auto.event(name).onTrue(...)`; names match exactly.
+- Register and bind before the autos run.
+- Marker commands overlap driving, so they must not require the drivetrain and must end.
+</RecapCard>

@@ -5,16 +5,128 @@ id: "7.2"
 track: "vision"
 session: 15
 isNew: false
-status: stub
+minutes: 25
+prereqs: ["7.1", "6.5"]
+outcomes:
+  - Name the three known things that combine to give the robot's field position
+  - Explain why multi-tag results are more reliable than single-tag results
+  - Explain how ambiguity and distance change how much the drivetrain trusts a measurement
+  - Diagnose a jumping pose, a constant offset, and a missing estimate
+sources:
+  - curriculum: "misc/v1/frc1360_programming_curriculum_plan.md"
+  - doc: "https://docs.photonvision.org/en/latest/docs/programming/photonlib/robot-pose-estimator.html"
+  - doc: "https://docs.wpilib.org/en/stable/docs/software/advanced-controls/state-space/state-space-pose-estimators.html"
+  - doc: "https://github.com/FRC1360/Rebuilt2026"
+status: review
 sidebar:
   label: "7.2 Vision pose estimation"
   order: 2
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import GoDeeper from '../../../components/lesson/GoDeeper.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
+import AnnotatedCode from '../../../components/code/AnnotatedCode.astro';
 
-**What it will cover:** Transforms, the field layout, ambiguity, and trust.
+<WhyItMatters>
+Seeing a tag tells you where the tag is relative to the camera. A shooter or an auto path needs to know where the robot is on the field. Getting from one to the other takes a chain of facts, and one wrong link makes the pose wrong by a constant amount or makes it jump.
+</WhyItMatters>
 
-Based on Session 15 of the Orbit Robotics curriculum.
+## The chain of known things
+
+The robot's field position is worked out from three pieces:
+
+1. **Field layout** (known): where each tag sits on the field. WPILib ships it as an `AprilTagFieldLayout` for each season.
+2. **Camera-to-tag** (measured by vision): where the tag is relative to the camera.
+3. **Robot-to-camera** (measured by you): where the camera is mounted on the robot and which way it faces. This is a `Transform3d`, a 3D offset plus a rotation.
+
+Work backwards: the tag's field position minus the camera-to-tag gives the camera's field position, and removing the robot-to-camera offset gives the robot's. `PhotonPoseEstimator` does this for you. You supply the layout and the robot-to-camera transform.
+
+**Robot-to-camera is yours to get right.** The team's constants measure it from the robot's center, in meters and radians.
+
+<AnnotatedCode
+  file="rebuilt2026-7.2/robot-to-camera"
+  title="Constants.java (DrivetrainConstants)"
+  notes={[
+    { lines: '2', text: '<code>Translation3d</code>: meters forward (x), left (y), and up (z) from the robot center. This camera is behind the center (negative x), left of it, and 0.2 m up.' },
+    { lines: '3', text: '<code>Rotation3d</code>: roll, pitch, yaw. A 10 degree tilt up and a yaw of about 134 degrees, so the camera points back and to the left.' },
+  ]}
+/>
+
+## One tag or many
+
+A single flat tag can look the same from two different positions, so one tag has **pose ambiguity**. The estimate may be the mirror-image answer, and the robot pose jumps.
+
+With two or more tags in view, only one robot position fits all of them. Multi-tag results are much more reliable, and PhotonVision can solve them on the coprocessor.
+
+The team's code tries multi-tag first and falls back to the single result with the lowest ambiguity.
+
+<AnnotatedCode
+  file="rebuilt2026-7.2/estimate"
+  title="CommandSwerveDrivetrain.java"
+  notes={[
+    { lines: '1', text: 'First try: all visible tags at once, solved on the coprocessor. It returns an empty <code>Optional</code> when fewer than two tags are seen.' },
+    { lines: '2-3', text: 'Fallback: use the single tag with the lowest ambiguity.' },
+    { lines: '5', text: 'Then decide how much to trust whatever came out. That is the next section.' },
+  ]}
+/>
+
+## How much to trust it
+
+A pose estimator blends odometry with each vision measurement. A **standard deviation** says how uncertain a measurement is: small means "trust this a lot", large means "barely listen". The team's `OrbitCamera` picks the numbers for every estimate.
+
+<AnnotatedCode
+  file="rebuilt2026-7.2/std-devs"
+  title="OrbitCamera.java"
+  notes={[
+    { lines: '1-2', text: 'Several tags: switch to the smaller multi-tag values, so the measurement counts for more.' },
+    { lines: '4-5', text: 'One tag more than 4 m away, or any tag with ambiguity above 0.2: set the uncertainty to the largest possible number, which makes the drivetrain ignore it.' },
+    { lines: '6-8', text: 'Otherwise grow the uncertainty with distance squared. Farther tags are noisier, so they count for less.' },
+  ]}
+/>
+
+The last step feeds the estimate to the drivetrain **with its timestamp**, so the pose estimator can apply it to where the robot was when the picture was taken (lesson 7.1).
+
+<AnnotatedCode
+  file="rebuilt2026-7.2/add-measurement"
+  title="CommandSwerveDrivetrain.java"
+  notes={[
+    { lines: '3-7', text: '<code>addVisionMeasurement</code> takes the pose, the capture timestamp, and the standard deviations. All three matter.' },
+  ]}
+/>
+
+<GoDeeper title="why the timestamp matters">
+Suppose the robot moves 2 m/s and the picture is 40 ms old. The robot has moved 8 cm since. If you applied the measurement as "now", every correction would pull the pose 8 cm behind. The pose estimator keeps a short history of odometry and applies the measurement to the matching moment.
+</GoDeeper>
+
+## Practice
+
+<Practice bank="7-2" />
+
+## Checkpoint
+
+<Checkpoint lesson="7.2">
+
+<details>
+<summary>Name the three known things that give the robot's field position from one tag.</summary>
+The field layout (where the tag is), camera-to-tag (measured by vision), and robot-to-camera (measured by you and stored as a constant).
+</details>
+
+<details>
+<summary>Why does the team's code give a far single-tag result huge uncertainty?</summary>
+Distance makes the estimate noisy, and a single tag may be the wrong mirror solution. A huge standard deviation tells the drivetrain to ignore it, so it does not make the pose jump.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- Robot pose = tag field position, camera-to-tag (vision), and robot-to-camera (your constant).
+- Multi-tag estimates remove the ambiguity that single tags have.
+- Standard deviations decide how much each measurement is trusted; ambiguity and distance make them larger.
+- The estimate goes to `addVisionMeasurement` with its capture timestamp.
+- Jumps, constant offsets, and silence each point to a different link in the chain.
+</RecapCard>

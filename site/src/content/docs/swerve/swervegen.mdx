@@ -5,16 +5,128 @@ id: "6.4"
 track: "swerve"
 session: 13
 isNew: false
-status: stub
+minutes: 20
+prereqs: ["6.2", "6.3"]
+outcomes:
+  - Say which swerve files the Tuner X generator writes and which ones the team writes
+  - Read a module constant block in TunerConstants (CAN IDs, encoder offset, position)
+  - Explain how RobotContainer creates the drivetrain
+  - Know when you must regenerate and what hand edits would cost you
+sources:
+  - curriculum: "misc/v1/frc1360_programming_curriculum_plan.md"
+  - doc: "https://github.com/FRC1360/Rebuilt2026"
+  - doc: "https://v6.docs.ctr-electronics.com/en/stable/docs/tuner/tuner-swerve/index.html"
+status: review
 sidebar:
   label: "6.4 CTRE SwerveGen"
   order: 4
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import GoDeeper from '../../../components/lesson/GoDeeper.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
+import AnnotatedCode from '../../../components/code/AnnotatedCode.astro';
 
-**What it will cover:** What the generator writes for you and what you write.
+<WhyItMatters>
+A swerve drivetrain has 12 devices (four modules, each with a drive motor, a steer motor and an encoder) plus a gyro.
+Each needs a CAN ID, a gear ratio, a mounting position and a calibrated encoder offset, and one wrong number makes the robot crawl sideways.
+CTRE's Tuner X **swerve project generator** (SwerveGen) measures that hard part with you and writes the code, so you can spend your time on driving.
+</WhyItMatters>
 
-Based on Session 13 of the Orbit Robotics curriculum.
+## Generated for you, written by you
+
+You answer a few questions in Tuner X: motor types, CAN IDs, gear ratios, wheel size, module positions. It also reads each encoder to find its offset.
+It then writes a project. You read the generated files, but you do not edit them.
+
+| Generated for you (do not hand-edit) | Written by you |
+| --- | --- |
+| `TunerConstants`: CAN IDs, gear ratios, wheel radius, module positions, encoder offsets, drive and steer gains | Drive commands (`DriveCommands`): joystick curve, deadband, which request to apply |
+| The base drivetrain class `TunerSwerveDrivetrain` (inside `TunerConstants`) that builds the motors, encoders and gyro | Additions in `CommandSwerveDrivetrain`: vision, PathPlanner setup, special requests |
+| `CommandSwerveDrivetrain` skeleton: `applyRequest`, SysId routines, simulation thread | Button bindings and the default command in `RobotContainer` |
+| A telemetry class that publishes the drive state | Anything the robot does with the pose |
+
+## What is in TunerConstants
+
+Every module gets one block of constants. This is the front-left one from the team's 2026 robot.
+
+<AnnotatedCode
+  file="rebuilt2026-6.4/module-constants"
+  title="TunerConstants.java (front left module)"
+  notes={[
+    { lines: '2-4', text: 'Three CAN IDs: <strong>drive motor, steer motor and encoder</strong>. They must match what is on the robot, or the module does not move.' },
+    { lines: '5', text: 'The <strong>encoder offset</strong>: the reading when the wheel points straight forward. Tuner X measures it with the wheels aligned. It is why you never type this by hand.' },
+    { lines: '9-10', text: 'Where the module sits relative to the robot center: 11.125 inches forward and 11.125 left. Swerve math needs it to turn the chassis rotation into a speed for each wheel.' },
+  ]}
+/>
+
+The same file also holds the gains the modules use to hit their targets.
+
+<AnnotatedCode
+  file="rebuilt2026-6.4/gains"
+  title="TunerConstants.java (gains)"
+  notes={[
+    { lines: '1-4', text: 'The <strong>steer</strong> gains hold each wheel at its angle. A large kP (100) is normal here: the steer loop works in rotations.' },
+    { lines: '5-9', text: 'The <strong>drive</strong> gains hold wheel speed. kV (0.124 volts per rotation per second) does most of the work, just as in lesson 3.5.' },
+  ]}
+/>
+
+## How the drivetrain is created
+
+`TunerConstants` also holds a factory that passes all constants into your drivetrain class.
+
+<AnnotatedCode
+  file="rebuilt2026-6.4/create-drivetrain"
+  title="TunerConstants.java"
+  notes={[
+    { lines: '1', text: 'Call this <strong>once</strong>. It builds all the hardware, so a second call would try to claim the same CAN devices again.' },
+    { lines: '3', text: 'Drivetrain-wide constants (CAN bus name, gyro ID) plus one block per module.' },
+  ]}
+/>
+
+`RobotContainer` calls it in one line, and that is the only place the drivetrain is made:
+
+```java
+public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+```
+
+## When to regenerate
+
+Regenerate in Tuner X whenever the **hardware** changes: a motor or encoder with a new CAN ID, a swapped module, a different gear ratio or wheel, or modules re-aligned after a repair. Re-measure the encoder offsets after any re-assembly.
+
+If you edit a generated file by hand, the next regeneration overwrites your edit silently, and the robot suddenly behaves differently. Put your own logic in `CommandSwerveDrivetrain` additions and in commands instead. The team's file marks what it added, such as the vision code and PathPlanner setup.
+
+<GoDeeper title="what the generated gains are not">
+The generated drive and steer gains are a starting point. Each team characterizes its own robot with SysId and tunes the values in `TunerConstants`.
+That edit is an exception: it changes a number, not the structure. Note it, and re-apply it if you ever regenerate.
+</GoDeeper>
+
+## Practice
+
+<Practice bank="6-4" />
+
+## Checkpoint
+
+<Checkpoint lesson="6.4">
+
+<details>
+<summary>The robot is rebuilt with a module swapped for a spare. What do you do in the code?</summary>
+Regenerate (or at least re-measure) in Tuner X, because the spare's encoder has a different offset. Do not fix it by nudging a number in a driving command.
+</details>
+
+<details>
+<summary>A teammate wants to add a deadband by editing TunerConstants. What do you tell them?</summary>
+The deadband belongs in the drive command, which you wrote. TunerConstants describes hardware, and a regeneration would erase the edit.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- SwerveGen writes the hard, hardware-specific part: constants, the base drivetrain, a command wrapper.
+- You write the driving: commands, bindings, extra drivetrain features.
+- `TunerConstants.createDrivetrain()` is called once, in `RobotContainer`.
+- Hardware changed means regenerate. Hand edits in generated code get lost.
+</RecapCard>

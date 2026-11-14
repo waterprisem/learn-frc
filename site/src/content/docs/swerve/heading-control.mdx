@@ -5,16 +5,119 @@ id: "6.6"
 track: "swerve"
 session: 14
 isNew: false
-status: stub
+minutes: 25
+prereqs: ["6.1", "6.5"]
+outcomes:
+  - Explain when and why to reset the pose or the heading
+  - Compute the angle from the robot to a target with atan2
+  - Describe how a heading PID lets the driver translate while the robot faces a target
+  - Explain angle wrap-around and why continuous input fixes it
+sources:
+  - curriculum: "misc/v1/frc1360_programming_curriculum_plan.md"
+  - doc: "https://github.com/FRC1360/Rebuilt2026"
+  - doc: "https://v6.docs.ctr-electronics.com/en/stable/docs/api-reference/mechanisms/swerve/swerve-requests.html"
+status: review
 sidebar:
   label: "6.6 Reset pose and heading control"
   order: 6
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import GoDeeper from '../../../components/lesson/GoDeeper.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
+import AnnotatedCode from '../../../components/code/AnnotatedCode.astro';
 
-**What it will cover:** Resetting pose and turning to face a target.
+<WhyItMatters>
+Last year's robot shot while driving, and the driver only steered with the left stick.
+The code turned the robot to face the goal by itself, using the pose from lesson 6.5.
+That only works if the pose starts right and the turning controller understands that 179 degrees and -179 degrees are neighbors.
+</WhyItMatters>
 
-Based on Session 14 of the Orbit Robotics curriculum.
+## Resetting the pose or the heading
+
+Odometry needs a starting point, and sometimes you must give it a new one.
+
+| When | What you reset | Why |
+| --- | --- | --- |
+| Start of autonomous | The pose, to the path's start pose | The path assumes the robot starts exactly there |
+| Driver says "forward is wrong" | The heading only | Field-centric forward drifted from the real field direction |
+
+In the team's 2026 code, PathPlanner's `AutoBuilder` is given `this::resetPose` so it seeds the pose at the start of an auto.
+This code has no driver "zero heading" button. In CTRE's example project that button calls `seedFieldCentric()`, which makes the robot's current facing the new field-centric forward without moving the position. (2026)
+
+## Turning to face a target
+
+Say the robot is at (2, 3) and the target is at (6, 6) meters, both in the field frame.
+
+1. Subtract: the difference is 4 m in x and 3 m in y.
+2. The angle to the target is `atan2(dy, dx)` = `atan2(3, 4)`, about 37 degrees.
+3. Hand that angle to a controller as the **target heading**.
+
+Use `atan2`, not `atan`: it takes the two differences separately, so it gets the correct quadrant. The team computes this with `PhotonUtils.getYawToPose`, passing poses with zero rotation so the result is the field-frame angle.
+
+## Driver translates, a PID turns
+
+CTRE's `FieldCentricFacingAngle` request takes the driver's x and y speeds like normal field-centric driving, plus a target direction. A built-in **heading PID** turns the angle error into the rotation rate. The right stick is not used.
+
+<AnnotatedCode
+  file="rebuilt2026-6.6/facing-request"
+  title="CommandSwerveDrivetrain.java"
+  notes={[
+    { lines: '1-2', text: 'The request is created once and reused. Only the speeds and target direction change each loop.' },
+    { lines: '4', text: '<code>withHeadingPID(7.0, 0.0, 0.0)</code>: kP of 7 and no kI or kD. kP converts radians of error into radians per second of turn.' },
+    { lines: '7-8', text: 'A trigger that is true while the heading is within tolerance (the team sets 3 degrees), so other commands can wait for the robot to be aimed.' },
+  ]}
+/>
+
+<AnnotatedCode
+  file="rebuilt2026-6.6/target-heading"
+  title="SetShooterForSwerveShootingCommand.java"
+  notes={[
+    { lines: '1-4', text: 'Angle from the turret to the goal, in the field frame. The goal is moved to compensate for robot speed, which a later lesson covers.' },
+    { lines: '6-7', text: 'The same joystick curve as normal driving: the driver still controls translation.' },
+    { lines: '8-12', text: 'Speeds come from the stick, and the <strong>target direction</strong> comes from the angle above. No rotation rate is given: the PID produces it.' },
+  ]}
+/>
+
+## Wrap-around
+
+Angles repeat every 360 degrees. If the robot faces 179 degrees and the target is -179 degrees, the plain error is -179 - 179 = -358 degrees, and the PID would spin almost a full turn.
+The real error is 2 degrees. **Continuous input** tells the controller the range wraps (here -180 to 180 degrees), so it always takes the shortest way round.
+
+CTRE's `FieldCentricFacingAngle` sets this up in its heading controller, so you get it for free. With a plain WPILib `PIDController` you would call `enableContinuousInput(-Math.PI, Math.PI)` yourself.
+
+<GoDeeper title="why kP 7 can still oscillate">
+kP is radians per second per radian of error. With kP 7, a 1 radian (57 degree) error asks for 7 rad/s, which is more than a robot can turn, so the output saturates.
+Too much kP overshoots the target and swings back and forth. Lower it until the robot settles, as in lesson 3.5.
+</GoDeeper>
+
+## Practice
+
+<Practice bank="6-6" />
+
+## Checkpoint
+
+<Checkpoint lesson="6.6">
+
+<details>
+<summary>Why reset the pose at the start of autonomous?</summary>
+The path is drawn from a specific starting pose. If odometry thinks the robot starts somewhere else, every path point is offset by the same amount.
+</details>
+
+<details>
+<summary>Why does a facing-angle controller need continuous input?</summary>
+Angles wrap, so 179 and -179 degrees are 2 degrees apart. Without it the error looks like 358 degrees and the robot turns the long way.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- Reset the pose at the start of autonomous; reset only the heading when the driver's forward is off.
+- Angle to a target is `atan2(dy, dx)` of the pose difference, in the field frame.
+- `FieldCentricFacingAngle` lets the driver translate while a heading PID turns the robot.
+- Continuous input makes the error wrap to the shortest way round.
+</RecapCard>

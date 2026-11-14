@@ -5,16 +5,116 @@ id: "7.1"
 track: "vision"
 session: 15
 isNew: false
-status: stub
+minutes: 20
+prereqs: ["1.6", "6.5"]
+outcomes:
+  - Explain how a printed tag plus a calibrated camera gives a 3D position
+  - Read the main fields of a PhotonVision result and say what each is for
+  - Explain why a vision result carries a timestamp
+  - Create a PhotonCamera that actually receives results
+sources:
+  - curriculum: "misc/v1/frc1360_programming_curriculum_plan.md"
+  - doc: "https://docs.photonvision.org/en/latest/docs/programming/photonlib/getting-target-data.html"
+  - doc: "https://docs.wpilib.org/en/stable/docs/software/vision-processing/apriltag/apriltag-intro.html"
+  - doc: "https://github.com/FRC1360/Rebuilt2026"
+status: review
 sidebar:
   label: "7.1 AprilTags and PhotonVision"
   order: 1
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import GoDeeper from '../../../components/lesson/GoDeeper.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
+import ComponentCard from '../../../components/hardware/ComponentCard.tsx';
 
-**What it will cover:** How a camera turns a tag into numbers.
+<WhyItMatters>
+Wheel odometry drifts: after a few seconds of hard driving, the robot's idea of where it is can be off by many centimeters. A camera that can see a landmark with a known position on the field can fix that.
+AprilTags are those landmarks, and PhotonVision is the program that reads them.
+</WhyItMatters>
 
-Based on Session 15 of the Orbit Robotics curriculum.
+## From a printed square to a position
+
+An **AprilTag** is a black-and-white square pattern that encodes an ID number. The field has many of them at positions that are published and fixed, so tag 4 is always in the same place.
+
+<ComponentCard id="camera" />
+
+A camera on its own sees only pixels. Two extra facts turn the picture into a distance:
+
+1. **The tag's real size.** A tag that is a known number of centimeters wide looks smaller the farther away it is.
+2. **The camera's calibration.** A measurement of the lens (field of view, distortion) tells the software how pixels map to angles.
+
+With both, the software works out the tag's 3D position and rotation relative to the camera. It does not yet know where the robot is on the field. Lesson 7.2 adds that.
+
+## What PhotonVision does
+
+**PhotonVision** is software that runs on the coprocessor you met in lesson 1.6. For every camera frame it finds the tags, computes their positions, and publishes the result over NetworkTables to the roboRIO.
+
+The roboRIO side is a `PhotonCamera`. Its name must match the camera name in the PhotonVision web UI exactly, because that name is how it finds the right NetworkTables topics.
+
+```java
+PhotonCamera camera = new PhotonCamera("photoncamera_bl");
+
+for (var result : camera.getAllUnreadResults()) {
+    if (result.hasTargets()) {
+        var target = result.getBestTarget();
+        int id = target.getFiducialId();
+    }
+}
+```
+
+`getAllUnreadResults()` returns every result since your last call (2026), so no frame is skipped. A **target** is one detected tag.
+
+## What a result tells you
+
+| PhotonVision reports | What it means | What you use it for |
+| --- | --- | --- |
+| Fiducial ID | Which tag this is (a fiducial is a marker used as a reference) | Look up that tag's field position |
+| Yaw (degrees) | How far left or right of the camera's center the tag appears | Simple aiming |
+| Pitch (degrees) | How far up or down in the image | Rough distance from a known height |
+| Area (percent of image) | How much of the image the tag fills | A rough closeness check |
+| Best camera-to-target transform | The tag's 3D position and rotation relative to the camera | Pose estimation (lesson 7.2) |
+| Pose ambiguity (0 to 1) | How likely it is that a flat tag could be two different positions | Deciding whether to trust the result |
+| Timestamp (seconds) | When the picture was taken, not when your code read it | Matching the result to where the robot was then |
+
+## The picture is already old
+
+Capturing a frame, finding the tags, and sending the numbers takes tens of milliseconds. While that happens, the robot keeps moving. By the time your code sees a result, it describes where the robot was a moment ago.
+
+So each result carries the **timestamp** of when the frame was captured. Later lessons pass that timestamp along with the measurement so the pose estimator can compare it with where the robot was at that moment, not now.
+
+<GoDeeper title="why the name has to match exactly">
+PhotonVision publishes under a NetworkTables table named after the camera. `PhotonCamera` subscribes to the table with the name you give it. A typo does not raise an error. The camera just never reports any results, which looks the same as "no tags in view".
+</GoDeeper>
+
+## Practice
+
+<Practice bank="7-1" />
+
+## Checkpoint
+
+<Checkpoint lesson="7.1">
+
+<details>
+<summary>Why does a single camera frame of a tag give a 3D position?</summary>
+The software knows the tag's real size and the camera's calibration, so how big and how skewed the tag looks tells it the distance and angle.
+</details>
+
+<details>
+<summary>Why does a result carry a timestamp?</summary>
+The frame is tens of milliseconds old by the time the code reads it, and the robot has moved since. The timestamp says which moment the result describes.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- A tag has an ID and a fixed field position; its real size and the camera calibration give its 3D position relative to the camera.
+- PhotonVision runs on the coprocessor and sends results to the roboRIO over NetworkTables.
+- A `PhotonCamera` must use exactly the name from the PhotonVision UI.
+- A target reports ID, yaw, pitch, area, camera-to-target transform, and pose ambiguity.
+- Results are slightly old, so they carry a capture timestamp.
+</RecapCard>

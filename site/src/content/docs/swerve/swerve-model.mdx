@@ -5,16 +5,106 @@ id: "6.2"
 track: "swerve"
 session: 13
 isNew: false
-status: stub
+minutes: 20
+prereqs: ["1.6", "6.1"]
+outcomes:
+  - Name the three parts of a swerve module
+  - Describe the motion a ChassisSpeeds (vx, vy, omega) asks for
+  - Predict the wheel speeds and angles for forward, strafe, and spin
+  - Explain why you never compute module states by hand
+sources:
+  - curriculum: "misc/v1/frc1360_programming_curriculum_plan.md"
+  - doc: "https://docs.wpilib.org/en/stable/docs/software/kinematics-and-odometry/swerve-drive-kinematics.html"
+  - doc: "https://v6.docs.ctr-electronics.com/en/stable/docs/api-reference/mechanisms/swerve/swerve-overview.html"
+  - doc: "https://github.com/FRC1360/Rebuilt2026"
+status: review
 sidebar:
   label: "6.2 Swerve mental model"
   order: 2
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import GoDeeper from '../../../components/lesson/GoDeeper.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
+import ComponentCard from '../../../components/hardware/ComponentCard.tsx';
 
-**What it will cover:** Four steered wheels, ChassisSpeeds, and a driving playground.
+<WhyItMatters>
+A tank drive can only go forward and turn. A swerve robot can slide sideways, drive diagonally, and spin while it does both, so it lines up with a scoring spot faster.
+The price is four steered wheels that all have to agree. This lesson is the mental model that makes that manageable.
+</WhyItMatters>
 
-Based on Session 13 of the Orbit Robotics curriculum.
+## One module
+
+A swerve robot has four **modules**, one at each corner. Each module is a small steerable wheel with three devices:
+
+- a **drive motor** that spins the wheel (speed),
+- a **steer motor** that turns the whole wheel (direction),
+- an **absolute encoder** that reports the wheel's angle even right after power-on.
+
+<ComponentCard id="cancoder" />
+
+The absolute encoder is a CANcoder (lesson 1.6). Without it the robot would not know where the wheels point at startup.
+On the team's 2026 robot, front-left uses CAN ids 10 (drive), 11 (steer), and 12 (CANcoder), and a Pigeon 2 gyro sits at id 5.
+
+## Ask for motion, not for wheels
+
+Your code does not say "wheel 3, point left". It asks for one motion of the whole robot as a `ChassisSpeeds`, in the robot frame from lesson 6.1.
+
+| Field | Meaning | Unit |
+| --- | --- | --- |
+| `vx` | forward speed | m/s |
+| `vy` | left speed | m/s |
+| `omega` | counter-clockwise turn rate | rad/s |
+
+**Kinematics** is the geometry that turns that one request into four `SwerveModuleState`s: a speed and an angle for each wheel.
+You never compute those by hand. The CTRE drivetrain, generated for the team's robot, does it every loop.
+
+## What the wheels do
+
+Wheel positions are about 0.283 m from the center in each direction (11.125 in on the team robot), so each wheel is about 0.40 m from the center.
+Angles are in the robot frame: 0° forward, counter-clockwise positive.
+
+| Request | Every wheel | Why |
+| --- | --- | --- |
+| Forward: `vx` = 2 | 2.0 m/s at 0° | All wheels agree |
+| Strafe left: `vy` = 2 | 2.0 m/s at 90° | Wheels all turn sideways |
+| Spin: `omega` = 1 | 0.40 m/s each. FL 135°, FR 45°, BL 225°, BR −45° | Each wheel is tangent to a circle around the center |
+| Forward plus spin: `vx` = 2, `omega` = 1 | FL 1.74 m/s at 9.4°, FR 2.30 m/s at 7.1°, BL 1.74 m/s at −9.4°, BR 2.30 m/s at −7.1° | Spin is added to forward; the right side speeds up, the left side slows |
+
+Each wheel's motion is just the robot's translation plus the spin at that corner, added as vectors.
+
+<GoDeeper title="why a wheel may show a speed with a flipped angle">
+Turning a wheel 180° takes time. Instead, the code can point it at the angle within 90° of where it is now and run it backward.
+So you may see a state such as 45° at negative speed instead of 225° at positive speed. The wheel moves the same way on the floor.
+</GoDeeper>
+
+## Practice
+
+<Practice bank="6-2" />
+
+## Checkpoint
+
+<Checkpoint lesson="6.2">
+
+<details>
+<summary>What does your code ask for, and what does the drivetrain turn it into?</summary>
+Your code asks for a `ChassisSpeeds` (vx, vy, omega) for the whole robot. Kinematics turns it into a `SwerveModuleState` (speed and angle) for each of the four wheels.
+</details>
+
+<details>
+<summary>In a pure spin, why are the four wheel angles all different?</summary>
+Each wheel must move tangent to a circle around the robot's center, and the tangent direction differs at each corner.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- A module is a drive motor, a steer motor, and a CANcoder for the wheel angle.
+- You ask for `ChassisSpeeds` (vx, vy, omega); kinematics produces four `SwerveModuleState`s.
+- Forward and strafe point all wheels the same way; spin points them tangent to a circle.
+- The CTRE drivetrain does the math, so you never compute module states by hand.
+</RecapCard>

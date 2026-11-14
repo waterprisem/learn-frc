@@ -5,16 +5,109 @@ id: "7.4"
 track: "vision"
 session: 16
 isNew: false
-status: stub
+minutes: 25
+prereqs: ["7.3", "6.6"]
+outcomes:
+  - Describe how three PID loops drive the robot to a pose in front of a tag
+  - Choose a target pose from the field layout and an offset
+  - Decide when the robot counts as aligned, and what to do when vision goes stale
+  - Explain how alignment differs from following a path
+sources:
+  - curriculum: "misc/v1/frc1360_programming_curriculum_plan.md"
+  - doc: "https://docs.wpilib.org/en/stable/docs/software/advanced-controls/controllers/pidcontroller.html"
+status: review
 sidebar:
   label: "7.4 Align to a tag"
   order: 4
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import GoDeeper from '../../../components/lesson/GoDeeper.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
 
-**What it will cover:** Three PID loops, tolerance, and stopping safely with no target.
+<WhyItMatters>
+Scoring from the same spot every time beats a driver's eye. If the robot can drive itself to exactly 0.5 m in front of a tag, facing it, the shot or placement is repeatable. The risk is a robot that keeps driving after the camera stops seeing the tag.
+</WhyItMatters>
 
-Based on Session 16 of the Orbit Robotics curriculum.
+## Three loops, one target pose
+
+The idea builds on lesson 6.6's heading control: instead of one PID on heading, use three.
+
+1. Choose a **target pose**: where you want the robot, for example 0.5 m in front of tag 4 and facing it. Take the tag's field pose from the layout and apply an offset.
+2. Each loop, subtract the robot's current pose from the target to get three errors: x (meters), y (meters), and rotation (radians).
+3. Each error goes into its own `PIDController`, giving a velocity for x, y, and rotation.
+4. Send those three velocities to the drivetrain as field-centric speeds.
+
+The robot's pose comes from the pose estimator (lesson 7.2), so the loops work from the best estimate the robot has, not a raw camera frame. This is called **field-relative** alignment. It stays steady when the tag briefly leaves view, because odometry keeps the pose moving between vision updates.
+
+The team's 2026 repo has no alignment command, so this is a plain illustration of the structure, not team code.
+
+```java
+// Illustration only, not from the team repo.
+Pose2d robot = drivetrain.getState().Pose;
+
+double xSpeed = xPID.calculate(robot.getX(), target.getX());
+double ySpeed = yPID.calculate(robot.getY(), target.getY());
+double omega  = rotPID.calculate(
+    robot.getRotation().getRadians(), target.getRotation().getRadians());
+```
+
+## When is it aligned?
+
+A real robot never reaches the exact pose, so give each loop a **tolerance**. For example, 2 cm in x and y and 2 degrees in rotation.
+
+The command finishes only when all three errors are inside their tolerances. Checking just one lets the robot stop while still turned or off to the side.
+
+## No target, no driving
+
+Vision can disappear: the tag is covered, the camera is blocked, or the robot turns away. The pose then comes from odometry alone and drifts, so an aligned-looking pose can be wrong.
+
+Track the time of the last accepted vision measurement. If it is older than a limit (the plan uses 0.5 s), **stop**. Never keep driving on stale data. The robot should hold still, or end the command and let the driver take over.
+
+Also limit the speed. Clamp each PID output to a maximum so a large initial error, like 3 m, does not slam the robot toward a wall.
+
+## Alignment is not path following
+
+| | Path following | Align to tag |
+| --- | --- | --- |
+| Starts from | A planned route with many points | The robot's current pose |
+| Goal | Follow a trajectory in time | Reach one pose precisely |
+| Uses | Planned speeds plus feedback | Feedback only |
+| Best for | Getting across the field | Last meter before scoring |
+
+The usual pattern is a path to get near the tag, then alignment to finish.
+
+<GoDeeper title="older team code and why it was split up">
+The plan notes that earlier alignment code mixed choosing a target, falling back between cameras, PID math, and driving in one large command. It was hard to debug. Keep these separate: one place picks the target pose, one does the PID math, and the command only connects them.
+</GoDeeper>
+
+## Practice
+
+<Practice bank="7-4" />
+
+## Checkpoint
+
+<Checkpoint lesson="7.4">
+
+<details>
+<summary>Why check all three errors before finishing?</summary>
+Each axis can be done while the others are not. Finishing on one error could leave the robot turned or off to the side of the target.
+</details>
+
+<details>
+<summary>What should the robot do if the last vision update is older than 0.5 s?</summary>
+Stop driving (or end the command). Without fresh vision the pose is odometry only and may be wrong.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- Target pose = tag's field pose plus an offset; three PID loops (x, y, rotation) drive the errors to zero.
+- Aligned means all three errors are inside their tolerances.
+- Stale vision means stop; clamp speeds.
+- Paths get you near; alignment finishes precisely.
+</RecapCard>

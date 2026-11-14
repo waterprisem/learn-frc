@@ -1,0 +1,50 @@
+# Practice bank for lesson 6.5 (Pose and odometry).
+lesson: "6.5"
+items:
+  - type: mcq
+    prompt: "A `Pose2d` of (3.0, 2.0) with a heading of 90 degrees means:"
+    choices:
+      - "3 m along x, 2 m along y from the field origin, facing the +y direction"
+      - "3 m forward and 2 m left of where the robot started, facing +x"
+      - "The robot is rotating at 90 degrees per second"
+      - "The robot is 3 m from the nearest wall"
+    answer: 0
+    explain: "A pose is a position in the field frame plus a heading, with counter-clockwise positive. It is not relative to the start, and it is not a speed."
+  - type: multi
+    prompt: "Which of these make the odometry pose drift? Select all that apply."
+    choices:
+      - "A wheel slips while accelerating hard"
+      - "Another robot pushes yours sideways"
+      - "The gyro heading is 1 degree off"
+      - "The driver turns the joystick curve exponent up"
+    answers: [0, 1, 2]
+    explain: "Drift comes from measurements that no longer match real movement. The joystick curve changes what the driver asks for, not how movement is measured."
+  - type: fill-blank
+    prompt: "Complete the supplier so it returns the drivetrain's current pose."
+    code: |
+      () -> drivetrain.____().Pose
+    blanks: [["getState"]]
+    explain: "`getState()` returns the latest swerve state, which holds the pose, the speeds and the module states."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "In AdvantageScope the robot icon is 0.4 m from where the real robot stands after a match full of pushing and wheel spin, but it was correct at the start."
+    choices:
+      - "Odometry accumulated errors from slip and collisions with no vision correction."
+      - "The field image is loaded backwards."
+      - "The pose is published in degrees instead of meters."
+      - "The drivetrain was created twice."
+    answer: 0
+    explain: "A pose that starts right and slowly gets worse is drift. A wrong field image or unit mistake would be wrong from the start."
+  - type: mcq
+    prompt: "A vision measurement has a large standard deviation. What does the pose estimator do with it?"
+    choices:
+      - "Trusts it more than odometry"
+      - "Moves the pose only slightly toward it"
+      - "Replaces the pose with it"
+      - "Ignores odometry for the rest of the match"
+    answer: 1
+    explain: "A larger standard deviation means more doubt, so the measurement gets less weight. Replacing the pose would let one bad frame teleport the robot."
+  - type: free
+    prompt: "The gyro is 2 degrees off and the robot drives 10 m straight. Roughly how far sideways is the pose wrong? (sin 2 degrees is about 0.035)"
+    modelAnswer: "About 0.35 m, because 10 m times 0.035 is 0.35 m."
+    explain: "The error grows with distance driven. Twice the angle error gives twice the sideways error."

@@ -5,16 +5,138 @@ id: "6.5"
 track: "swerve"
 session: 14
 isNew: false
-status: stub
+minutes: 20
+prereqs: ["6.1", "6.4"]
+outcomes:
+  - Say what a Pose2d holds and what units it uses
+  - Explain how odometry builds the pose from wheel movement and the gyro
+  - Describe why the pose drifts and what corrects it
+  - Find where the team code reads and publishes the pose
+sources:
+  - curriculum: "misc/v1/frc1360_programming_curriculum_plan.md"
+  - doc: "https://github.com/FRC1360/Rebuilt2026"
+  - doc: "https://docs.wpilib.org/en/stable/docs/software/advanced-controls/state-space/state-space-pose-estimators.html"
+status: review
 sidebar:
   label: "6.5 Pose and odometry"
   order: 5
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import GoDeeper from '../../../components/lesson/GoDeeper.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
+import AnnotatedCode from '../../../components/code/AnnotatedCode.astro';
 
-**What it will cover:** Pose2d, odometry, and gyro drift.
+<WhyItMatters>
+To score from the right spot or drive an autonomous path, the robot has to know where it is on the field.
+No sensor says that directly, so the code builds an estimate called the **pose** and keeps it up to date every loop.
+Every later lesson (vision, paths, aiming) starts from this number, so its errors become everyone's errors.
+</WhyItMatters>
 
-Based on Session 14 of the Orbit Robotics curriculum.
+## What a pose is
+
+A `Pose2d` is a position plus a heading, in the field frame from lesson 6.1.
+
+| Part | Type | Unit |
+| --- | --- | --- |
+| x | distance from the field origin along the field's long axis | meters |
+| y | distance from the origin across the field | meters |
+| heading | which way the robot faces, counter-clockwise positive | `Rotation2d` (read as degrees or radians) |
+
+The pose is not the gyro heading. The gyro gives one number (the heading). The pose adds where you are.
+
+## Odometry: adding up movement
+
+**Odometry** starts from a known pose and, many times a second, adds the small movement measured since the last update.
+Each wheel's drive encoder says how far it rolled and its steer angle says which way. The gyro supplies the robot's heading.
+The generated drivetrain does this on its own fast loop, so you never write the update.
+
+Odometry is only as good as its inputs, so errors **accumulate**: each update adds a tiny mistake and nothing removes it.
+
+## Why the pose drifts
+
+- **Wheel slip**: a wheel spins or skids, so the encoder reports distance that was not covered.
+- **Collisions and pushing**: the robot moves without the wheels turning the way the code expects.
+- **Gyro error**: a heading that is 1 degree off sends every later meter slightly sideways.
+
+A worked example: the gyro heading is 1 degree off, and the robot drives straight.
+
+| Distance driven | Sideways error (distance times sin 1 degree) |
+| --- | --- |
+| 5 m | 0.09 m |
+| 10 m | 0.17 m |
+| 20 m | 0.35 m |
+
+That is one small error source. A match has several, so by the end the pose can be tens of centimeters wrong.
+Vision (track 7) fixes this by reading AprilTags at known field spots. A **pose estimator** blends the two sources: it gives each a **standard deviation**, a number for how much to distrust it (small means trusted).
+A tag measured from close up gets a small value and pulls the pose strongly. A noisy one barely moves it.
+
+<GoDeeper title="why the estimator is called a Kalman filter">
+WPILib's swerve pose estimator and CTRE's drivetrain both use a Kalman filter: a standard way to blend noisy measurements by their standard deviations.
+You do not need the math yet. The idea is a weighted average where the trusted source gets the larger weight.
+</GoDeeper>
+
+## How the team code reads and publishes the pose
+
+The drivetrain keeps its latest state, and `getState().Pose` returns the pose. `RobotContainer` hands it to `RobotState` as a supplier, so shooting and zone code all read the same pose.
+
+<AnnotatedCode
+  file="rebuilt2026-6.5/get-pose"
+  title="RobotContainer.java"
+  notes={[
+    { lines: '2', text: 'A <strong>supplier</strong> (<code>() -&gt; ...</code>) is read fresh each time it is called, so users always get the newest pose, not a copy from startup.' },
+    { lines: '3', text: 'The same state also holds the chassis speeds, so one object gives both the pose and how fast the robot is moving.' },
+  ]}
+/>
+
+`SwerveTelemetry` publishes that state to NetworkTables for AdvantageScope. The drivetrain calls it after every update.
+
+<AnnotatedCode
+  file="rebuilt2026-6.5/telemeterize"
+  title="SwerveTelemetry.java"
+  notes={[
+    { lines: '1', text: 'The pose goes out as a <strong>struct</strong> under <code>DriveState/Pose</code>, which AdvantageScope can draw as a robot on the field.' },
+    { lines: '4-5', text: 'Per-module states and targets let you compare what each wheel was asked to do with what it did.' },
+  ]}
+/>
+
+<AnnotatedCode
+  file="rebuilt2026-6.5/field-pose"
+  title="SwerveTelemetry.java"
+  notes={[
+    { lines: '1-2', text: 'A second, older style: a <code>Field2d</code> topic that dashboards like Shuffleboard understand.' },
+    { lines: '4-6', text: 'Pose as three numbers: x and y in meters, heading in <strong>degrees</strong>. Heading is converted here, so watch the unit when you compare logs.' },
+  ]}
+/>
+
+## Practice
+
+<Practice bank="6-5" />
+
+## Checkpoint
+
+<Checkpoint lesson="6.5">
+
+<details>
+<summary>What is the difference between heading and pose?</summary>
+Heading is one number from the gyro: which way the robot faces. The pose is x, y and heading together, so it also says where the robot is.
+</details>
+
+<details>
+<summary>Name one thing that makes the pose drift on a real robot, and what fixes it.</summary>
+Wheel slip when pushed, for example. Vision measurements from AprilTags correct it, blended in by how much each source is trusted.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- A `Pose2d` is x and y in meters plus a heading, in the field frame.
+- Odometry adds up wheel movement and gyro heading, so small errors accumulate.
+- Slip, collisions and gyro error cause drift; vision corrects it.
+- A pose estimator blends sources using standard deviations: smaller means more trust.
+- Read the pose with `drivetrain.getState().Pose`; `SwerveTelemetry` publishes it for AdvantageScope.
+</RecapCard>

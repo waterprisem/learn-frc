@@ -5,16 +5,136 @@ id: "7.3"
 track: "vision"
 session: 15
 isNew: false
-status: stub
+minutes: 25
+prereqs: ["7.2"]
+outcomes:
+  - Say what OrbitCamera owns and what it leaves to other classes
+  - Read a class you did not write in the order fields, constructor, methods, callers
+  - Trace one camera result from the camera to the drivetrain's pose
+  - Name the values in it you would change for a different robot
+sources:
+  - curriculum: "misc/v1/frc1360_programming_curriculum_plan.md"
+  - doc: "https://docs.photonvision.org/en/latest/docs/programming/photonlib/robot-pose-estimator.html"
+  - doc: "https://github.com/FRC1360/Rebuilt2026"
+status: review
 sidebar:
   label: "7.3 OrbitCamera walkthrough"
   order: 3
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import GoDeeper from '../../../components/lesson/GoDeeper.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
+import AnnotatedCode from '../../../components/code/AnnotatedCode.astro';
 
-**What it will cover:** Reading the team’s reusable camera class.
+<WhyItMatters>
+On a real team you spend more time reading code you did not write than writing new code. `OrbitCamera` is a class the team wrote once and reuses for every camera on the robot. You will use it, not rewrite it, so the skill here is reading it fast.
+</WhyItMatters>
 
-Based on Session 15 of the Orbit Robotics curriculum.
+## How to read an unfamiliar class
+
+Go in this order, and ask one question at each stop:
+
+1. **Fields:** what does this class own?
+2. **Constructor:** what must the caller provide, and what is set up?
+3. **Public methods:** what can other classes ask it to do?
+4. **Callers:** who actually uses it, and when?
+
+## 1. Fields: what it owns
+
+`OrbitCamera` wraps one physical camera. It owns the field layout, the `PhotonCamera`, a `PhotonPoseEstimator`, the robot-to-camera transform, and the latest results.
+
+<AnnotatedCode
+  file="rebuilt2026-7.3/fields"
+  title="OrbitCamera.java"
+  notes={[
+    { lines: '3-5', text: 'The three things from lesson 7.2 that every pose estimate needs: the camera, the estimator, and where the camera is mounted.' },
+    { lines: '7', text: 'The most recent batch of results, stored so other classes can read them after one update call.' },
+    { lines: '9-11', text: 'Publishers that send values to NetworkTables, only so you can see them in AdvantageScope.' },
+    { lines: '12-15', text: 'The trust settings: current standard deviations, the single-tag and multi-tag defaults, and the ambiguity cutoff of 0.2.' },
+  ]}
+/>
+
+The simulation fields further down (a simulated camera and vision system) are used only when running in the simulator.
+
+## 2. Constructor: what you provide
+
+<AnnotatedCode
+  file="rebuilt2026-7.3/constructor"
+  title="OrbitCamera.java"
+  notes={[
+    { lines: '1', text: 'Two parameters: the robot-to-camera <code>Transform3d</code> and the camera name. Both are different for every camera.' },
+    { lines: '2', text: 'Loads the 2026 field layout, so the class knows where every tag is.' },
+    { lines: '5-6', text: 'The name must match the PhotonVision UI exactly. The estimator is built from the layout and your transform.' },
+    { lines: '8-11', text: 'Creates a NetworkTables publisher whose topic includes the camera name, so each camera has its own entries.' },
+  ]}
+/>
+
+The rest of the constructor publishes the transform once and, in simulation only, builds a simulated camera with a 640 by 400 image, 68 degree field of view, 50 FPS, and about 21 ms of latency.
+
+## 3. Public methods: what it offers
+
+Notice what the class does **not** do. It never calls `addVisionMeasurement` itself. It hands out its estimator and results, and the caller decides what to do with them.
+
+<AnnotatedCode
+  file="rebuilt2026-7.3/accessors"
+  title="OrbitCamera.java"
+  notes={[
+    { lines: '1-11', text: 'Plain getters. The caller can get the standard deviations, the camera, and the estimator.' },
+    { lines: '13-16', text: '<code>updateStructPublisher</code> logs the latest vision pose for debugging.' },
+    { lines: '19-21', text: '<code>updatePipelineResults</code> reads all new results from the camera and stores them. This is the only place the camera is read.' },
+    { lines: '23-25', text: 'Hands out the stored results.' },
+  ]}
+/>
+
+`updateEstimationStdDevs` (lesson 7.2) is the other public method: it filters results by ambiguity and distance and sets the standard deviations.
+
+## 4. Callers: who uses it
+
+Search for where `OrbitCamera` appears. The drivetrain creates three of them, one per camera, and calls `updatePose()` from its `periodic()`, so it runs every 20 ms loop.
+
+<AnnotatedCode
+  file="rebuilt2026-7.3/caller"
+  title="CommandSwerveDrivetrain.java"
+  notes={[
+    { lines: '2-3', text: 'For each camera, read its new results.' },
+    { lines: '5-8', text: 'For each result, try multi-tag, then fall back to lowest ambiguity.' },
+    { lines: '10', text: 'Set the trust level for that estimate.' },
+    { lines: '12-19', text: 'If there is an estimate, add it to the drivetrain pose with its timestamp, and log it.' },
+  ]}
+/>
+
+<GoDeeper title="why the class has no periodic method">
+`OrbitCamera` is not a subsystem. It has no `periodic()` of its own and is never registered with the scheduler. The drivetrain, which owns the pose, drives it from its own `periodic()`. That keeps one place responsible for pose.
+</GoDeeper>
+
+## Practice
+
+<Practice bank="7-3" />
+
+## Checkpoint
+
+<Checkpoint lesson="7.3">
+
+<details>
+<summary>You mount a new camera on a different robot. What do you pass to the constructor?</summary>
+The new robot-to-camera transform and the camera's name exactly as shown in PhotonVision.
+</details>
+
+<details>
+<summary>Why does the drivetrain, not OrbitCamera, call addVisionMeasurement?</summary>
+The drivetrain owns the pose. OrbitCamera only produces estimates and trust values, which keeps it reusable for any number of cameras.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- Read a class in order: fields, constructor, public methods, callers.
+- `OrbitCamera` wraps one camera: results, pose estimator, transform, and trust settings.
+- The constructor takes a robot-to-camera transform and a camera name.
+- The drivetrain loops over its cameras every cycle and feeds estimates to its pose.
+</RecapCard>

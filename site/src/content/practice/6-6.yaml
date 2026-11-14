@@ -1,0 +1,61 @@
+# Practice bank for lesson 6.6 (Reset pose and heading control).
+lesson: "6.6"
+items:
+  - type: mcq
+    prompt: "The robot is at (1, 1) and the target is at (5, 4) in meters. Which expression gives the angle to face it?"
+    choices:
+      - "`Math.atan2(3, 4)`"
+      - "`Math.atan2(4, 3)`"
+      - "`Math.atan2(5, 4)`"
+      - "`Math.atan2(1, 1)`"
+    answer: 0
+    explain: "The differences are dx = 5 - 1 = 4 and dy = 4 - 1 = 3. `atan2` takes y first, then x: `atan2(3, 4)`, about 37 degrees. Swapping them gives the angle from the y axis."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "The robot is facing 179 degrees and the target heading becomes -179 degrees. It spins almost a full turn instead of nudging 2 degrees."
+    choices:
+      - "The controller has no continuous input, so it sees a 358 degree error."
+      - "kP is too low."
+      - "The pose was not reset at the start of autonomous."
+      - "The field image is flipped."
+    answer: 0
+    explain: "Without wrap-around, -179 minus 179 is -358. Continuous input makes the controller see the 2 degree difference. A low kP would turn slowly, not the long way."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "While facing the target, the robot swings back and forth past the correct heading, and the swings get faster the nearer it gets."
+    choices:
+      - "kP is too high."
+      - "The driver is pressing the right stick."
+      - "The tolerance is set to 3 degrees."
+      - "The pose was reset twice."
+    answer: 0
+    explain: "Over-correcting every small error is a gain that is too large. Lower kP until the robot settles, as with the flywheel."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "On the blue alliance the robot faces the goal correctly. On the red alliance it turns exactly the opposite way and faces away."
+    choices:
+      - "The target pose was not switched to the red goal's pose for the red alliance."
+      - "kP is too high on red."
+      - "Continuous input is turned off."
+      - "The gyro drifted."
+    answer: 0
+    explain: "The field frame has its origin at the blue wall (lesson 6.1), so a red alliance target needs its own pose. The team picks between blue and red hub poses based on alliance. Gains and wrap-around would not depend on color."
+  - type: mcq
+    prompt: "While `FieldCentricFacingAngle` is active, what does the right stick do?"
+    choices:
+      - "It still sets the turning speed."
+      - "Nothing, because the heading PID decides the rotation rate."
+      - "It sets the target heading directly."
+      - "It resets the pose."
+    answer: 1
+    explain: "The driver's x and y speeds go in, but rotation comes from the controller. The team's `joystickDriveFacingAngle` does not read the right stick at all."
+  - type: parsons
+    prompt: "Put the lines in order to compute the angle from the robot to a target."
+    lines:
+      - "double dx = target.getX() - robot.getX();"
+      - "double dy = target.getY() - robot.getY();"
+      - "double angleRadians = Math.atan2(dy, dx);"
+      - "Rotation2d targetHeading = new Rotation2d(angleRadians);"
+    distractors:
+      - "double angleRadians = Math.atan(dx / dy);"
+    explain: "Find the differences first, then atan2 with y first and x second, then wrap the result as a Rotation2d. `atan(dx / dy)` loses the quadrant and breaks when dy is 0."

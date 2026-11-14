@@ -5,16 +5,96 @@ id: "8.1"
 track: "auto"
 session: 17
 isNew: false
-status: stub
+minutes: 15
+prereqs: ["3.6", "6.1", "6.5"]
+outcomes:
+  - Explain how a path (where the robot goes) and its rotation targets (which way it faces) are separate
+  - Say what constraints do to a path
+  - Name the three parts of an auto and where each is stored
+sources:
+  - curriculum: "misc/v1/frc1360_programming_curriculum_plan.md"
+  - doc: "https://pathplanner.dev/pathplanner-gui.html"
+  - doc: "https://github.com/FRC1360/Rebuilt2026"
+status: review
 sidebar:
   label: "8.1 PathPlanner concepts"
   order: 1
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import GoDeeper from '../../../components/lesson/GoDeeper.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
 
-**What it will cover:** Waypoints, constraints, and rotation targets.
+<WhyItMatters>
+For the first 15 seconds of a match nobody drives the robot. If your auto is a hand-tuned list of "drive forward for 2 seconds," it breaks the moment the battery sags or the robot starts an inch off.
+**PathPlanner** lets you draw the route on a field picture and has the robot follow it using its pose, so it corrects itself as it goes.
+</WhyItMatters>
 
-Based on Session 17 of the Orbit Robotics curriculum.
+## A path is a curve, and heading is separate
+
+A **path** is a smooth curve through **waypoints**. Each waypoint has an **anchor** (a point on the field) and **control handles** that bend the curve in and out of it.
+The robot's position follows that curve.
+
+On a swerve robot the direction it faces does not have to match the direction it travels (lesson 6.2). So PathPlanner controls heading on its own:
+**rotation targets** say "face this angle when you are this far along the path," and the **goal end state** says how fast and at what angle the path ends.
+Team 1360's `LSTART-LC1` path, for example, ends facing -113.55 degrees and has no rotation targets along the way.
+
+## Constraints turn a curve into a trajectory
+
+A curve alone says nothing about time. **Constraints** (a maximum velocity, a maximum acceleration, and angular limits) let PathPlanner generate a **trajectory**: the same curve with a target speed and a time at every point.
+It is the motion profile idea from lesson 3.6, applied to a drive instead of an elevator.
+
+A path has global constraints, plus optional **constraint zones** that slow one stretch, such as the approach to a game piece.
+Our `LSTART-LC1` path has a 4.0 meters per second (m/s) maximum globally and a zone over its last 30 percent limited to 1.5 m/s.
+
+## An auto chains paths and commands
+
+An **auto** is a command that runs paths and other commands in order, in parallel, or both. It also decides whether the robot's pose is reset to the path's starting point (`resetOdom`).
+
+The table shows the pieces and where each one lives. Everything is a JSON file the GUI writes under `src/main/deploy/pathplanner/`, which deploys with your code (lesson R.5).
+
+| Term | What it means | Where it is set |
+| --- | --- | --- |
+| Waypoint | Anchor point plus control handles; shapes the curve | Path file, `waypoints` |
+| Rotation target | Heading to hold at a point along the path | Path file, `rotationTargets` |
+| Goal end state | Speed and heading at the end of the path | Path file, `goalEndState` |
+| Constraints | Max velocity, acceleration, angular limits | Path file (`globalConstraints`, zones), defaults in `settings.json` |
+| Event marker | A named point where something should happen | Path file, `eventMarkers` (lesson 8.3) |
+| Auto | Ordered paths and commands, plus `resetOdom` | `autos/` folder, one file per auto |
+| Robot config | Mass, wheel size, module positions, speed limits | `settings.json` |
+
+<GoDeeper title="what the robot config is for">
+The follower needs to know how much force your drivetrain can really produce. `settings.json` holds the robot mass, wheel radius, gearing, drive current limit, and wheel friction.
+If these are wrong, the trajectory asks for accelerations the robot cannot deliver, and it lags behind the plan.
+</GoDeeper>
+
+## Practice
+
+<Practice bank="8-1" />
+
+## Checkpoint
+
+<Checkpoint lesson="8.1">
+
+<details>
+<summary>The path curves left, but you want the robot to keep facing the far wall the whole time. What do you set?</summary>
+Rotation targets or the goal end state, not the curve. Heading is separate from position on a swerve robot.
+</details>
+
+<details>
+<summary>What turns a drawn curve into something the robot can follow?</summary>
+Constraints. They give the curve a speed and a time at every point.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- A path is a curve through waypoints; the robot's position follows it.
+- Heading is controlled separately, by rotation targets and the goal end state.
+- Constraints give the curve a speed at every point, which makes it a trajectory.
+- An auto chains paths and commands. All of it is JSON in `deploy/pathplanner/`.
+</RecapCard>

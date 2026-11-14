@@ -5,16 +5,93 @@ id: "9.2"
 track: "beyond"
 session: null
 isNew: true
-status: stub
+minutes: 15
+prereqs: ["9.1", "R.4", "R.5", "4.6"]
+outcomes:
+  - Explain what is different about networking and deploying at an event
+  - Run a pre-match checklist
+  - Use the time between matches to fix one thing safely
+sources:
+  - doc: "https://docs.wpilib.org/en/stable/docs/software/driverstation/driver-station.html"
+  - doc: "https://docs.wpilib.org/en/stable/docs/software/advanced-gradlerio/deploy-git-data.html"
+status: review
 sidebar:
   label: "9.2 Competition readiness"
   order: 2
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import GoDeeper from '../../../components/lesson/GoDeeper.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
 
-**What it will cover:** The pit, deploying at events, and reviewing match logs.
+<WhyItMatters>
+At an event you get minutes between matches, a crowded wireless environment, and no second chance at a match.
+Most lost matches come from small, avoidable things: a stale battery, the wrong autonomous, a controller in the wrong slot, or a change deployed in a hurry.
+</WhyItMatters>
 
-This lesson goes beyond the Orbit Robotics curriculum.
+## What is different at an event
+
+| At the shop | At an event |
+| --- | --- |
+| You connect over your own Wi-Fi or a cable | The field network and radio are set up by event staff. You cannot use your own Wi-Fi. |
+| You deploy any time | In the pit you deploy while tethered, over USB or Ethernet |
+| Any charged battery will do | A fresh, charged battery goes in for every match, and you check its voltage |
+| You can test freely | Queue times and match times limit you. Every change must be small and tested. |
+
+A match is a short autonomous period followed by teleop. Check the current game manual for the exact lengths before you plan around them.
+
+## The pre-match checklist
+
+Run it every match, in the same order, as a team.
+
+1. **Code is deployed** and the Driver Station shows **Robot Code** green.
+2. **The right autonomous is selected** on the chooser (lesson 4.6 logging helps you confirm it afterward).
+3. **Controllers are in the right slots** on the Driver Station, driver in slot 0 and operator in slot 1 if your code expects that.
+4. **Mechanisms are in their starting positions**, and homed if your code needs it (lesson 1.6).
+5. **A fresh, charged battery** is installed and secured, and you checked its voltage.
+6. **Bumpers** are on and match your alliance color.
+
+## Between matches
+
+1. **Pull the logs** from the robot.
+2. **Review them in AdvantageScope** (lesson 4.6): did it brown out, throw CAN errors, or miss a target?
+3. **Fix one thing at a time.** If two changes fix the problem you will not know which one did.
+4. **Test it** in the pit or on the practice field.
+5. **Never deploy an untested change right before a match.** If you cannot test it, leave the working code.
+
+<GoDeeper title="why one change at a time">
+If you change a gain and an autonomous path together and the robot improves or breaks, you cannot tell which change did it.
+Under time pressure you also cannot undo both safely. One change per test keeps every result readable, and `git` (lesson 0.7) lets you go back to the last code that worked.
+</GoDeeper>
+
+## Practice
+
+<Practice bank="9-2" />
+
+## Checkpoint
+
+<Checkpoint lesson="9.2">
+
+<details>
+<summary>Your robot does not move at the start of a match and the Driver Station shows Robot Code red. Which checklist step would have caught it?</summary>
+Step 1. Code deployed and Robot Code green is the first thing to confirm in the pit queue, while there is still time to redeploy.
+</details>
+
+<details>
+<summary>You think of a fix with five minutes before your match. What do you do?</summary>
+Leave the working code unless you can test the fix. An untested change risks making the match worse than the known problem.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- At an event you use the field network and radio set up by staff, not your own Wi-Fi.
+- Deploy tethered in the pit.
+- Fresh, charged battery every match, and check its voltage.
+- Run the same pre-match checklist every time.
+- Between matches: pull logs, review, fix one thing, test it. Never deploy untested changes before a match.
+</RecapCard>

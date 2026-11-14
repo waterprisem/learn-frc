@@ -1,0 +1,35 @@
+lesson: "9.4"
+items:
+  - type: mcq
+    prompt: "You open an unfamiliar robot project. Which file do you read first?"
+    choices: ["`Constants.java`", "`RobotContainer.java`", "The longest subsystem", "Every file in alphabetical order"]
+    answer: 1
+    explain: "`RobotContainer` creates the subsystems and binds buttons, so everything important is reachable from it."
+  - type: parsons
+    prompt: "Put the tracing steps in order."
+    lines:
+      - "Find a button binding in RobotContainer"
+      - "Go to the command it runs"
+      - "Go to the subsystem method the command calls"
+      - "Check Constants for the numbers"
+    distractors: []
+    explain: "You follow the chain from the controller toward the hardware, one hop at a time."
+  - type: mcq
+    prompt: "In the example, `backdriveShooterInput.whileTrue(backdriveShooter)` runs the command when?"
+    choices: ["Once when the button is pressed", "While the button is held", "Always", "When the match starts"]
+    answer: 1
+    explain: "`whileTrue` runs the command while the trigger is true and cancels it when it becomes false."
+  - type: mcq
+    prompt: "In the example, the flywheel target is `-30.0`. What does that mean physically?"
+    choices: ["The wheel spins backward to clear a jam", "The wheel is turned off", "A typo", "The wheel spins forward faster"]
+    answer: 0
+    explain: "A negative velocity target spins the shooter backward. The button is named backdrive."
+  - type: multi
+    prompt: "Which help you navigate unfamiliar code? Select all that apply."
+    choices: ["Go to Definition", "Find All References", "Reading every file top to bottom", "Searching for `TODO`"]
+    answers: [0, 1, 3]
+    explain: "Reading everything is slow and unnecessary. Jump along the chain you care about."
+  - type: free
+    prompt: "How can telemetry names help you understand a robot you did not write?"
+    modelAnswer: "The signals a subsystem publishes show what the team measures and debugs, such as current, velocity, and error, so they point to what matters."
+    explain: "Telemetry is the team's own list of important signals."

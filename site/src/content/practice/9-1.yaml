@@ -1,0 +1,60 @@
+lesson: "9.1"
+items:
+  - type: parsons
+    prompt: "Put the first-enable steps in order."
+    lines:
+      - "Confirm every device in Tuner X"
+      - "Set current limits low"
+      - "Apply a small positive voltage and check the direction"
+      - "Check the sensor counts up, then check the conversion"
+      - "Close the loop with low gains and a low target"
+    distractors: []
+    explain: "Each step makes the next safe. Closing the loop last matters most: feedback on an unchecked direction or conversion can drive the mechanism hard the wrong way."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "You apply +1 V to the elevator motor and the elevator moves down, but your code treats up as positive."
+    choices:
+      - "The conversion factor is wrong"
+      - "The motor inversion is wrong"
+      - "Neutral mode is set to coast"
+      - "A CAN ID is duplicated"
+    answer: 1
+    explain: "The motor spins the opposite way from your definition of positive. Fix inversion in the motor configuration. A wrong conversion changes the size of the reading, not the direction of motion."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "Positive voltage lifts the arm correctly, but when you turn on the position loop the arm slams into the hard stop."
+    choices:
+      - "Sensor direction is wrong, so the loop pushes the wrong way"
+      - "Current limit is too high"
+      - "Firmware is out of date"
+      - "Brake mode is on"
+    answer: 0
+    explain: "The open-loop direction is right, so the motor is fine. The sensor counts down when the arm goes up, which makes the error grow as the arm moves, so feedback keeps pushing."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "You move a mechanism exactly 10 inches by hand. The sensor says 4 inches, and it counts up."
+    choices:
+      - "Motor inversion"
+      - "Sensor phase"
+      - "Conversion factor"
+      - "Brownout"
+    answer: 2
+    explain: "The direction is right but the size is off by a constant factor (2.5), so the conversion (gear ratio, wheel or spool size) is wrong."
+  - type: mcq
+    prompt: "Why set current limits before the first enable?"
+    choices:
+      - "They make the mechanism faster"
+      - "A jam or wrong direction stalls at a small current instead of burning out the motor or browning out the robot"
+      - "They fix wrong inversion"
+      - "They are only needed at competition"
+    answer: 1
+    explain: "The first enable is when surprises happen. Limits cap the damage. They do not change direction or speed in normal motion."
+  - type: multi
+    prompt: "Which of these are good habits at first enable? Select all that apply."
+    choices:
+      - "Mechanism free to move and people clear"
+      - "Fix a flipped motor with a minus sign in one command"
+      - "Watch the Driver Station for CAN errors and brownouts"
+      - "Start with a low target and low gains"
+    answers: [0, 2, 3]
+    explain: "A minus sign in one command leaves every other command, the logs, and the simulation inconsistent. Fix inversion in configuration."

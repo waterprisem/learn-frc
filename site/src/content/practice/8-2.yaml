@@ -1,0 +1,54 @@
+lesson: "8.2"
+items:
+  - type: mcq
+    prompt: "What does the last argument, `this`, in `AutoBuilder.configure(...)` do?"
+    choices:
+      - "It makes the drivetrain the alliance flip source."
+      - "It declares the drivetrain as the subsystem the path-following command requires."
+      - "It loads `settings.json`."
+      - "It registers the pose supplier."
+    answer: 1
+    explain: "It is the requirement, as in lesson 2.4. It stops two commands from driving the drivetrain at once. Flipping is the separate supplier before it."
+  - type: multi
+    prompt: "Which of these must AutoBuilder be given? Select all that apply."
+    choices:
+      - "A pose supplier"
+      - "A way to reset the pose"
+      - "A way to drive with robot-relative speeds"
+      - "The name of the auto to run"
+    answers: [0, 1, 2]
+    explain: "The auto name is given later, to `PathPlannerAuto`. AutoBuilder is about how to drive this robot, not what to run."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "On the red alliance the robot drives the blue path and heads into the wrong half of the field."
+    choices:
+      - "The flip supplier always returns false (for example, it never checks the alliance)."
+      - "The translation P constant is too large."
+      - "`resetOdom` is on."
+      - "The chooser default is `Commands.none()`."
+    answer: 0
+    explain: "Flipping happens only when the supplier returns true. Gains change how well the path is tracked, not which side it is on."
+  - type: fill-blank
+    prompt: "Complete the line that loads the auto stored in `autos/L1.auto`."
+    code: |
+      leftSideTurretedAuto1 = new ____("L1");
+    blanks:
+      - ["PathPlannerAuto"]
+    explain: "`PathPlannerAuto` takes the auto's file name, without the extension."
+  - type: mcq
+    prompt: "What should the default option in the auto chooser be, and why?"
+    choices:
+      - "The most complex auto, so it is always ready."
+      - "`Commands.none()`, so an unselected chooser does nothing."
+      - "`null`, so the scheduler skips it."
+      - "A random auto."
+    answer: 1
+    explain: "A do-nothing default is the safe choice. `null` can crash code that expects a command."
+  - type: bug-hunt
+    prompt: "Click the line that makes the robot ignore the selected auto."
+    code: |
+      public Command getAutonomousCommand() {
+          return Commands.none();
+      }
+    bugLine: 2
+    explain: "It should return `autoChooser.getSelected()`. The chooser is on the dashboard, but nothing reads it."

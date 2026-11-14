@@ -1,0 +1,44 @@
+lesson: "8.5"
+items:
+  - type: parsons
+    prompt: "Put these workflow steps in order."
+    lines:
+      - "Write the subsystem and constants"
+      - "Write the commands"
+      - "Simulate and graph"
+      - "Open a pull request for review"
+      - "Deploy and bring up"
+    distractors: []
+    explain: "Each step reduces risk before the next: simulation before review, review before the robot."
+  - type: mcq
+    prompt: "Where should new code be tested first?"
+    choices:
+      - "On the real robot, with the mentor present"
+      - "In simulation, with signals graphed"
+      - "On the main branch"
+      - "At the competition"
+    answer: 1
+    explain: "Simulation is the cheapest place to find bugs. The robot comes after review."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "A mechanism that was tuned perfectly in simulation oscillates on the real robot."
+    choices:
+      - "Real friction, load, and sensors differ, so gains need retuning on the hardware."
+      - "The pull request was not reviewed."
+      - "The branch name was wrong."
+      - "AdvantageScope is out of date."
+    answer: 0
+    explain: "Simulation is a model. That is why the workflow has a tuning step on the real mechanism."
+  - type: mcq
+    prompt: "What should you do before changing the first enable behavior of a brand-new mechanism?"
+    choices:
+      - "Ask a mentor to be present."
+      - "Skip simulation to save time."
+      - "Merge directly to main."
+      - "Increase the current limit."
+    answer: 0
+    explain: "A new mechanism can move unexpectedly. A mentor present is part of the workflow."
+  - type: free
+    prompt: "Why do you work in a branch and open a pull request instead of editing the main branch?"
+    modelAnswer: "A branch keeps unfinished work away from the code the team runs, and a pull request gives a teammate the chance to review it before it merges."
+    explain: "It protects working code and adds a second pair of eyes."

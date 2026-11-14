@@ -5,16 +5,126 @@ id: "8.2"
 track: "auto"
 session: 17
 isNew: false
-status: stub
+minutes: 20
+prereqs: ["8.1", "6.1", "6.5", "6.6"]
+outcomes:
+  - List the pieces of information AutoBuilder needs from your drivetrain
+  - Read Team 1360's real AutoBuilder configuration
+  - Explain how an auto is loaded, chosen on the dashboard, and returned to the robot
+  - Explain how one blue-side path works for both alliances
+sources:
+  - curriculum: "misc/v1/frc1360_programming_curriculum_plan.md"
+  - doc: "https://pathplanner.dev/pplib-build-an-auto.html"
+  - doc: "https://github.com/FRC1360/Rebuilt2026"
+status: review
 sidebar:
   label: "8.2 AutoBuilder"
   order: 2
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import GoDeeper from '../../../components/lesson/GoDeeper.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
+import AnnotatedCode from '../../../components/code/AnnotatedCode.astro';
 
-**What it will cover:** Connecting PathPlanner to the drivetrain, and alliance flipping.
+<WhyItMatters>
+PathPlannerLib knows how to follow a curve, but it has never seen your robot. It does not know how you read the pose or which method makes the wheels move.
+**`AutoBuilder.configure`** is where you hand it those pieces, once, so that any auto file can run on your drivetrain.
+</WhyItMatters>
 
-Based on Session 17 of the Orbit Robotics curriculum.
+## What AutoBuilder needs
+
+Think of it as a short list of questions about your robot, answered with code.
+
+1. Where am I? A pose supplier.
+2. Start from here. A way to reset the pose.
+3. How fast am I moving? A supplier of robot-relative speeds.
+4. Move like this. A way to drive with speeds (and feedforwards).
+5. How hard should I correct? A path-following controller with PID constants for translation and rotation.
+6. What can this robot do? The robot config (mass, wheels, limits).
+7. Am I red? A "should flip" supplier.
+8. Who drives? The drive subsystem, so the scheduler knows the path owns it (lesson 2.4).
+
+## The team's configuration
+
+This is `configureAutoBuilder()` in `CommandSwerveDrivetrain`, split in two. The first half answers questions 1 to 4.
+
+<AnnotatedCode
+  file="rebuilt2026-8.2/configure-inputs"
+  title="CommandSwerveDrivetrain.java"
+  notes={[
+    { lines: '1', text: 'Reads <code>settings.json</code> (the robot config you edit in the PathPlanner app) from the deploy folder.' },
+    { lines: '3-5', text: 'Pose, reset, and speeds all come from the swerve state the drivetrain already tracks (lesson 6.5).' },
+    { lines: '7-10', text: 'The drive callback. <code>discretize</code> corrects for the robot moving during one 20 ms loop, and the feedforward forces help the wheels accelerate along the path.' },
+  ]}
+/>
+
+The second half is the controller, the config, the flip rule, and the requirement.
+
+<AnnotatedCode
+  file="rebuilt2026-8.2/configure-controller"
+  title="CommandSwerveDrivetrain.java"
+  notes={[
+    { lines: '1-6', text: 'The follower is a PID on position error, with one set of constants for translation (P = 12) and one for rotation (P = 7). Retune these from graphs (lesson 4.4), the same way as any other loop.' },
+    { lines: '9', text: 'Flip when the Driver Station says we are on the red alliance; blue is the default when it says nothing.' },
+    { lines: '10', text: '<code>this</code> is the requirement: the drivetrain cannot be driven by two commands at once.' },
+  ]}
+/>
+
+## Alliance flipping
+
+You draw every path on the blue side of the field. When the flip supplier returns true, PathPlannerLib mirrors the whole path and its poses to the red side (lesson 6.1 explains the field coordinates).
+You maintain one set of paths instead of two. The supplier is checked when the auto starts, so the alliance must be known by then.
+
+## Loading and choosing an auto
+
+`new PathPlannerAuto("L1")` loads the file `autos/L1.auto` by name. The team builds one of each in `RobotContainer`, adds them to a `SendableChooser`, and publishes it to the dashboard.
+
+<AnnotatedCode
+  file="rebuilt2026-8.2/auto-chooser"
+  title="RobotContainer.java"
+  notes={[
+    { lines: '1-2', text: 'The default choice is <code>Commands.none()</code>, so selecting nothing means the robot sits still instead of running a wrong auto.' },
+    { lines: '3-4', text: 'Each option pairs a dashboard label with a prebuilt auto command.' },
+    { lines: '14', text: 'This puts the chooser on the dashboard as "Auto Chooser".' },
+  ]}
+/>
+
+At the start of autonomous, `Robot` calls `getAutonomousCommand()`, which returns `autoChooser.getSelected()`, and schedules it.
+
+The auto file also has `resetOdom: true`, which makes the pose start at the path's first point. That is how the robot knows where it started. If the robot is placed somewhere else, the auto still believes it is at the start point.
+
+<GoDeeper title="the warmup command">
+The first time PathPlannerLib runs it can stall the robot for a moment while Java loads classes. The team schedules `FollowPathCommand.warmupCommand()` at the end of the `RobotContainer` constructor so that happens before the match, not during it.
+</GoDeeper>
+
+## Practice
+
+<Practice bank="8-2" />
+
+## Checkpoint
+
+<Checkpoint lesson="8.2">
+
+<details>
+<summary>Why does AutoBuilder need both a pose supplier and a reset-pose method?</summary>
+The supplier lets the follower see where the robot is every loop. The reset lets an auto set the starting pose to its first path point.
+</details>
+
+<details>
+<summary>An auto starts in the wrong place on the field. Name two things to check.</summary>
+Whether the robot was placed at the path's start pose, and whether `resetOdom` is on. After that, check whether the alliance was known at start so the flip was correct.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- `AutoBuilder.configure` answers PathPlannerLib's questions about your drivetrain, once, at startup.
+- It needs pose, reset, speeds, a drive method, follower PID, robot config, a flip rule, and the drive subsystem.
+- Paths are drawn on the blue side; the flip supplier mirrors them for red.
+- `new PathPlannerAuto("name")` loads an auto; a chooser selects it; `getAutonomousCommand()` returns it.
+</RecapCard>

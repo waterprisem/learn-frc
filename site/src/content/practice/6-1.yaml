@@ -1,0 +1,61 @@
+# Practice bank for lesson 6.1 (Coordinate systems).
+lesson: "6.1"
+items:
+  - type: mcq
+    prompt: "A robot is at (5, 0) on the field with heading 90°. Which way is it facing?"
+    choices:
+      - "Toward the red wall (+X)"
+      - "Toward the blue wall (−X)"
+      - "Left, as seen from the blue driver station (+Y)"
+      - "Right, as seen from the blue driver station (−Y)"
+    answer: 2
+    explain: "Heading 0 faces +X and angles count counter-clockwise, so 90° faces +Y, which is left from the blue driver station. Picking right is the clockwise mistake."
+  - type: mcq
+    prompt: "Which `ChassisSpeeds` values describe driving straight backward at 1 m/s while turning clockwise?"
+    choices:
+      - "vx = 1, vy = 0, omega = 1"
+      - "vx = −1, vy = 0, omega = −1"
+      - "vx = −1, vy = 0, omega = 1"
+      - "vx = 0, vy = −1, omega = −1"
+    answer: 1
+    explain: "Backward is negative vx. Clockwise is negative omega, because positive turns are counter-clockwise. Choice 3 turns the wrong way; choice 4 strafes right."
+  - type: multi
+    prompt: "Which of these are positive in the robot frame? Select all that apply."
+    choices:
+      - "Driving forward"
+      - "Strafing right"
+      - "Strafing left"
+      - "Turning counter-clockwise (left)"
+      - "Turning clockwise (right)"
+    answers: [0, 2, 3]
+    explain: "Forward is +X, left is +Y, and counter-clockwise is positive. Right and clockwise are the negative directions."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "On the blue alliance the robot drives away from the driver as expected. On the red alliance, pushing the stick forward drives the robot toward the driver."
+    choices:
+      - "The operator perspective was never set for red"
+      - "The controller is unplugged"
+      - "The wheel diameter is wrong"
+      - "The speeds are in the wrong units"
+    answer: 0
+    explain: "Field-relative speeds are in the fixed blue-origin frame. Without the 180° red perspective, forward on the stick means +X, which is toward the driver for a red driver. Wrong units or wheel size would scale the motion, not reverse it."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "A target pose is set at heading 90 expecting a quarter turn, but the robot barely turns."
+    choices:
+      - "90 was passed as radians instead of degrees"
+      - "The target is on the wrong alliance"
+      - "The robot frame has +Y to the right"
+      - "The gyro is facing the wrong way"
+    answer: 0
+    explain: "Code works in radians, so 90 is read as 90 radians (about 14 full turns, which looks like almost no change after wrapping). Use `Rotation2d.fromDegrees(90)` so the unit is explicit."
+  - type: fill-blank
+    prompt: "Complete the pose of a robot 3 m from the blue wall, 2 m to the left of the origin side, facing the blue wall."
+    code: |
+      Pose2d pose = new Pose2d(____, ____, Rotation2d.fromDegrees(____));
+    blanks: [["3", "3.0"], ["2", "2.0"], ["180", "-180"]]
+    explain: "X is distance from the blue wall (3), Y is distance to the left (2), and facing the blue wall means facing −X, which is 180°."
+  - type: free
+    prompt: "A blue hub is at x = 4.625 m. The field is 16.54 m long. Where is the mirrored red hub's x, and what do you do to get it?"
+    modelAnswer: "x = 16.54 − 4.625 = 11.915 m. Mirror the blue x across the field length: subtract it from the field length."
+    explain: "Mirroring a target across the field is the second way to handle alliances, next to flipping the driver's view."

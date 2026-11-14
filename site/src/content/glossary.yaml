@@ -676,3 +676,198 @@ effectively-final:
   short: A local variable that never changes after being set. Lambdas may only use local variables like that.
   lessons:
     - "0.5"
+field-coordinate-system:
+  term: Field coordinate system
+  short: WPILib's fixed field axes - origin at the blue wall's right corner, +X toward red, +Y left, counter-clockwise positive.
+  lessons:
+    - "6.1"
+robot-frame:
+  term: Robot frame
+  short: Axes that move with the robot - +X forward, +Y left, counter-clockwise positive rotation.
+  lessons:
+    - "6.1"
+operator-perspective:
+  term: Operator perspective
+  short: Which field direction counts as "forward" for the driver - 0 degrees on blue, 180 degrees on red.
+  lessons:
+    - "6.1"
+chassis-speeds:
+  term: ChassisSpeeds
+  short: The whole robot's requested motion - vx (m/s forward), vy (m/s left), omega (rad/s counter-clockwise).
+  lessons:
+    - "6.2"
+swerve-module-state:
+  term: SwerveModuleState
+  short: One wheel's target - a speed in m/s and a steering angle.
+  lessons:
+    - "6.2"
+kinematics:
+  term: Kinematics
+  short: The geometry that turns the robot's requested motion into a speed and angle for each wheel.
+  lessons:
+    - "6.2"
+swerve-module:
+  term: Swerve module
+  short: One steerable wheel unit - a drive motor, a steer motor, and a CANcoder reading the wheel angle.
+  lessons:
+    - "6.2"
+field-relative:
+  term: Field-relative driving
+  short: Stick directions refer to the field, not the robot, so pushing away from you moves the robot away whichever way it faces.
+  lessons:
+    - "6.3"
+deadband:
+  term: Deadband
+  short: A small zone around the stick center treated as zero, so noise does not move the robot.
+  lessons:
+    - "6.3"
+swervegen:
+  term: SwerveGen
+  short: CTRE's Tuner X swerve project generator. It writes TunerConstants and the base drivetrain code from your hardware details.
+  lessons:
+    - "6.4"
+tuner-constants:
+  term: TunerConstants
+  short: The generated file holding a swerve robot's CAN IDs, gear ratios, module positions, encoder offsets and gains.
+  lessons:
+    - "6.4"
+encoder-offset:
+  term: Encoder offset
+  short: The encoder reading at which a swerve wheel points straight forward. Tuner X measures it with the wheels aligned.
+  lessons:
+    - "6.4"
+odometry:
+  term: Odometry
+  short: Tracking the robot's pose by adding up wheel movement and gyro heading over time. Small errors accumulate.
+  lessons:
+    - "6.5"
+pose-estimator:
+  term: Pose estimator
+  short: Blends odometry with vision measurements, weighting each by its standard deviation, to give one best pose.
+  lessons:
+    - "6.5"
+standard-deviation:
+  term: Standard deviation
+  short: How much a measurement is distrusted. Smaller means more trusted and more influence on the pose.
+  lessons:
+    - "6.5"
+drift:
+  term: Drift
+  short: Pose error that grows over time because odometry adds up small mistakes such as wheel slip and gyro error.
+  lessons:
+    - "6.5"
+continuous-input:
+  term: Continuous input
+  short: A PID setting that treats angles as wrapping, so the error is the shortest way around (179 to -179 degrees is 2).
+  lessons:
+    - "6.6"
+seed-field-centric:
+  term: Seed field-centric
+  short: A CTRE swerve call that makes the robot's current facing the new forward for field-centric driving.
+  lessons:
+    - "6.6"
+apriltag:
+  term: AprilTag
+  short: A printed square pattern with an ID number, placed at a known field position so cameras can use it as a landmark.
+  lessons:
+    - "7.1"
+photonvision:
+  term: PhotonVision
+  short: Software on the coprocessor that finds AprilTags in camera frames and sends the results to the roboRIO over NetworkTables.
+  lessons:
+    - "7.1"
+pose-ambiguity:
+  term: Pose ambiguity
+  short: A score from 0 to 1 for how easily a single flat tag could be explained by two different robot positions. High means unreliable.
+  lessons:
+    - "7.2"
+robot-to-camera:
+  term: Robot-to-camera transform
+  short: A Transform3d describing where the camera is mounted on the robot and which way it faces. You measure it and keep it as a constant.
+  lessons:
+    - "7.2"
+path:
+  term: Path
+  short: A smooth curve through waypoints that the robot's position follows; heading is set separately.
+  lessons:
+    - "8.1"
+waypoint:
+  term: Waypoint
+  short: An anchor point on a path plus control handles that bend the curve into and out of it.
+  lessons:
+    - "8.1"
+trajectory:
+  term: Trajectory
+  short: A path plus constraints, giving a target speed and a time for every point along it.
+  lessons:
+    - "8.1"
+path-constraints:
+  term: Path constraints
+  short: Limits on velocity, acceleration, and angular motion that PathPlanner uses to build a trajectory.
+  lessons:
+    - "8.1"
+rotation-target:
+  term: Rotation target
+  short: A heading the robot should hold at a given point along a path.
+  lessons:
+    - "8.1"
+goal-end-state:
+  term: Goal end state
+  short: The speed and heading a path ends with.
+  lessons:
+    - "8.1"
+auto:
+  term: Auto
+  short: A PathPlanner command that chains paths and other commands for the autonomous period.
+  lessons:
+    - "8.1"
+autobuilder:
+  term: AutoBuilder
+  short: PathPlannerLib class configured once with your drivetrain's pose, speeds, and drive methods so autos can run on it.
+  lessons:
+    - "8.2"
+alliance-flipping:
+  term: Alliance flipping
+  short: Mirroring a path drawn on the blue side to the red side when the robot is on the red alliance.
+  lessons:
+    - "8.2"
+auto-chooser:
+  term: Auto chooser
+  short: A dashboard dropdown (SendableChooser) that selects which auto command runs in autonomous.
+  lessons:
+    - "8.2"
+event-marker:
+  term: Event marker
+  short: A named point on a path where your code starts a command while the robot keeps driving.
+  lessons:
+    - "8.3"
+named-commands:
+  term: Named commands
+  short: PathPlannerLib's registry mapping a name string to a command, via NamedCommands.registerCommand.
+  lessons:
+    - "8.3"
+bring-up:
+  term: Bring-up
+  short: The ordered first-enable routine that checks a new mechanism's wiring, directions and conversions before closing a loop.
+  lessons:
+    - "9.1"
+sensor-phase:
+  term: Sensor phase
+  short: Whether the sensor reading counts up when the mechanism moves in the positive direction.
+  lessons:
+    - "9.1"
+soft-limit:
+  term: Soft limit
+  short: A limit in software or motor configuration that stops the mechanism from being driven past a safe position.
+  lessons:
+    - "9.1"
+pre-match-checklist:
+  term: Pre-match checklist
+  short: A fixed list the team confirms before every match - code deployed, autonomous selected, controllers, starting positions, battery, bumpers.
+  lessons:
+    - "9.2"
+systemcore:
+  term: SystemCore
+  short: The robot controller that replaces the roboRIO in the 2027 control system.
+  lessons:
+    - "9.3"

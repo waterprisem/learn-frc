@@ -1,0 +1,53 @@
+lesson: "9.2"
+items:
+  - type: mcq
+    prompt: "At an event, how do you connect your robot to the field?"
+    choices:
+      - "Through your own Wi-Fi router set up in the pit"
+      - "Through the field network and radio set up by event staff"
+      - "Over Bluetooth"
+      - "It does not matter"
+    answer: 1
+    explain: "Event staff manage the field network. Your own Wi-Fi is not allowed and would interfere with others."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "The robot browns out partway through the match. The battery in it was used in the previous match and only recharged for ten minutes."
+    choices:
+      - "Battery not fresh and charged"
+      - "Wrong autonomous"
+      - "Bumpers missing"
+      - "Controller in the wrong slot"
+    answer: 0
+    explain: "A weak battery sags under load and drops the supply below what the controller needs. A fresh battery every match, with its voltage checked, prevents it."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "In teleop the driver's joystick does nothing, but the Driver Station shows Robot Code green and communications green."
+    choices:
+      - "Controllers are in the wrong Driver Station slots"
+      - "Battery too full"
+      - "Code needs to be redeployed"
+      - "Bumpers are the wrong color"
+    answer: 0
+    explain: "The robot is connected and running code, so it is not a deploy or network problem. The code reads controller port 0 and 1, so check the slots."
+  - type: parsons
+    prompt: "Order the between-match routine."
+    lines:
+      - "Pull the logs"
+      - "Review them in AdvantageScope"
+      - "Pick one thing to fix"
+      - "Test the fix"
+    distractors: ["Deploy it right before the match without testing"]
+    explain: "Logs show what really happened. You change one thing so the result is readable, and test before the match."
+  - type: multi
+    prompt: "Which belong on the pre-match checklist? Select all that apply."
+    choices:
+      - "Robot Code is green"
+      - "Correct autonomous selected"
+      - "Rewrite the autonomous"
+      - "Mechanisms in starting positions"
+    answers: [0, 1, 3]
+    explain: "The checklist confirms a known-good state. Rewriting code is a between-match task, never a pre-match one."
+  - type: free
+    prompt: "A mentor offers to deploy a quick untested tweak ten minutes before your match. What do you say and why?"
+    modelAnswer: "Decline unless it can be tested. The current code is known to work. An untested change can fail in a way you only discover during the match."
+    explain: "Match time is not test time. Make the change after the match, test it, and deploy it before the next one."

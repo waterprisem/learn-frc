@@ -1,0 +1,43 @@
+lesson: "8.4"
+items:
+  - type: mcq
+    prompt: "In what order should you build the capstone?"
+    choices:
+      - "Write all the wiring, then run the full auto once."
+      - "Wire and test one milestone at a time."
+      - "Start with the stretch goals."
+      - "Edit the generated drivetrain first."
+    answer: 1
+    explain: "Small tested steps make a failure point at one change. Wiring everything at once leaves many possible causes."
+  - type: multi
+    prompt: "Which parts do you write in the capstone? Select all that apply."
+    choices:
+      - "The event wiring in `RobotContainer`"
+      - "The teleop align-to-tag binding"
+      - "The generated swerve drivetrain"
+      - "The provided camera integration"
+    answers: [0, 1]
+    explain: "The drivetrain is generated and the camera integration is provided. You write the wiring that connects them."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "In simulation the score happens while the flywheel is still spinning up."
+    choices:
+      - "`EXECUTE_SCORE` does not wait for `flywheelAtTarget`."
+      - "The path constraints are too high."
+      - "The auto chooser default is `Commands.none()`."
+      - "The camera is misaligned."
+    answer: 0
+    explain: "Readiness is a separate signal that the score command must wait on (lesson 5.2)."
+  - type: mcq
+    prompt: "Which marker should be wired to `safeStow()`?"
+    choices:
+      - "PREPARE_SCORE"
+      - "EXECUTE_SCORE"
+      - "STOW"
+      - "None; it runs by itself."
+    answer: 2
+    explain: "The marker names say what should happen. A marker does nothing until your code binds it."
+  - type: free
+    prompt: "Name one improvement you would make before deploying this auto to a real robot."
+    modelAnswer: "For example: tune the mechanism gains on the real hardware, check the start pose on the real field, add timeouts to commands that could hang, or test at low speed with a mentor present."
+    explain: "Any answer about real hardware differences, safety, or untested assumptions is a good one."

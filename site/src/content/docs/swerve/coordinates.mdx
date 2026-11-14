@@ -5,16 +5,118 @@ id: "6.1"
 track: "swerve"
 session: null
 isNew: true
-status: stub
+minutes: 20
+prereqs: ["0.8"]
+outcomes:
+  - Place a robot on the field from an (x, y, heading) pose
+  - Give the sign of vx, vy, and omega for a described motion
+  - Explain why a red-alliance driver pushing forward means negative X on the field
+  - State the units code uses for distance and angle
+sources:
+  - doc: "https://docs.wpilib.org/en/stable/docs/software/basic-programming/coordinate-system.html"
+  - doc: "https://github.com/FRC1360/Rebuilt2026"
+status: review
 sidebar:
   label: "6.1 Coordinate systems"
   order: 1
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import GoDeeper from '../../../components/lesson/GoDeeper.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
+import AnnotatedCode from '../../../components/code/AnnotatedCode.astro';
 
-**What it will cover:** Field and robot frames, angle direction, and alliance flipping.
+<WhyItMatters>
+Nearly every swerve bug is a sign error: the robot spins the wrong way, drives backward, or only works on one alliance.
+Before you write any driving code, you need to know which way is +X, which way is +Y, and which way counts as a positive turn.
+</WhyItMatters>
 
-This lesson goes beyond the Orbit Robotics curriculum.
+## The field frame
+
+WPILib puts one fixed coordinate system on the field. Every pose in your code, and every target such as a scoring spot, is written in it.
+
+- The **origin** (0, 0) is the corner at the right end of the blue alliance wall, as seen by a blue driver looking out at the field.
+- **+X** points away from the blue wall, toward the red wall.
+- **+Y** points to the left, as seen from the blue driver station.
+- A **heading** of 0 faces +X. Angles are **counter-clockwise positive**.
+
+Distances are in meters. Angles are in radians in code, but a `Rotation2d` holds the angle for you and lets you read it as degrees or radians (`Rotation2d.fromDegrees(90)`, `getRadians()`).
+
+| Pose (x m, y m, heading) | What it means |
+| --- | --- |
+| (0, 0, 0°) | In the origin corner, facing the red wall |
+| (2, 1, 90°) | 2 m from the blue wall, 1 m left of the origin side, facing left (+Y) |
+| (4.625, 4.035, 0°) | The team's blue hub position, facing the red wall |
+| (11.915, 4.035, 180°) | The team's red hub position (`16.54 - 4.625`), facing the blue wall |
+| (3, 2, −90°) | Facing right (−Y), back toward the origin side wall |
+
+## The robot frame
+
+The robot has its own axes that move with it. Speeds you ask for are written in this frame.
+
+| Motion | Sign |
+| --- | --- |
+| `vx` forward | positive |
+| `vx` backward | negative |
+| `vy` strafe left | positive |
+| `vy` strafe right | negative |
+| `omega` turn counter-clockwise (left) | positive |
+| `omega` turn clockwise (right) | negative |
+
+The robot frame and the field frame match only when the robot faces +X (heading 0).
+Turn the robot to 90° and robot-forward becomes field +Y.
+
+## Alliance flipping
+
+The field frame never changes with the alliance. The blue origin is always at the blue wall, even when you are red.
+A red driver pushes the stick "forward", away from themselves, and that means toward the blue wall: **negative X** on the field.
+
+Code has two ways to handle this. Either flip the driver's view (rotate stick input by 180° on red), or mirror each target for the red side.
+The team's drivetrain does the first: it sets an **operator perspective** whenever the robot is disabled.
+
+<AnnotatedCode
+  file="rebuilt2026-6.1/operator-perspective"
+  title="CommandSwerveDrivetrain.java (2026)"
+  notes={[
+    { lines: '2-7', text: 'Ask the Driver Station for the alliance, then set which field direction counts as "forward" for the driver: 180° for red, 0° for blue.' },
+    { lines: '1', text: 'It only changes while disabled (or the first time), so the controls never flip under the driver mid-match.' },
+  ]}
+/>
+
+Targets are the second half. The team's hub poses are listed once per alliance, and the code picks one by alliance color.
+
+<GoDeeper title="why the angle unit is a trap">
+Java's `Math.sin` and `Math.cos` want radians, but people think in degrees. Passing 90 where 1.5708 is expected gives nonsense without any error.
+Keep angles inside `Rotation2d` and only convert at the edges, for example when printing.
+</GoDeeper>
+
+## Practice
+
+<Practice bank="6-1" />
+
+## Checkpoint
+
+<Checkpoint lesson="6.1">
+
+<details>
+<summary>The robot is at heading 180°. It drives forward in its own frame. Which way does it move on the field?</summary>
+Toward −X, back toward the blue wall. Heading 180° faces −X, and robot-forward always points where the robot faces.
+</details>
+
+<details>
+<summary>Why does the red driver's stick push produce negative field X, and where does the team's code deal with it?</summary>
+The field frame is fixed to the blue wall, and red's forward is toward blue. The drivetrain's operator perspective rotates "forward" by 180° when the alliance is red.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- Field frame: origin at the blue wall's right corner, +X toward red, +Y left, counter-clockwise positive.
+- Robot frame: +X forward, +Y left, counter-clockwise positive.
+- Code uses meters and radians; `Rotation2d` hides the unit.
+- The field never flips with the alliance, so code flips the driver's view or mirrors targets.
+</RecapCard>

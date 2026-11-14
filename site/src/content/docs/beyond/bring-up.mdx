@@ -5,16 +5,94 @@ id: "9.1"
 track: "beyond"
 session: null
 isNew: true
-status: stub
+minutes: 20
+prereqs: ["1.3", "1.5", "1.6", "1.14", "R.6"]
+outcomes:
+  - Run a safe first-enable of a new mechanism in the right order
+  - Fix a wrong motor direction and a wrong sensor direction in configuration
+  - Verify that a conversion factor is right by moving a known distance
+  - Turn a first-enable symptom into a likely cause
+sources:
+  - doc: "https://docs.wpilib.org/en/stable/docs/software/can-devices/index.html"
+  - doc: "https://v6.docs.ctr-electronics.com/en/stable/"
+status: review
 sidebar:
   label: "9.1 Real-robot bring-up"
   order: 1
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import GoDeeper from '../../../components/lesson/GoDeeper.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
 
-**What it will cover:** A first-enable checklist: device setup, directions, CAN errors, and brownouts.
+<WhyItMatters>
+Code that works in simulation has never met a flipped motor, a miswired encoder, or a gear ratio typed wrong.
+On a real mechanism those mistakes mean a shooter wheel spinning backward or an arm driving into its hard stop at full voltage.
+Bring-up is the short, fixed routine that finds each of them while the power is still small.
+</WhyItMatters>
 
-This lesson goes beyond the Orbit Robotics curriculum.
+## The first-enable checklist
+
+Do the steps in order. Each one makes the next one safe.
+
+1. **Every device shows up in Phoenix Tuner X** with the right CAN ID and current firmware (lessons 1.5 and R.6). A missing or duplicate ID is cheaper to fix now than to debug as a "dead mechanism" later.
+2. **Put the robot on blocks, free the mechanism, clear the people.** The first command may spin the wrong way. Nobody's hands go near anything that moves (lesson 1.14).
+3. **Set current limits low** (lesson 1.3). If something jams, the motor stalls at a small current instead of cooking itself or browning out the robot.
+4. **Confirm the neutral mode** (brake or coast). It decides what the mechanism does when you stop driving it, which matters for an arm that must not fall.
+5. **Apply a small positive voltage** (about 1 V) and watch the motion. It must move in the direction your code calls positive. If not, fix the motor's inversion in configuration, not with a minus sign in a command.
+6. **Move it in the positive direction by hand or with voltage and read the sensor.** The reading must count up. If it counts down, the sensor direction is wrong, and any feedback loop would push the wrong way.
+7. **Check the conversion.** Move a known distance or angle (10 inches, a quarter turn) and compare the reading. A wrong gear ratio or wheel size shows up here as a number that is off by a constant factor.
+8. **Set soft limits** so the code refuses to drive past the safe range.
+9. **Home** the mechanism (lesson 1.6) so the sensor zero means something physical.
+10. **Only now close the loop**: low gains, low target, one hand near the disable key.
+11. **Watch the Driver Station** the whole time for CAN errors and brownouts (lesson R.4).
+
+<GoDeeper title="why inversion belongs in configuration">
+If you flip the direction in the motor configuration, every command and the sensor stay consistent: positive voltage means positive motion everywhere.
+If you patch it with a minus sign in one command, the next command, the logging, and the simulation each need the same patch, and someone will forget one.
+</GoDeeper>
+
+## What you see and what it means
+
+| What you see | Likely cause |
+| --- | --- |
+| Device missing in Tuner X | Bad CAN wiring or connector, duplicate or wrong ID, no power |
+| Mechanism moves the wrong way for a positive voltage | Motor inversion is wrong |
+| Positive voltage works, but a position loop runs away at full output | Sensor counts the wrong way (sensor phase) |
+| Reading is off by the same factor every time | Wrong conversion factor (gear ratio, wheel or spool size) |
+| Motor twitches or does nothing, no movement at all | Current limit too low, breaker tripped, or the mechanism is binding |
+| Robot browns out when the mechanism starts | Current limits too high, weak battery, or a loose power connection |
+| CAN errors that come and go | Loose connector, missing terminating resistor, too many devices on one bus |
+| Mechanism drifts after you stop driving it | Neutral mode is coast when you wanted brake |
+
+## Practice
+
+<Practice bank="9-1" />
+
+## Checkpoint
+
+<Checkpoint lesson="9.1">
+
+<details>
+<summary>Why check the direction with a small voltage before any PID?</summary>
+A closed loop on a flipped motor or sensor pushes away from the target and gets stronger as the error grows. A small open-loop voltage shows the problem with nothing at risk.
+</details>
+
+<details>
+<summary>The reading is exactly half of what you moved. What do you fix?</summary>
+The conversion factor, such as the gear ratio. Direction and wiring are not the problem, because the reading moves the right way by a constant factor.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- Check devices, then safety, then limits, then direction, then sensor, then conversion, then loops.
+- Fix motor and sensor direction in configuration.
+- Use a known distance to verify the conversion.
+- Soft limits and homing come before any closed loop.
+- Keep the Driver Station open for CAN errors and brownouts.
+</RecapCard>

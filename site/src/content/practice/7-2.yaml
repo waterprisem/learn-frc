@@ -1,0 +1,61 @@
+# Practice bank for lesson 7.2 (Vision pose estimation).
+lesson: "7.2"
+items:
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "The robot sits still, and its pose on the field graph suddenly jumps about 2 m whenever a tag far across the field comes into view."
+    choices:
+      - "The robot-to-camera transform is wrong."
+      - "A far single-tag result is being trusted too much."
+      - "The camera name does not match the PhotonVision UI."
+      - "The field layout is for the wrong year."
+    answer: 1
+    explain: "Far single tags are noisy and can be the mirror solution. The fix is a large standard deviation (or rejection) for them. A wrong transform would give a steady offset, not a jump when a tag appears."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "With the robot parked facing a tag, the vision pose is steady but always about 30 cm from where the robot really is, in the same direction."
+    choices:
+      - "The robot-to-camera transform does not match where the camera is mounted."
+      - "The pose ambiguity is too high."
+      - "The timestamp is missing."
+      - "The standard deviations are too small."
+    answer: 0
+    explain: "A constant error means every measurement is wrong in the same way. The camera-to-tag part is measured and the layout is fixed, so the usual suspect is the constant you typed in. Ambiguity and bad trust cause jumps, not a steady offset."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "The PhotonVision UI shows tags detected, but the drivetrain pose never receives any vision measurement and nothing is printed."
+    choices:
+      - "The standard deviations are too large."
+      - "The camera name in code does not match the name in the PhotonVision UI."
+      - "The robot is moving too slowly."
+      - "The robot-to-camera transform is slightly off."
+    answer: 1
+    explain: "No results reach the code at all, so there is nothing to estimate. A slightly wrong transform still produces estimates; large standard deviations still produce measurements, just ignored ones."
+  - type: mcq
+    prompt: "Why is a two-tag estimate more reliable than a one-tag estimate?"
+    choices:
+      - "Two tags are bigger in the image."
+      - "Only one robot position fits both tags, so the mirror-image answer is ruled out."
+      - "Two tags double the frame rate."
+      - "The roboRIO averages two clocks."
+    answer: 1
+    explain: "A single flat tag can look the same from two positions. A second tag at a different place and angle breaks the tie."
+  - type: fill-blank
+    prompt: "Complete the call that gives the drivetrain a vision measurement. Remember that the picture is old."
+    code: |
+      drivetrain.addVisionMeasurement(
+          est.estimatedPose.toPose2d(),
+          est.____,
+          stdDevs);
+    blanks:
+      - ["timestampSeconds"]
+    explain: "The capture timestamp lets the estimator apply the measurement to where the robot was when the frame was taken. Without it the correction lags behind the motion."
+  - type: mcq
+    prompt: "The team's code gives any result with ambiguity above 0.2 the largest possible standard deviation. What does that do?"
+    choices:
+      - "It makes the drivetrain trust the result completely."
+      - "It makes the drivetrain effectively ignore the result."
+      - "It resets odometry to the vision pose."
+      - "It turns the camera off."
+    answer: 1
+    explain: "A larger standard deviation means more uncertainty, so the estimator gives the measurement almost no weight. Smaller numbers mean more trust; people often mix this up."

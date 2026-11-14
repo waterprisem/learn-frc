@@ -5,16 +5,120 @@ id: "9.4"
 track: "beyond"
 session: 11
 isNew: false
-status: stub
+minutes: 20
+prereqs: ["0.6", "2.8", "4.6"]
+outcomes:
+  - Apply a fixed method to read code you did not write
+  - Trace one button to a subsystem method and its constants
+  - Use telemetry names to learn what a robot cares about
+sources:
+  - curriculum: "presentations/Session 11 - Mini Scorer Challenge/Raw Data/slides.md"
+  - doc: "https://github.com/FRC1360/Rebuilt2026"
+status: review
 sidebar:
   label: "9.4 Reading an unfamiliar codebase"
   order: 4
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import GoDeeper from '../../../components/lesson/GoDeeper.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
+import AnnotatedCode from '../../../components/code/AnnotatedCode.astro';
 
-**What it will cover:** Start at RobotContainer and trace one button.
+<WhyItMatters>
+On a real team you will join a robot project that is already thousands of lines long.
+You cannot read it all, and you do not need to. A fixed method gets you to the one piece you are asked to change in minutes.
+</WhyItMatters>
 
-Based on Session 11 of the Orbit Robotics curriculum.
+## The method
+
+1. **Open `RobotContainer` first.** It is the table of contents: it creates the subsystems, binds buttons, and sets default commands.
+2. **List the subsystems** it creates. That is the robot's list of mechanisms.
+3. **Pick one button binding.**
+4. **Follow it to the command.** Use Go to Definition.
+5. **Follow the command into the subsystem method** it calls.
+6. **Follow that to `Constants`** to see the numbers behind it.
+7. **Read telemetry names** (the topics a subsystem publishes). They show which signals the team thinks matter.
+
+Use **Go to Definition** and **Find All References** (lesson 0.6) to hop. Searching for `TODO` finds unfinished work. Do not read every file.
+
+## A worked example: Rebuilt2026
+
+The team's 2026 robot code is public at `github.com/FRC1360/Rebuilt2026`. Start in `RobotContainer.java`.
+It creates `m_intakeSubsystem`, `m_indexSubsystem`, `m_flywheelSubsystem`, `m_HoodSubsystem`, and `m_TurretSubsystem`, plus the swerve drivetrain.
+Near the top of `configureBindings()`, the driver controller's `povRight()` is stored as `backdriveShooterInput`. Trace that button.
+
+**Step 1: the binding.**
+
+<AnnotatedCode
+  file="rebuilt2026-9.4/binding"
+  title="RobotContainer.java"
+  notes={[
+    { lines: '1-2', text: 'The command is built from a flywheel command at <code>-30.0</code>, run <strong>alongWith</strong> an index command. A negative target spins the shooter backward, to clear a jam.' },
+    { lines: '3', text: '<code>whileTrue</code>: the command runs only while the button is held, and is cancelled on release.' },
+  ]}
+/>
+
+**Step 2: the command.** Go to Definition on `SetFlywheelVelocityCommand`.
+
+<AnnotatedCode
+  file="rebuilt2026-9.4/command"
+  title="SetFlywheelVelocityCommand.java"
+  notes={[
+    { lines: '3-4', text: 'On start, it refreshes tuning values from NetworkTables and resets the PID controller.' },
+    { lines: '9', text: 'Every loop it asks the subsystem for a closed-loop voltage for the target, then applies it.' },
+  ]}
+/>
+
+**Step 3: the subsystem.** Go to Definition on `closedLoopCalculate`.
+
+<AnnotatedCode
+  file="rebuilt2026-9.4/subsystem"
+  title="FlywheelSubsystem.java"
+  notes={[
+    { lines: '1-3', text: 'Feedback plus feedforward, the same shape as lesson 3.5: PID on the measured speed, plus a feedforward prediction.' },
+    { lines: '14-16', text: 'The voltage finally reaches the motor here.' },
+  ]}
+/>
+
+**Step 4: constants and telemetry.** In `Constants.java`, `FlywheelConstants` holds the CAN IDs (`VORTEX_LEADER_CAN_ID`, `VORTEX_FOLLOWER_CAN_ID`), current limits, and the tolerance.
+The subsystem publishes its signals under `Subsystems/` plus its name, such as `Flywheel Leader Current`. Those names tell you what the team watches.
+
+The whole chain: button, trigger, command, subsystem method, constants. Five hops, and you never opened the swerve or vision files.
+
+<GoDeeper title="why the binding is more than one command">
+Real bindings combine triggers with `and`, `or`, and `negate`. Here, the shooting inputs are blocked while any backdrive button is held.
+Read the trigger definitions near the top of `configureBindings()` before the `whileTrue` lines.
+</GoDeeper>
+
+## Practice
+
+<Practice bank="9-4" />
+
+## Checkpoint
+
+<Checkpoint lesson="9.4">
+
+<details>
+<summary>You open a new robot project for the first time. Which file do you read first, and how do you find what is unfinished?</summary>
+`RobotContainer`, then follow references into the subsystems and commands. Search for `TODO` to find unfinished work.
+</details>
+
+<details>
+<summary>What is the tracing chain for one button?</summary>
+Controller button, trigger, command, subsystem method, then constants.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- Start at `RobotContainer`, list the subsystems, pick one binding.
+- Follow button to command to subsystem method to constants.
+- Use Go to Definition and Find All References to hop.
+- Telemetry names show what matters.
+- Do not read every file.
+</RecapCard>

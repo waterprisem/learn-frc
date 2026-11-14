@@ -5,16 +5,93 @@ id: "8.4"
 track: "auto"
 session: 18
 isNew: false
-status: stub
+minutes: 10
+prereqs: ["8.3", "7.4", "5.10"]
+outcomes:
+  - Describe what the capstone asks you to build
+  - Break it into milestones you can test one at a time
+  - Know how the capstone is assessed
+sources:
+  - curriculum: "misc/v1/frc1360_programming_curriculum_plan.md"
+status: review
 sidebar:
   label: "8.4 Capstone guide"
   order: 4
 ---
 
-:::note[Coming soon]
-This lesson is planned and not written yet.
-:::
+import WhyItMatters from '../../../components/lesson/WhyItMatters.astro';
+import RecapCard from '../../../components/lesson/RecapCard.astro';
+import Checkpoint from '../../../components/lesson/Checkpoint.astro';
+import Practice from '../../../components/practice/Practice.astro';
 
-**What it will cover:** Putting mechanisms, driving, vision, and autos together.
+<WhyItMatters>
+Every earlier lesson built one piece. The capstone is the first time they all run together, and the bugs that appear live at the seams between pieces: a command that never ends, a name that does not match, a file that was never deployed.
+</WhyItMatters>
 
-Based on Session 18 of the Orbit Robotics curriculum.
+## What it asks for
+
+You receive a template project with the hard parts already working: flywheel, arm, and elevator subsystems with simulation, a generated swerve drivetrain, a working camera integration, and a PathPlanner auto with three event markers (`PREPARE_SCORE`, `EXECUTE_SCORE`, `STOW`). `RobotContainer` has stubs for you to fill.
+
+You write the wiring:
+
+- `PREPARE_SCORE` runs the arm to `SCORE_HIGH`, the elevator to `L3`, and the flywheel at 50 rotations per second, all in parallel.
+- `EXECUTE_SCORE` waits for `flywheelAtTarget`, then simulates a score.
+- `STOW` runs `safeStow()`.
+- The align-to-tag command is bound to a held driver button in teleop.
+
+Then you demo the full auto in simulation.
+
+## Milestones
+
+Do them in order and test after each one. Do not wire everything and then run it once.
+
+| Milestone | What works at the end | Lessons to review |
+| --- | --- | --- |
+| 1. Template runs | The project builds and simulates; you can say which files are provided | 2.1, R.2 |
+| 2. Teleop alignment | Holding the button turns the robot to face the tag | 7.4, 2.5 |
+| 3. Prepare | The marker starts the arm, elevator, and flywheel together | 5.1, 5.6 |
+| 4. Execute | The score waits for `flywheelAtTarget`, and never hangs | 5.2, 8.3 |
+| 5. Stow | The mechanisms stow safely at the end of the path | 5.6, 8.3 |
+| 6. Full auto | Path followed, all three markers fire, scoring happens after the mechanisms arrive | 8.2, 6.5 |
+
+Stretch goals: a second route from the right side, align to the tag before `EXECUTE_SCORE`, and a second scoring level chosen from a `SendableChooser`.
+
+## How it is assessed
+
+You pass the simulation checkpoint when:
+
+- the auto follows its path and all three markers fire;
+- the mechanisms reach their targets before the score;
+- you demo align-to-tag in teleop;
+- you can say which files you wrote and which were generated or provided;
+- you name one improvement you would make before deploying to a real robot.
+
+That last item matters: simulation passing is not the same as ready for hardware (lesson 9.1).
+
+## Practice
+
+<Practice bank="8-4" />
+
+## Checkpoint
+
+<Checkpoint lesson="8.4">
+
+<details>
+<summary>Name one thing the simulation cannot tell you about the auto.</summary>
+Real mechanism friction and tuning, how the real battery and wheels perform, and whether the starting position on the real field matches the path. These are checked during bring-up.
+</details>
+
+<details>
+<summary>The score fires before the flywheel is at speed. Where do you look first?</summary>
+The `EXECUTE_SCORE` wiring: it must wait for `flywheelAtTarget` and end, using the same idea as lesson 5.2.
+</details>
+
+</Checkpoint>
+
+## Recap
+
+<RecapCard>
+- The capstone wires three event markers to mechanism commands and binds align-to-tag in teleop.
+- Build and test in six small milestones, not all at once.
+- You are assessed on a working simulated auto, on explaining what you wrote, and on naming what hardware still needs.
+</RecapCard>

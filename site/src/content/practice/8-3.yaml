@@ -1,0 +1,58 @@
+lesson: "8.3"
+items:
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "The auto drives its path correctly, but the intake never deploys at the marker."
+    choices:
+      - "The marker name in code differs from the name in the app."
+      - "The drivetrain PID is too low."
+      - "The path was drawn on the blue side."
+      - "The goal end state has a rotation."
+    answer: 0
+    explain: "A name mismatch is silent: nothing fails, the marker just never matches. Path following is fine, so PID and flipping are not the issue."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "When the shoot marker fires, the robot stops following its path and sits still."
+    choices:
+      - "The marker command requires the drivetrain."
+      - "The flywheel PID is too high."
+      - "The marker is placed at the end of the path."
+      - "The name uses capital letters."
+    answer: 0
+    explain: "Two commands cannot require the same subsystem, so the scheduler cancels the path follower."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "After the first marker, the auto never starts its next path."
+    choices:
+      - "The marker command never ends, so the sequence waits forever."
+      - "The path has too many waypoints."
+      - "The constraint zone is too short."
+      - "The robot config is wrong."
+    answer: 0
+    explain: "A sequence moves on only when its current command finishes. Add a timeout or end condition such as waiting for the flywheel to reach target (lesson 5.2)."
+  - type: mcq
+    prompt: "When must `NamedCommands.registerCommand` run?"
+    choices:
+      - "After the auto is selected"
+      - "Before the autos that use the names are built"
+      - "Inside `autonomousPeriodic()`"
+      - "Only once the match starts"
+    answer: 1
+    explain: "Autos look up names when they are built. A late registration is simply not found."
+  - type: fill-blank
+    prompt: "Bind the marker named `PREPARE_TO_SHOOT` in the auto `left` to a command."
+    code: |
+      left.____("PREPARE_TO_SHOOT").____(prepareShot);
+    blanks:
+      - ["event"]
+      - ["onTrue"]
+    explain: "`event(name)` returns a trigger that fires at the marker; `onTrue` schedules the command then."
+  - type: mcq
+    prompt: "What is the difference between a marker and a command placed between two paths in an auto?"
+    choices:
+      - "A marker runs while the robot is driving; a command between paths runs after the first path finishes."
+      - "There is none."
+      - "A marker can only run drive commands."
+      - "A between-paths command runs at the same time as both paths."
+    answer: 0
+    explain: "Sequence order gives time order. Markers give overlap with a path."

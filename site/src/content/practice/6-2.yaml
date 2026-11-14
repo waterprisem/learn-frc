@@ -1,0 +1,58 @@
+# Practice bank for lesson 6.2 (Swerve mental model).
+lesson: "6.2"
+items:
+  - type: mcq
+    prompt: "What does your driving code hand to the drivetrain?"
+    choices:
+      - "A speed and angle for each of the four wheels"
+      - "A `ChassisSpeeds` for the whole robot"
+      - "A voltage for each drive motor"
+      - "A pose to drive to"
+    answer: 1
+    explain: "Code requests one robot motion (vx, vy, omega). The drivetrain's kinematics converts it into per-wheel states. Computing wheel states yourself is what the generated code avoids."
+  - type: mcq
+    prompt: "The robot is asked for `vx` = 0, `vy` = 1.5 m/s, `omega` = 0. What do the wheels do?"
+    choices:
+      - "All point forward at 1.5 m/s"
+      - "All point left (90°) at 1.5 m/s"
+      - "All point right (−90°) at 1.5 m/s"
+      - "Front wheels point left, back wheels point right"
+    answer: 1
+    explain: "Positive vy is left, and with no spin every wheel moves the same way. Front and back wheels opposed would be a spin."
+  - type: multi
+    prompt: "Which devices are in one swerve module? Select all that apply."
+    choices:
+      - "Drive motor"
+      - "Steer motor"
+      - "CANcoder for wheel angle"
+      - "Pigeon 2 gyro"
+    answers: [0, 1, 2]
+    explain: "Each module has a drive motor, steer motor, and CANcoder. The Pigeon 2 is one gyro for the whole robot."
+  - type: mcq
+    prompt: "A pure spin (`omega` = 1 rad/s) is requested. The wheels are 0.40 m from the center. How fast does each wheel move?"
+    choices:
+      - "0 m/s, because the robot stays in place"
+      - "0.40 m/s"
+      - "1.0 m/s"
+      - "2.5 m/s"
+    answer: 1
+    explain: "Wheel speed is omega times distance from center: 1 × 0.40 = 0.40 m/s. The robot's center stays still but the wheels still move."
+  - type: mcq
+    prompt: "`vx` = 2 m/s and `omega` = 1 rad/s (counter-clockwise). Which side's wheels move faster?"
+    choices:
+      - "The left side"
+      - "The right side"
+      - "Both the same"
+      - "Only the front wheels"
+    answer: 1
+    explain: "Spin adds a forward component on the right side and subtracts it on the left. That is why right wheels were 2.30 m/s and left 1.74 m/s."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "After power-on, one wheel points sideways at rest and the robot drives in odd directions until it is driven a bit."
+    choices:
+      - "That module's CANcoder offset is wrong or the encoder is not read"
+      - "The battery is low"
+      - "vx and vy are swapped in the stick code"
+      - "The deadband is too small"
+    answer: 0
+    explain: "The CANcoder tells the code where the wheel really points. A wrong offset makes the code think the wheel is straight when it is not. Stick code problems would affect all wheels equally."

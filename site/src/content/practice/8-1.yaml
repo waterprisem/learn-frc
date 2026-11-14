@@ -1,0 +1,52 @@
+lesson: "8.1"
+items:
+  - type: mcq
+    prompt: "Which part of a path controls the way the robot is facing while it drives?"
+    choices:
+      - "The waypoint anchors"
+      - "The control handles"
+      - "Rotation targets and the goal end state"
+      - "The maximum velocity"
+    answer: 2
+    explain: "Anchors and handles shape where the robot goes. On a swerve robot, heading is independent, so it is set by rotation targets and the end state. The common wrong idea is that the robot points along the curve like a car."
+  - type: multi
+    prompt: "Which of these are constraints in PathPlanner? Select all that apply."
+    choices:
+      - "Maximum velocity"
+      - "Maximum acceleration"
+      - "Maximum angular velocity"
+      - "An event marker name"
+    answers: [0, 1, 2]
+    explain: "Velocity, acceleration, and the angular limits shape the trajectory. An event marker only names a point where a command fires."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "The path looks fine in the GUI, but on the robot it arrives late and lags behind the plan in every corner."
+    choices:
+      - "The robot config (mass, wheels, current limit) or max acceleration asks for more than the drivetrain can deliver."
+      - "The waypoint anchors are in the wrong order."
+      - "The path file was not saved."
+      - "The goal end state has a rotation."
+    answer: 0
+    explain: "A trajectory built from unrealistic limits cannot be followed, so the robot trails it. A missing file or wrong anchors would break the path outright, not lag it."
+  - type: mcq
+    prompt: "A path is 5 m long and you want the robot to slow down only for the last meter. What do you add?"
+    choices:
+      - "A second auto"
+      - "A constraint zone over the last part of the path"
+      - "A lower global maximum velocity"
+      - "An event marker"
+    answer: 1
+    explain: "A constraint zone limits one stretch. Lowering the global maximum would slow the whole path."
+  - type: mcq
+    prompt: "Where does PathPlanner store paths and autos so they reach the robot?"
+    choices:
+      - "In the roboRIO's flash memory, written by the GUI over USB"
+      - "As JSON files in `src/main/deploy/pathplanner/`, deployed with the code"
+      - "In `Constants.java`"
+      - "On the Driver Station laptop only"
+    answer: 1
+    explain: "The files live in the project's deploy folder and are copied to the roboRIO at deploy. If you edit a path and do not deploy, the robot runs the old one."
+  - type: free
+    prompt: "In one or two sentences, explain how a trajectory differs from a path."
+    modelAnswer: "A path is only the curve (and headings). A trajectory is the path plus constraints, so every point has a target speed and a time."
+    explain: "The constraints add time. This is the same idea as a motion profile for a single mechanism."

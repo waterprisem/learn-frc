@@ -1,0 +1,68 @@
+# Practice bank for lesson 6.3 (Field-relative driving).
+lesson: "6.3"
+items:
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "The driver pushes the stick forward and the robot moves off to the side, rotated about 90° from the push. It is the same at every heading."
+    choices:
+      - "The gyro heading was not zeroed or is wrong"
+      - "No deadband"
+      - "The curve exponent is too large"
+      - "The top speed is too high"
+    answer: 0
+    explain: "Field-relative uses the gyro heading to rotate the push. A heading that is wrong by 90° rotates every push by 90°. Deadband, curve, and speed only change size."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "With both sticks released, the robot slowly creeps in one direction."
+    choices:
+      - "No deadband on the stick"
+      - "The gyro drifts"
+      - "The negation is missing"
+      - "The top speed is too low"
+    answer: 0
+    explain: "A resting stick rarely reads exactly 0. Without a deadband the tiny value is turned into a real speed. A missing negation would reverse direction, not cause creeping."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "Pushing the stick forward drives the robot backward. Left and right work."
+    choices:
+      - "The negation on `getLeftY()` is missing"
+      - "The negation on `getLeftX()` is missing"
+      - "The deadband is too big"
+      - "The Pigeon 2 is unplugged"
+    answer: 0
+    explain: "Forward on an Xbox stick reads negative Y, so it must be negated to become positive vx. Left and right use X, which would be the other negation."
+  - type: mcq
+    prompt: "With the team's deadband 0.01 and exponent 1.25, a stick magnitude of 1.0 gives what output?"
+    choices:
+      - "0"
+      - "About 0.5"
+      - "1.0"
+      - "1.25"
+    answer: 2
+    explain: "(1 − 0.01)^1.25 divided by (1 − 0.01)^1.25 is 1. The division keeps full stick at full speed."
+  - type: mcq
+    prompt: "Why does `applyRequest` receive a lambda instead of a finished request?"
+    choices:
+      - "So the stick is read again every loop"
+      - "So the request is built only once"
+      - "Because requests cannot be passed any other way"
+      - "To make the robot faster"
+    answer: 0
+    explain: "A lambda runs each time it is called, so the stick is re-read every 20 ms. A finished request would contain the stick values from one moment."
+  - type: fill-blank
+    prompt: "Complete the forward velocity so stick forward drives forward at top speed."
+    code: |
+      .withVelocityX(____ * MAX_DRIVE_TRANSLATIONAL_SPEED)
+      // stick input: ____controller.getLeftY()
+    blanks: [["modifiedDriveInput.getX()"], ["-"]]
+    explain: "The curved stick value times the top speed gives m/s. The raw stick is negated so forward becomes positive."
+  - type: bug-hunt
+    prompt: "Click the line that makes pushing right turn the robot the wrong way."
+    code: |
+      Translation2d turn = modifyJoystickCurve(
+              controller.getRightX(),
+              0.0);
+      return request
+              .withRotationalRate(turn.getX() * MAX_ANGULAR);
+    bugLine: 2
+    explain: "Stick right is positive but clockwise is negative omega, so right X must be negated: `-controller.getRightX()`."

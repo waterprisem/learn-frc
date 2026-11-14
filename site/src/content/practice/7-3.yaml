@@ -1,0 +1,44 @@
+# Practice bank for lesson 7.3 (OrbitCamera walkthrough).
+lesson: "7.3"
+items:
+  - type: mcq
+    prompt: "What are the two constructor parameters of `OrbitCamera`?"
+    choices:
+      - "A `Pose2d` and a tag ID"
+      - "A robot-to-camera `Transform3d` and the camera name"
+      - "The standard deviations and the ambiguity cutoff"
+      - "A `PhotonCamera` and a field layout"
+    answer: 1
+    explain: "The class builds its own `PhotonCamera` and loads the field layout itself. Only the two things that differ per camera, the mounting transform and the name, come from the caller."
+  - type: multi
+    prompt: "Which of these does `OrbitCamera` own? Select all that apply."
+    choices:
+      - "The `PhotonCamera`"
+      - "The `PhotonPoseEstimator`"
+      - "The drivetrain's final pose"
+      - "The single-tag and multi-tag standard deviation defaults"
+    answers: [0, 1, 3]
+    explain: "The drivetrain owns the final pose. OrbitCamera produces estimates and trust values for it to use."
+  - type: symptom-cause
+    prompt: "What is the most likely cause?"
+    symptom: "You add a fourth camera on the robot. It is detected in the PhotonVision UI, but its estimates never affect the pose."
+    choices:
+      - "The ambiguity cutoff is 0.2."
+      - "The new camera was never added to the drivetrain's cameras array, so `updatePose()` never reads it."
+      - "OrbitCamera cannot handle four cameras."
+      - "The simulation settings are on."
+    answer: 1
+    explain: "The drivetrain loops over its array of cameras. A camera that is created but not in the array is never read. The class itself supports any number of instances."
+  - type: parsons
+    prompt: "Put the per-camera steps in the order the drivetrain runs them."
+    lines:
+      - "orbitCamera.updatePipelineResults();"
+      - "visionEst = estimator.estimateCoprocMultiTagPose(result);"
+      - "orbitCamera.updateEstimationStdDevs(visionEst, result.getTargets());"
+      - "addVisionMeasurement(pose, timestamp, stdDevs);"
+    distractors: []
+    explain: "Read the results first, estimate a pose from each, set the trust for it, and only then give it to the drivetrain."
+  - type: free
+    prompt: "Give one reason `OrbitCamera` is a good design for a robot with three cameras."
+    modelAnswer: "One class holds everything a camera needs, so the drivetrain makes three instances with different names and transforms and uses the same code for each, instead of copying it three times."
+    explain: "Reuse through one parameterized class is the point; the per-camera differences are only the constructor arguments."
