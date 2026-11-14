@@ -409,3 +409,38 @@ details.lf-deeper > summary svg { color: var(--sl-color-text-accent); flex: none
 .lf-phases .none dd { color: var(--sl-color-gray-3); font-weight: 400; }
 .lf-knob-grid { align-items: end; }
 .lf-elevator .lf-knob .name code { display: block; }
+
+/* ---------- Scheduler visualizer (P6) ---------- */
+.lf-pad { display: flex; flex-wrap: wrap; gap: 0.6rem 1.25rem; align-items: center; margin-bottom: 1rem; }
+.lf-pad .buttons { display: grid; grid-template-columns: repeat(4, minmax(5.5rem, 1fr)); gap: 0.4rem; flex: 1 1 22rem; }
+.lf-pad .buttons button { flex-direction: column; gap: 0.1rem; padding: 0.45rem 0.3rem; line-height: 1.2; text-align: center; }
+.lf-pad .buttons b { font-size: var(--sl-text-base); }
+.lf-pad .buttons small { font-size: 0.72rem; opacity: 0.9; }
+.lf-pad .buttons small.mode { font-family: var(--sl-font-mono); opacity: 0.7; }
+.lf-check { display: flex; align-items: center; gap: 0.5rem; font-size: var(--sl-text-sm); cursor: pointer; }
+.lf-check input { width: 1.1rem; height: 1.1rem; accent-color: var(--sl-color-text-accent); }
+.lf-timeline { display: grid; gap: 0.3rem; }
+.lf-timeline .row { display: grid; grid-template-columns: 9.5rem minmax(0, 1fr); gap: 0.5rem; align-items: center; }
+.lf-timeline .name { font-size: var(--sl-text-xs); color: var(--sl-color-gray-2); }
+.lf-timeline .cells { display: grid; grid-template-columns: repeat(24, minmax(0, 1fr)); gap: 2px; }
+.lf-timeline .cells i { height: 1.35rem; border-radius: 3px; background: var(--sl-color-gray-6); font-style: normal; }
+.lf-timeline .init, .lf-legend .init { background: var(--sig-setpoint); }
+.lf-timeline .run, .lf-legend .run { background: var(--sig-measurement); }
+.lf-timeline .finished, .lf-legend .finished { background: var(--ok); }
+.lf-timeline .interrupted, .lf-legend .interrupted { background: var(--danger); }
+.lf-timeline .axis .cells i { height: auto; background: none; font-size: 0.65rem; color: var(--sl-color-gray-3); text-align: start; overflow: visible; white-space: nowrap; }
+.lf-legend { display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; margin: 0.5rem 0 0.9rem; font-size: var(--sl-text-xs); color: var(--sl-color-gray-2); }
+.lf-legend span { display: inline-flex; align-items: center; gap: 0.35rem; }
+.lf-legend i { width: 0.8rem; height: 0.8rem; border-radius: 3px; display: inline-block; }
+.lf-sched-state { display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; align-items: center; padding-top: 0.8rem; border-top: 1px solid var(--sl-color-gray-5); }
+.lf-sched-state .owner { display: grid; font-size: var(--sl-text-sm); }
+.lf-sched-state .owner span { font-size: var(--sl-text-xs); color: var(--sl-color-gray-3); }
+.lf-calls { display: flex; flex-wrap: wrap; gap: 0.3rem; align-items: center; margin: 0.8rem 0 0; font-size: var(--sl-text-xs); min-height: 1.9rem; }
+.lf-calls span { color: var(--sl-color-gray-3); margin-inline-end: 0.3rem; }
+.lf-calls em { color: var(--sl-color-gray-3); }
+.lf-seg.three { grid-template-columns: repeat(3, minmax(0, auto)); }
+.lf-seg.three button { padding-inline: 0.7rem; min-height: 2.5rem; }
+@media (max-width: 34rem) {
+  .lf-pad .buttons { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .lf-timeline .row { grid-template-columns: 6.5rem minmax(0, 1fr); }
+}

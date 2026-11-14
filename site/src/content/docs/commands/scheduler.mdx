@@ -29,6 +29,7 @@ import GoDeeper from '../../../components/lesson/GoDeeper.astro';
 import Checkpoint from '../../../components/lesson/Checkpoint.astro';
 import Practice from '../../../components/practice/Practice.astro';
 import AnnotatedCode from '../../../components/code/AnnotatedCode.astro';
+import SchedulerVisualizer from '../../../components/playgrounds/SchedulerVisualizer.tsx';
 
 <WhyItMatters>
 Imagine a driver holds the forward button and the reverse button at once. If both commands wrote to the motor, it would flip between two voltages, and the wheel would shake.
@@ -67,6 +68,10 @@ The rule: two commands that require the same subsystem cannot run together. When
 <GoDeeper title="when is the new command rejected instead?">
 By default the new command wins. A command can opt out by overriding `getInterruptionBehavior()` to return `kCancelIncoming`. Then the new command is dropped and the old one keeps running. Most commands never need this.
 </GoDeeper>
+
+## Try it: hold two buttons
+
+<SchedulerVisualizer client:visible lessonId="2.4" />
 
 ## Worked example: the scheduler handoff
 
