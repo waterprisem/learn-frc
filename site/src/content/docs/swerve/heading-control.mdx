@@ -89,7 +89,7 @@ CTRE's `FieldCentricFacingAngle` request takes the driver's x and y speeds like 
 Angles repeat every 360 degrees. If the robot faces 179 degrees and the target is -179 degrees, the plain error is -179 - 179 = -358 degrees, and the PID would spin almost a full turn.
 The real error is 2 degrees. **Continuous input** tells the controller the range wraps (here -180 to 180 degrees), so it always takes the shortest way round.
 
-CTRE's `FieldCentricFacingAngle` sets this up in its heading controller, so you get it for free. With a plain WPILib `PIDController` you would call `enableContinuousInput(-Math.PI, Math.PI)` yourself.
+CTRE's docs say continuous input should be enabled on its heading controller over -pi to pi. The team's code never calls it, which suggests the request sets it up for you, but this is unconfirmed, so check your Phoenix version. With a plain WPILib `PIDController` you would call `enableContinuousInput(-Math.PI, Math.PI)` yourself.
 
 <GoDeeper title="why kP 7 can still oscillate">
 kP is radians per second per radian of error. With kP 7, a 1 radian (57 degree) error asks for 7 rad/s, which is more than a robot can turn, so the output saturates.
