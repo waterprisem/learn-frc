@@ -39,14 +39,14 @@ This page follows the official WPILib documentation as of November 2026. At that
 
 | 2026 (this site) | 2027 | What you need to do |
 | --- | --- | --- |
-| roboRIO robot controller | **SystemCore** replaces the roboRIO. Team setup moves to a web interface. | Learn the new setup in the docs when your team gets one. |
+| roboRIO robot controller | **SystemCore** replaces the roboRIO. Team setup is reported to move to a web interface (unconfirmed). | Learn the new setup in the docs when your team gets one. |
 | Earlier Java version (2026) | **Java 25** | Install the 2027 WPILib, which brings its own tools. |
 | `edu.wpi.first...` packages | Renamed to `org.wpilib...` (C++ `frc::` becomes `wpi::`) | Import your 2026 project into 2027 WPILib. The VS Code importer tries to update the code. |
-| Commands v2 (this site) | Commands v3 is added for Java, with a migration guide. Commands v2 is still there, minus some removed pieces. | Keep using the ideas here. Read the v3 docs before choosing. |
+| Commands v2 (this site) | Commands v3 is added for Java (documentation still in progress). Commands v2 is still there, minus some removed pieces (a v2 to v3 migration guide is unconfirmed). | Keep using the ideas here. Read the v3 docs before choosing. |
 | `PIDCommand`, `ProfiledPIDCommand`, `TrapezoidProfileCommand` | Removed | Use the controller classes inside your own commands, as this site does. |
 | `robotInit()` | Removed. Use a constructor. | Move setup code into the constructor. |
 | SPI, counters, relays, interrupts, DMA, analog outputs | Not supported on SystemCore | Check your hardware before upgrading. |
-| SmartDashboard, Shuffleboard, PathWeaver, RobotBuilder | Removed. NetworkTables 3 is gone, NetworkTables 4 remains. | Use AdvantageScope or Elastic. For paths use Choreo, PathPlanner, or Bline. |
+| SmartDashboard, Shuffleboard, PathWeaver, RobotBuilder | Removed. NetworkTables 3 is gone, NetworkTables 4 remains. | Use a tool such as AdvantageScope (the official docs do not name a replacement). For paths use Choreo, PathPlanner, or Bline. |
 | `Rotation2d` accessors | `getRadians()`, `getDegrees()`, `getRotations()` now return wrapped angles. The docs flag this as a silent change. | Check any code that relied on unwrapped angles (turret, swerve). |
 
 Things the docs list as **planned**: the new Driver Station's real-DS simulation option, and removal of a compatibility shim for the new chooser class (`Selectable`) before the kickoff release.
@@ -63,7 +63,7 @@ The concepts on this site do not depend on the controller or the package names:
 
 <GoDeeper title="what Commands v3 is">
 The 2027 changelog lists a Commands v3 framework for Java, added in alpha, with later additions such as a declarative state machine API.
-Its documentation was still being written when this page was checked, so this site does not teach it. A migration guide from Commands v2 is linked from the changelog.
+Its documentation was still being written when this page was checked, so this site does not teach it. A migration guide from Commands v2 is unconfirmed.
 </GoDeeper>
 
 ## Practice
