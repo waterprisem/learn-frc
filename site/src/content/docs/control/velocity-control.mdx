@@ -58,16 +58,10 @@ A real wheel never sits at exactly 40.000, so the code never checks for an exact
 This is the Lab 4 flywheel running in your browser. The gains start at zero, exactly like the lab's starting code.
 The graph shows the same four signals you will graph in AdvantageScope, with the same names.
 
-<FlywheelTuner client:visible />
+<FlywheelTuner client:visible lessonId="3.5" />
 
-Follow the lab's tuning order. Before each step, **predict** what the graph will do.
-
-1. **Nothing happens.** Hold **B** (40 RPS). Every gain is 0, so the output is 0 V.
-2. **Tune `kS`.** Raise `kS` slowly until the wheel just begins to turn (about 0.2). It only needs to beat friction, so the wheel stays slow.
-3. **Tune `kV`.** Raise `kV` until Velocity sits on Target (about 0.12). Check **A** and **Y** too: a good `kV` works at every speed.
-4. **Add `kP`.** Set `kP` to 0.08. The wheel reaches the target a little sooner and the error settles nearer zero.
-5. **Break it on purpose.** Choose the **kV too small** preset and hold **B**: the wheel stalls below the target. Then try **kP too large**: it swings above and below the target and never settles.
-6. **Add a load.** Go back to **Tuned**, hold **B**, and tick **Add a load**. Set `kP` to 0 and watch feedforward alone fall short. Raise `kP` and the error shrinks.
+The **Guide** at the top walks you through the lab's tuning order. It watches what you do, tells you what it sees, and unlocks **Next** when a step is done.
+Before each change, predict what the graph will do.
 
 <GoDeeper title="why At Target can stay true after you release the button">
 `flywheelAtTarget` reads `flywheelPID.atSetpoint()`, which remembers the error from the last time the controller ran.
@@ -78,38 +72,46 @@ Later lessons add a check so that actions only trust readiness while the command
 
 ## The code
 
-The subsystem does the math, in one line. It returns a voltage and does not apply it.
+Three short pieces of code do everything you just did by hand:
+
+1. The **subsystem** turns a target into a voltage.
+2. The **command** runs that calculation every loop while a button is held.
+3. The subsystem's **`periodic()`** reports what happened, so you can graph it.
+
+Click the highlighted lines in each block, in order.
+
+**1. The calculation.** One line adds the two parts. It returns a voltage; it does not send it to the motor.
 
 <AnnotatedCode
   file="lab4/closed-loop-calculate"
   title="FlywheelSubsystem.java"
   notes={[
-    { lines: '2', text: 'PID correction. The <strong>measurement comes first</strong>, then the target. Swapping them flips the error and drives the wheel the wrong way.' },
-    { lines: '3', text: 'Feedforward prediction. It only needs the target.' },
+    { lines: '2', text: 'The PID correction. The <strong>measurement goes first</strong>, then the target. Swap them and the error flips sign, which drives the wheel away from the target.' },
+    { lines: '3', text: 'The feedforward prediction. It needs only the target, because it never looks at the encoder.' },
   ]}
 />
 
-The command decides when that math runs.
+**2. The command.** A command has four methods, and the scheduler calls each at a different moment.
 
 <AnnotatedCode
   file="lab4/velocity-command"
   title="SetFlywheelVelocityCommand.java"
   notes={[
-    { lines: '3', text: 'Runs once when the button is pressed. Clears the controller’s history from any earlier run.' },
-    { lines: '8-9', text: 'Runs every 20 ms while the button is held: calculate a voltage, then apply it.' },
-    { lines: '14', text: 'Runs when the button is released or another command takes over: 0 V. The wheel coasts.' },
-    { lines: '19', text: 'Never finishes by itself. Holding the button controls how long it runs; reaching the speed does not stop it.' },
+    { lines: '3', text: '<code>initialize()</code> runs once, when the button is pressed. Resetting here clears anything the controller remembers from an earlier run.' },
+    { lines: '8-9', text: '<code>execute()</code> runs every 20 ms while the button is held. Read it inside out: calculate a voltage for the target, then apply it.' },
+    { lines: '14', text: '<code>end()</code> runs when the button is released or another command takes over. 0 V means the code stops driving and the wheel coasts.' },
+    { lines: '19', text: 'Returning <code>false</code> means the command never ends by itself. Reaching the speed does not stop it; releasing the button does.' },
   ]}
 />
 
-Each loop, the subsystem updates the ready flag and publishes the signals you graph.
+**3. The report.** Every loop, the subsystem updates the ready flag and publishes five signals.
 
 <AnnotatedCode
   file="lab4/periodic"
   title="FlywheelSubsystem.java"
   notes={[
-    { lines: '4', text: 'True while the error is inside the 2 RPS tolerance. Other commands read it through the <code>flywheelAtTarget</code> trigger.' },
-    { lines: '6-10', text: 'The five topics under <code>/Subsystems/FlywheelSubsystem/</code>: Velocity RPS, Target RPS, Error RPS, Output Voltage, At Target.' },
+    { lines: '4', text: 'The ready flag: true while the error is inside the 2 RPS tolerance. Other commands read it through the <code>flywheelAtTarget</code> trigger.' },
+    { lines: '6-10', text: 'The five topics you graph, all under <code>/Subsystems/FlywheelSubsystem/</code>: Velocity RPS, Target RPS, Error RPS, Output Voltage, and At Target.' },
   ]}
 />
 

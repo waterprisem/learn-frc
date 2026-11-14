@@ -1,6 +1,7 @@
 ---
 // Overrides Starlight's PageTitle to add the lesson header (track, time, session, outcomes, prerequisites).
 import Default from '@astrojs/starlight/components/PageTitle.astro';
+import { CalendarDays, Clock, Layers, Milestone } from 'lucide-react';
 import { lessons } from '../data/path.mjs';
 
 const data = Astro.locals.starlightRoute.entry.data;
@@ -10,11 +11,11 @@ const prereqs = (data.prereqs ?? []).flatMap((id: string) => lessons.find((l) =>
 <Default />
 {lesson && (
   <div class="lf-meta not-content">
-    <span>{lesson.trackLabel} · Lesson {lesson.id}</span>
-    {data.minutes && <span>About {data.minutes} min</span>}
-    {data.session && <span>Curriculum session {data.session}</span>}
+    <span><Layers size={15} aria-hidden="true" />{lesson.trackLabel} · Lesson {lesson.id}</span>
+    {data.minutes && <span><Clock size={15} aria-hidden="true" />About {data.minutes} min</span>}
+    {data.session && <span><CalendarDays size={15} aria-hidden="true" />Curriculum session {data.session}</span>}
     {prereqs.length > 0 && (
-      <span>Before this: {prereqs.map((p, i) => <>{i > 0 && ', '}<a href={p.href}>{p.id} {p.title}</a></>)}</span>
+      <span><Milestone size={15} aria-hidden="true" />Before this: {prereqs.map((p, i) => <>{i > 0 && ', '}<a href={p.href}>{p.id} {p.title}</a></>)}</span>
     )}
   </div>
 )}

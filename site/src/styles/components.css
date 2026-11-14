@@ -9,6 +9,8 @@
   color: var(--sl-color-gray-3);
   font-size: var(--sl-text-sm);
 }
+.lf-meta > span { display: inline-flex; align-items: center; gap: 0.35rem; flex-wrap: wrap; }
+.lf-meta svg { flex: none; color: var(--sl-color-text-accent); }
 .lf-outcomes {
   margin-top: 1rem;
   padding: 0.8rem 1rem;
@@ -27,7 +29,9 @@
   background: var(--sl-color-bg-sidebar);
 }
 .lf-box > .lf-box-label {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
   margin: 0 0 0.4rem;
   font-size: var(--sl-text-xs);
   font-weight: 700;
@@ -42,23 +46,8 @@ details.lf-deeper {
   border-radius: var(--radius);
   padding: 0.6rem 1rem;
 }
-details.lf-deeper > summary { cursor: pointer; font-weight: 600; }
-.lf-notes { margin-top: 0.6rem; padding: 0; list-style: none; font-size: var(--sl-text-sm); }
-.lf-notes li { display: flex; gap: 0.6rem; margin: 0.35rem 0; }
-.lf-notes .tag {
-  flex: none;
-  min-width: 1.5rem;
-  height: 1.5rem;
-  border-radius: 999px;
-  background: var(--sl-color-accent);
-  color: var(--sl-color-black);
-  font-weight: 700;
-  font-size: var(--sl-text-xs);
-  display: grid;
-  place-items: center;
-}
-:root[data-theme='dark'] .lf-notes .tag { background: var(--sl-color-accent-high); }
-
+details.lf-deeper > summary { cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 0.45rem; }
+details.lf-deeper > summary svg { color: var(--sl-color-text-accent); flex: none; }
 .lf-diagram { margin: 1rem 0; }
 .lf-diagram svg { width: 100%; height: auto; display: block; }
 .lf-diagram text { fill: var(--sl-color-white); font-size: 13px; font-family: var(--sl-font); }
@@ -68,7 +57,7 @@ details.lf-deeper > summary { cursor: pointer; font-weight: 600; }
 .lf-diagram figcaption { color: var(--sl-color-gray-3); font-size: var(--sl-text-sm); margin-top: 0.4rem; }
 
 /* ---------- Buttons and inputs shared by interactive pieces ---------- */
-.lf-playground button, .lf-practice button, .lf-playground select {
+.lf-playground button, .lf-practice button, .lf-walk .note button, .lf-playground select {
   font: inherit;
   font-size: var(--sl-text-sm);
   color: var(--sl-color-white);
@@ -77,17 +66,21 @@ details.lf-deeper > summary { cursor: pointer; font-weight: 600; }
   border-radius: calc(var(--radius) * 0.75);
   padding: 0.4rem 0.8rem;
   min-height: 2.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
   cursor: pointer;
   transition: background var(--ease), border-color var(--ease);
 }
 .lf-playground button:hover:not(:disabled), .lf-practice button:hover:not(:disabled) { border-color: var(--sl-color-text-accent); }
 .lf-playground button:disabled, .lf-practice button:disabled { opacity: 0.45; cursor: not-allowed; }
-.lf-practice button.primary, .lf-seg button[aria-pressed='true'] {
+.lf-practice button.primary, .lf-playground button.primary, .lf-walk button.primary, .lf-seg button[aria-pressed='true'] {
   background: var(--sl-color-text-accent);
   border-color: var(--sl-color-text-accent);
   color: var(--sl-color-black);
 }
-.lf-playground :focus-visible, .lf-practice :focus-visible, .lf-rating :focus-visible, .lf-chart :focus-visible {
+.lf-playground :focus-visible, .lf-practice :focus-visible, .lf-walk :focus-visible, .lf-progress :focus-visible, .lf-rating :focus-visible, .lf-chart :focus-visible {
   outline: 2px solid var(--sl-color-text-accent);
   outline-offset: 2px;
 }
@@ -169,6 +162,9 @@ details.lf-deeper > summary { cursor: pointer; font-weight: 600; }
 .lf-q textarea { width: 100%; font: inherit; font-size: var(--sl-text-sm); color: var(--sl-color-white); background: var(--sl-color-bg); border: 1px solid var(--sl-color-gray-4); border-radius: calc(var(--radius) * 0.75); padding: 0.5rem; margin-bottom: 0.5rem; }
 .lf-feedback { margin-top: 0.75rem; padding: 0.6rem 0.8rem; border-radius: calc(var(--radius) * 0.75); border-inline-start: 4px solid var(--sl-color-gray-3); background: var(--sl-color-bg); font-size: var(--sl-text-sm); }
 .lf-feedback p:first-child { margin-top: 0; }
+.lf-feedback p > svg { vertical-align: -0.2em; margin-inline-end: 0.35rem; }
+.lf-feedback.ok p > svg { color: var(--ok); }
+.lf-feedback.no p > svg { color: var(--danger); }
 .lf-feedback.ok { border-color: var(--ok); }
 .lf-feedback.no { border-color: var(--danger); }
 .lf-feedback.info { border-color: var(--sl-color-text-accent); }
@@ -185,3 +181,69 @@ details.lf-deeper > summary { cursor: pointer; font-weight: 600; }
 .lf-rating label.red { border-inline-start-color: var(--danger); }
 .lf-rating label.picked { box-shadow: inset 0 0 0 1px var(--sl-color-text-accent); }
 .lf-rating p { margin: 0.3rem 0 0; font-size: var(--sl-text-sm); color: var(--sl-color-gray-2); }
+
+/* ---------- Guided steps (coach) ---------- */
+.lf-coach {
+  margin-bottom: 1rem;
+  border: 1px solid var(--sl-color-text-accent);
+  border-radius: var(--radius);
+  background: var(--sl-color-bg);
+  overflow: hidden;
+}
+.lf-coach > header { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 0.5rem 0.8rem; border-bottom: 1px solid var(--sl-color-gray-5); }
+.lf-coach .who { display: inline-flex; align-items: center; gap: 0.4rem; font-size: var(--sl-text-xs); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--sl-color-text-accent); }
+.lf-coach .dots { display: flex; gap: 0.3rem; list-style: none; margin: 0; padding: 0; }
+.lf-coach .dots button { min-height: 1.75rem; width: 1.75rem; padding: 0; border-radius: 50%; font-size: var(--sl-text-xs); font-variant-numeric: tabular-nums; }
+.lf-coach .dots button.done { border-color: var(--ok); color: var(--ok); }
+.lf-coach .dots button.current { background: var(--sl-color-text-accent); border-color: var(--sl-color-text-accent); color: var(--sl-color-black); }
+.lf-coach .body { padding: 0.8rem; }
+.lf-coach h4 { margin: 0 0 0.3rem; font-size: var(--sl-text-base); color: var(--sl-color-white); }
+.lf-coach .goal { margin: 0; font-size: var(--sl-text-sm); }
+.lf-coach code, .lf-walk .note code { background: var(--sl-color-bg-inline-code); padding: 0.1em 0.3em; border-radius: 0.25em; font-size: 0.9em; }
+.lf-coach .note { display: flex; gap: 0.5rem; align-items: flex-start; margin: 0.7rem 0 0; padding: 0.55rem 0.7rem; min-height: 3.6rem; border-radius: calc(var(--radius) * 0.75); background: var(--sl-color-bg-sidebar); border-inline-start: 4px solid var(--sl-color-gray-3); font-size: var(--sl-text-sm); }
+.lf-coach .note svg { flex: none; margin-top: 0.15rem; }
+.lf-coach .note.good { border-color: var(--ok); }
+.lf-coach .note.good svg { color: var(--ok); }
+.lf-coach .note.warn { border-color: var(--warn); }
+.lf-coach .note.warn svg { color: var(--warn); }
+.lf-coach > footer { display: flex; justify-content: flex-end; gap: 0.5rem; padding: 0 0.8rem 0.8rem; }
+.lf-coach > footer button:first-child { margin-inline-end: auto; }
+.lf-coach button.skip { border-color: transparent; background: transparent; color: var(--sl-color-gray-2); text-decoration: underline; }
+
+/* ---------- Code walkthrough ---------- */
+.lf-walk { border: 1px solid var(--sl-color-gray-5); border-radius: var(--radius); overflow: hidden; background: var(--sl-color-bg); margin: 1rem 0; }
+.lf-walk > header { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 0.45rem 0.8rem; background: var(--sl-color-bg-sidebar); border-bottom: 1px solid var(--sl-color-gray-5); font-size: var(--sl-text-xs); }
+.lf-walk .file { font-family: var(--sl-font-mono); color: var(--sl-color-white); }
+.lf-walk .hint { display: inline-flex; align-items: center; gap: 0.3rem; color: var(--sl-color-gray-3); }
+.lf-walk .code { padding: 0.5rem 0; overflow-x: auto; font-size: var(--sl-text-sm); }
+.lf-walk .line { display: flex; width: 100%; min-width: max-content; align-items: center; padding: 0 0.8rem 0 0; border: 0; border-inline-start: 3px solid transparent; background: none; font: inherit; text-align: start; line-height: 1.75; color: inherit; }
+.lf-walk code { font-family: var(--sl-font-mono); white-space: pre; background: none; padding: 0; }
+.lf-walk .gutter { flex: none; width: 2.4rem; display: grid; place-items: center; }
+.lf-walk .badge { display: grid; place-items: center; width: 1.3rem; height: 1.3rem; border-radius: 50%; font-family: var(--sl-font); font-size: 0.7rem; font-weight: 700; border: 1.5px solid var(--sl-color-text-accent); color: var(--sl-color-text-accent); }
+.lf-walk button.line { cursor: pointer; background: color-mix(in srgb, var(--sl-color-text-accent) 9%, transparent); }
+.lf-walk button.line:hover { background: color-mix(in srgb, var(--sl-color-text-accent) 18%, transparent); }
+.lf-walk button.line.open { border-inline-start-color: var(--sl-color-text-accent); background: color-mix(in srgb, var(--sl-color-text-accent) 22%, transparent); }
+.lf-walk button.line.open .badge { background: var(--sl-color-text-accent); color: var(--sl-color-black); }
+.lf-walk .line:not(.hot) code { opacity: 0.75; }
+:root[data-theme='dark'] .lf-walk code span { color: var(--shiki-dark) !important; }
+.lf-walk .note { margin: 0.35rem 0.8rem 0.6rem 2.4rem; padding: 0.6rem 0.8rem; border-radius: calc(var(--radius) * 0.75); border: 1px solid var(--sl-color-text-accent); background: var(--sl-color-bg-sidebar); font-size: var(--sl-text-sm); white-space: normal; max-width: 38rem; position: sticky; left: 2.4rem; }
+.lf-walk .note p { margin: 0; }
+.lf-walk .note .nav { display: flex; align-items: center; gap: 0.4rem; margin-top: 0.5rem; }
+.lf-walk .note .nav span { margin-inline-end: auto; color: var(--sl-color-gray-3); font-size: var(--sl-text-xs); }
+.lf-walk .note button { min-height: 2rem; padding: 0.2rem 0.6rem; }
+
+/* ---------- Lesson progress (right sidebar) ---------- */
+.lf-progress h2 { font-size: var(--sl-text-h5); font-weight: 600; color: var(--sl-color-white); margin: 0 0 0.6rem; }
+.lf-progress .bar { height: 0.5rem; border-radius: 999px; background: var(--sl-color-gray-5); overflow: hidden; }
+.lf-progress .bar span { display: block; height: 100%; border-radius: 999px; background: var(--sl-color-text-accent); transition: width 400ms ease; }
+.lf-progress .count { margin: 0.35rem 0 0.7rem; font-size: var(--sl-text-xs); color: var(--sl-color-gray-3); }
+.lf-progress ol { list-style: none; margin: 0; padding: 0; }
+.lf-progress li a { display: flex; gap: 0.5rem; align-items: flex-start; padding: 0.3rem 0.4rem; border-radius: 0.3rem; font-size: var(--sl-text-sm); line-height: 1.35; color: var(--sl-color-gray-3); text-decoration: none; }
+.lf-progress li a:hover { color: var(--sl-color-white); background: var(--sl-color-bg-sidebar); }
+.lf-progress li svg { flex: none; margin-top: 0.1rem; }
+.lf-progress li.here a { color: var(--sl-color-white); font-weight: 600; }
+.lf-progress li.here svg { color: var(--sl-color-text-accent); }
+.lf-progress li.done svg { color: var(--ok); }
+.lf-progress small { color: var(--sl-color-gray-3); font-variant-numeric: tabular-nums; }
+
+@media (prefers-reduced-motion: reduce) { .lf-progress .bar span { transition: none; } }

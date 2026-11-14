@@ -1,4 +1,5 @@
 ---
+import { Telescope } from 'lucide-react';
 interface Props { title: string }
 ---
-<details class="lf-deeper"><summary>Go deeper: {Astro.props.title}</summary><slot /></details>
+<details class="lf-deeper"><summary><Telescope size={16} aria-hidden="true" />Go deeper: {Astro.props.title}</summary><slot /></details>

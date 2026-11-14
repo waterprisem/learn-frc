@@ -4,6 +4,10 @@ import { useSyncExternalStore } from 'react';
 export interface LessonProgress {
   quiz?: { correct: number; total: number };
   rating?: 'green' | 'yellow' | 'red';
+  /** Slugs of reading sections the learner has scrolled through. */
+  seen?: string[];
+  /** The playground's guided steps were completed. */
+  guideDone?: boolean;
 }
 type State = { version: 1; lessons: Record<string, LessonProgress> };
 

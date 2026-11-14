@@ -1,6 +1,7 @@
 ---
 // The bridge from the browser to the real tools: WPILib, the simulator, AdvantageScope, the robot.
+import { Wrench } from 'lucide-react';
 interface Props { tools?: string }
 const { tools } = Astro.props;
 ---
-<section class="lf-box real"><span class="lf-box-label">Real tools{tools ? ` · ${tools}` : ''}</span><slot /></section>
+<section class="lf-box real"><span class="lf-box-label"><Wrench size={15} aria-hidden="true" />Real tools{tools ? ` · ${tools}` : ''}</span><slot /></section>

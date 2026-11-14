@@ -1,8 +1,12 @@
+import { Compass, Pause, Play, RotateCcw, StepForward } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { flywheelPresets, type FlywheelPresetId } from '../../sim/flywheelPresets';
 import { FlywheelSim, LOOP_PERIOD, type FlywheelGains, type FlywheelSample } from '../../sim/flywheelSim';
 import Chart from '../viz/Chart';
 import { flywheelBand, flywheelSeries } from '../viz/flywheelSeries';
+import { updateLesson } from '../../stores/progress';
+import Coach from './Coach';
+import { buildGuideContext, flywheelGuide } from './flywheelGuide';
 
 const WINDOW_SECONDS = 10;
 const TARGETS = [
@@ -23,9 +27,11 @@ const KNOBS: Array<{ key: keyof FlywheelGains; constant: string; unit: string; m
 
 interface Props {
   initialPreset?: FlywheelPresetId;
+  /** Lesson to mark when the guided steps are finished. */
+  lessonId?: string;
 }
 
-export default function FlywheelTuner({ initialPreset = 'zero' }: Props) {
+export default function FlywheelTuner({ initialPreset = 'zero', lessonId }: Props) {
   const [gains, setGains] = useState<FlywheelGains>(flywheelPresets[initialPreset].gains);
   const [target, setTarget] = useState<number | null>(null);
   const [load, setLoad] = useState(false);
@@ -37,6 +43,12 @@ export default function FlywheelTuner({ initialPreset = 'zero' }: Props) {
   const samples = useRef<FlywheelSample[]>([]);
   const live = useRef({ target, paused });
   live.current = { target, paused };
+  const targetSince = useRef(0);
+
+  function hold(next: number | null) {
+    targetSince.current = sim.current!.t;
+    setTarget(next);
+  }
 
   const stepOnce = useCallback(() => {
     const s = sim.current!.step(live.current.target);
@@ -74,6 +86,7 @@ export default function FlywheelTuner({ initialPreset = 'zero' }: Props) {
   function reset(next: FlywheelGains = gains) {
     sim.current = new FlywheelSim(next, load ? 0.5 : 0);
     samples.current = [];
+    targetSince.current = 0;
     setTarget(null);
     setGains(next);
     setFrame((f) => f + 1);
@@ -84,6 +97,8 @@ export default function FlywheelTuner({ initialPreset = 'zero' }: Props) {
   const presetId = (Object.keys(flywheelPresets) as FlywheelPresetId[]).find((id) =>
     KNOBS.every((k) => flywheelPresets[id].gains[k.key] === gains[k.key]),
   );
+
+  const guide = buildGuideContext(samples.current, gains, target, load, sim.current.t - targetSince.current);
 
   const knob = (k: (typeof KNOBS)[number]) => (
     <label key={k.key} className="lf-knob">
@@ -107,13 +122,19 @@ export default function FlywheelTuner({ initialPreset = 'zero' }: Props) {
 
   return (
     <div className="lf-playground not-content">
+      <Coach
+        icon={<Compass size={18} aria-hidden="true" />}
+        steps={flywheelGuide}
+        context={guide}
+        onFinish={() => lessonId && updateLesson(lessonId, { guideDone: true })}
+      />
       <div className="lf-pg-top">
         <div className="lf-pg-controls">
           <fieldset>
             <legend>Hold a button (target speed)</legend>
             <div className="lf-seg">
               {TARGETS.map((t) => (
-                <button key={t.label} type="button" aria-pressed={target === t.value} onClick={() => setTarget(t.value)}>
+                <button key={t.label} type="button" aria-pressed={target === t.value} onClick={() => hold(t.value)}>
                   <b>{t.label}</b>
                   <small>{t.hint}</small>
                 </button>
@@ -172,9 +193,9 @@ export default function FlywheelTuner({ initialPreset = 'zero' }: Props) {
           </select>
         </label>
         <span className="spacer" />
-        <button type="button" onClick={() => setPaused(!paused)}>{paused ? 'Resume' : 'Pause'}</button>
-        <button type="button" disabled={!paused} onClick={() => { stepOnce(); setFrame((f) => f + 1); }}>Step 20 ms</button>
-        <button type="button" onClick={() => reset()}>Reset</button>
+        <button type="button" onClick={() => setPaused(!paused)}>{paused ? <Play size={15} aria-hidden="true" /> : <Pause size={15} aria-hidden="true" />}{paused ? 'Resume' : 'Pause'}</button>
+        <button type="button" disabled={!paused} onClick={() => { stepOnce(); setFrame((f) => f + 1); }}><StepForward size={15} aria-hidden="true" />Step 20 ms</button>
+        <button type="button" onClick={() => reset()}><RotateCcw size={15} aria-hidden="true" />Reset</button>
       </div>
     </div>
   );

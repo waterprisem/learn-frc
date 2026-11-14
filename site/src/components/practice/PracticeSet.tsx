@@ -1,3 +1,4 @@
+import { CircleCheck, CircleX } from 'lucide-react';
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { flywheelPresets, STANDARD_SECONDS, standardSchedule, type FlywheelPresetId } from '../../sim/flywheelPresets';
 import { runScenario } from '../../sim/flywheelSim';
@@ -147,7 +148,7 @@ function Item({ item, n, onResult }: { item: PracticeItem; n: number; onResult: 
       )}
       {check && result !== null && (
         <div className={`lf-feedback ${result ? 'ok' : 'no'}`} role="status">
-          <p><b>{result ? '✓ Correct.' : '✗ Not quite.'}</b> {result ? rich(item.explain) : 'Look at the question again and try another answer.'}</p>
+          <p>{result ? <CircleCheck size={17} aria-hidden="true" /> : <CircleX size={17} aria-hidden="true" />}<b>{result ? 'Correct.' : 'Not quite.'}</b> {result ? rich(item.explain) : 'Look at the question again and try another answer.'}</p>
           {!result && (
             <details>
               <summary>Show the explanation</summary>

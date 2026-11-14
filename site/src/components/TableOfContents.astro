@@ -1,0 +1,12 @@
+---
+// Overrides Starlight's "On this page": lesson pages get a progress checklist instead.
+import Default from '@astrojs/starlight/components/TableOfContents.astro';
+import LessonProgress from './lesson/LessonProgress.tsx';
+
+const { entry, toc } = Astro.locals.starlightRoute;
+const isLesson = entry.data.id && entry.data.status !== 'stub';
+const sections = (toc?.items ?? []).filter((i) => i.slug !== '_top').map((i) => ({ slug: i.slug, text: i.text }));
+---
+{isLesson && sections.length > 0
+  ? <LessonProgress client:load lessonId={entry.data.id!} sections={sections} />
+  : <Default />}

@@ -28,6 +28,8 @@
   --ease: 200ms ease;
 
   --sl-content-width: 46rem;
+  --sl-font: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --sl-font-mono: 'JetBrains Mono Variable', ui-monospace, 'SF Mono', Menlo, monospace;
 }
 
 :root[data-theme='light'] {
@@ -54,6 +56,11 @@
   }
 }
 
+/* Typography polish */
+.sl-markdown-content :is(h1, h2, h3), h1#_top { letter-spacing: -0.015em; }
+.sl-markdown-content h2 { margin-top: 2.75rem; }
+.sl-markdown-content kbd { font-family: var(--sl-font-mono); font-size: 0.85em; padding: 0.1em 0.45em; border: 1px solid var(--sl-color-gray-4); border-bottom-width: 2px; border-radius: 0.3em; background: var(--sl-color-bg-sidebar); }
+
 /* Path map on the home page */
 .path-map {
   display: grid;
@@ -66,38 +73,17 @@
   border-radius: var(--radius);
   padding: 1rem 1.1rem;
   background: var(--sl-color-bg-sidebar);
+  transition: border-color var(--ease), transform var(--ease);
 }
-.path-map .track h3 {
-  margin: 0 0 0.25rem;
-  font-size: var(--sl-text-lg);
-}
-.path-map .track p {
-  margin: 0 0 0.6rem;
-  color: var(--sl-color-gray-3);
-  font-size: var(--sl-text-sm);
-}
-.path-map .track ol {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  font-size: var(--sl-text-sm);
-}
-.path-map .track li {
-  margin: 0;
-  padding: 0.12rem 0;
-}
-.path-map .track .num {
-  display: inline-block;
-  min-width: 2.4em;
-  color: var(--sl-color-gray-3);
-  font-variant-numeric: tabular-nums;
-}
-.badge-new {
-  font-size: 0.7em;
-  border: 1px solid var(--sl-color-gray-4);
-  border-radius: 999px;
-  padding: 0 0.45em;
-  margin-inline-start: 0.35em;
-  color: var(--sl-color-gray-2);
-  white-space: nowrap;
-}
+.path-map .track:hover { border-color: var(--sl-color-text-accent); transform: translateY(-2px); }
+.path-map .track h3 { display: flex; align-items: center; gap: 0.65rem; margin: 0 0 0.5rem; font-size: var(--sl-text-lg); line-height: 1.2; color: var(--sl-color-white); }
+.path-map .track h3 small { display: block; font-size: var(--sl-text-xs); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--sl-color-gray-3); }
+.path-map .track-icon { display: grid; place-items: center; flex: none; width: 2.25rem; height: 2.25rem; border-radius: 0.6rem; background: var(--sl-color-accent-low); color: var(--sl-color-text-accent); }
+:root[data-theme='light'] .path-map .track-icon { color: var(--sl-color-accent-high); }
+.path-map .track p { margin: 0 0 0.6rem; color: var(--sl-color-gray-3); font-size: var(--sl-text-sm); }
+.path-map .track ol { margin: 0; padding: 0; list-style: none; font-size: var(--sl-text-sm); }
+.path-map .track li { margin: 0; padding: 0.12rem 0; }
+.path-map .track .num { display: inline-block; min-width: 2.4em; color: var(--sl-color-gray-3); font-variant-numeric: tabular-nums; }
+.path-map .track a { text-decoration: none; }
+.path-map .track a:hover { text-decoration: underline; }
+.badge-new { font-size: 0.7em; border: 1px solid var(--sl-color-gray-4); border-radius: 999px; padding: 0 0.45em; margin-inline-start: 0.35em; color: var(--sl-color-gray-2); white-space: nowrap; }
