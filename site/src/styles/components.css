@@ -424,10 +424,10 @@ details.lf-deeper > summary svg { color: var(--sl-color-text-accent); flex: none
 .lf-timeline .name { font-size: var(--sl-text-xs); color: var(--sl-color-gray-2); }
 .lf-timeline .cells { display: grid; grid-template-columns: repeat(24, minmax(0, 1fr)); gap: 2px; }
 .lf-timeline .cells i { height: 1.35rem; border-radius: 3px; background: var(--sl-color-gray-6); font-style: normal; }
-.lf-timeline .init, .lf-legend .init { background: var(--sig-setpoint); }
-.lf-timeline .run, .lf-legend .run { background: var(--sig-measurement); }
-.lf-timeline .finished, .lf-legend .finished { background: var(--ok); }
-.lf-timeline .interrupted, .lf-legend .interrupted { background: var(--danger); }
+.lf-timeline .cells i.init, .lf-legend .init { background: var(--sig-setpoint); }
+.lf-timeline .cells i.run, .lf-legend .run { background: var(--sig-measurement); }
+.lf-timeline .cells i.finished, .lf-legend .finished { background: var(--ok); }
+.lf-timeline .cells i.interrupted, .lf-legend .interrupted { background: var(--danger); }
 .lf-timeline .axis .cells i { height: auto; background: none; font-size: 0.65rem; color: var(--sl-color-gray-3); text-align: start; overflow: visible; white-space: nowrap; }
 .lf-legend { display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; margin: 0.5rem 0 0.9rem; font-size: var(--sl-text-xs); color: var(--sl-color-gray-2); }
 .lf-legend span { display: inline-flex; align-items: center; gap: 0.35rem; }
