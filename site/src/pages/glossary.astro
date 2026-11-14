@@ -1,0 +1,19 @@
+---
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import { getCollection } from 'astro:content';
+import Glossary from '../components/reference/Glossary.tsx';
+import { lessons } from '../data/path.mjs';
+
+const entries = (await getCollection('glossary'))
+  .map((e) => ({
+    id: e.id,
+    term: e.data.term,
+    short: e.data.short,
+    long: e.data.long,
+    lessons: e.data.lessons.flatMap((id) => lessons.find((l) => l.id === id) ?? []).map((l) => ({ id: l.id, title: l.title, href: l.href })),
+  }))
+  .sort((a, b) => a.term.localeCompare(b.term));
+---
+<StarlightPage frontmatter={{ title: 'Glossary', tableOfContents: false }}>
+  <Glossary entries={entries} client:load />
+</StarlightPage>

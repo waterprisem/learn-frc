@@ -156,3 +156,27 @@
 @media (prefers-reduced-motion: reduce) {
   .lf-mech .m-spin, .lf-mech .m-ball, .lf-mech .m-lift, .lf-mech .m-swing, .lf-mech .m-steer, .lf-mech .m-tread, .lf-mech .m-rope, .lf-mech .m-hoist { animation: none; }
 }
+
+/* ---------- Glossary tooltips ---------- */
+.lf-term { position: relative; border-bottom: 1px dotted var(--sl-color-gray-3); cursor: help; }
+.lf-term:hover::after, .lf-term:focus-visible::after {
+  content: attr(data-short);
+  position: absolute; z-index: 20; left: 0; top: calc(100% + 0.3rem);
+  width: max-content; max-width: min(20rem, 80vw);
+  padding: 0.45rem 0.65rem; border-radius: 6px;
+  background: var(--sl-color-gray-6); color: var(--sl-color-white);
+  border: 1px solid var(--sl-color-gray-4);
+  font-size: var(--sl-text-sm); font-weight: 400; line-height: 1.4; text-align: start;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+}
+
+/* ---------- Glossary and flashcards ---------- */
+.lf-glossary input[type='search'] { width: 100%; max-width: 24rem; padding: 0.5rem 0.75rem; border: 1px solid var(--sl-color-gray-4); border-radius: 6px; background: var(--sl-color-bg); color: var(--sl-color-white); font: inherit; margin-bottom: 1rem; }
+.lf-glossary dl { margin: 0; display: grid; gap: 0.9rem; }
+.lf-glossary dt { font-weight: 600; color: var(--sl-color-white); }
+.lf-glossary dd { margin: 0.1rem 0 0; color: var(--sl-color-gray-2); font-size: var(--sl-text-sm); }
+.lf-glossary dd p { margin: 0.4rem 0 0; }
+.lf-glossary .lessons { display: flex; flex-wrap: wrap; gap: 0.2rem 0.9rem; margin-top: 0.3rem; font-size: var(--sl-text-xs); }
+.lf-glossary .empty, .lf-cards .empty { color: var(--sl-color-gray-3); }
+.lf-cards .face { width: 100%; min-height: 9rem; display: grid; place-items: center; padding: 1.25rem; text-align: center; font-size: var(--sl-text-xl); margin: 0.5rem 0 0.75rem; }
+.lf-cards .face .def { font-size: var(--sl-text-base); line-height: 1.5; }

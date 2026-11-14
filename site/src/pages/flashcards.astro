@@ -1,0 +1,12 @@
+---
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import { getCollection } from 'astro:content';
+import Flashcards from '../components/reference/Flashcards.tsx';
+
+const cards = (await getCollection('glossary'))
+  .map((e) => ({ id: e.id, term: e.data.term, short: e.data.short, lessons: e.data.lessons }))
+  .sort((a, b) => a.term.localeCompare(b.term));
+---
+<StarlightPage frontmatter={{ title: 'Flashcards', tableOfContents: false }}>
+  <Flashcards cards={cards} client:load />
+</StarlightPage>

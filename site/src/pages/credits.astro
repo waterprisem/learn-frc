@@ -1,0 +1,13 @@
+---
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+---
+<StarlightPage frontmatter={{ title: 'Credits', tableOfContents: false }}>
+  <p>This site teaches the programming curriculum of FRC Team 1360, Orbit Robotics. It is an unofficial learning aid.</p>
+  <ul>
+    <li><b>Curriculum, labs and robot code:</b> the Orbit Robotics curriculum repository and the team's public 2026 robot code (<a href="https://github.com/FRC1360/Rebuilt2026">FRC1360/Rebuilt2026</a>). Code excerpts in lessons come from these.</li>
+    <li><b>Reference docs linked from lessons:</b> <a href="https://docs.wpilib.org">WPILib documentation</a>, the <a href="https://v6.docs.ctr-electronics.com">CTRE Phoenix 6 documentation</a>, and the PathPlanner and PhotonVision docs. Each lesson lists its sources.</li>
+    <li><b>Site:</b> built with <a href="https://astro.build">Astro</a> and <a href="https://starlight.astro.build">Starlight</a>. Icons from <a href="https://lucide.dev">Lucide</a>. Fonts: Inter and JetBrains Mono.</li>
+    <li><b>Diagrams and simulations:</b> original 2D drawings and models written for this site. The simulations follow WPILib's behavior but are not WPILib code.</li>
+  </ul>
+  <p>FIRST, FRC, and other names are trademarks of their owners. Nothing here is endorsed by them.</p>
+</StarlightPage>

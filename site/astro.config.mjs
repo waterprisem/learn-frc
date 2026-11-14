@@ -3,6 +3,7 @@ import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
 import starlight from '@astrojs/starlight';
 import { tracks } from './src/data/path.mjs';
+import { glossaryScript } from './src/theme/glossaryScript.mjs';
 import { noFlashScript, themeCss } from './src/theme/themes.mjs';
 
 export default defineConfig({
@@ -26,15 +27,19 @@ export default defineConfig({
       head: [
         { tag: 'style', content: themeCss() },
         { tag: 'script', content: noFlashScript },
+        { tag: 'script', content: glossaryScript },
       ],
       // The sidebar is the learning path (src/data/path.mjs).
       sidebar: [
         { label: 'Learning path', link: '/' },
+        { label: 'Glossary', link: '/glossary/' },
+        { label: 'Flashcards', link: '/flashcards/' },
         ...tracks.map((t) => ({
           label: `${t.key} · ${t.label}`,
           collapsed: true,
           items: [{ autogenerate: { directory: t.dir } }],
         })),
+        { label: 'Credits', link: '/credits/' },
       ],
       pagination: true,
       lastUpdated: false,

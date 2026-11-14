@@ -10,7 +10,7 @@ const prereqs = (data.prereqs ?? []).flatMap((id: string) => lessons.find((l) =>
 ---
 <Default />
 {lesson && (
-  <div class="lf-meta not-content">
+  <div class="lf-meta not-content" data-lesson-id={lesson.id}>
     <span><Layers size={15} aria-hidden="true" />{lesson.trackLabel} · Lesson {lesson.id}</span>
     {data.minutes && <span><Clock size={15} aria-hidden="true" />About {data.minutes} min</span>}
     {data.session && <span><CalendarDays size={15} aria-hidden="true" />Curriculum session {data.session}</span>}
