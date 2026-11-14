@@ -28,6 +28,7 @@ import GoDeeper from '../../../components/lesson/GoDeeper.astro';
 import Checkpoint from '../../../components/lesson/Checkpoint.astro';
 import Practice from '../../../components/practice/Practice.astro';
 import ComponentCard from '../../../components/hardware/ComponentCard.tsx';
+import TeamIpCalculator from '../../../components/playgrounds/TeamIpCalculator.tsx';
 
 <WhyItMatters>
 Every deploy and every enable crosses a network. When the Driver Station says "No Robot Communication" and every light on the robot is on, the fault is an address, a cable, or the radio, not your code.
@@ -51,6 +52,10 @@ FRC uses one scheme everywhere: **`10.TE.AM.X`**. Write your team number with fo
 | 9999 | 99 and 99 | `10.99.99.2` |
 
 Leading zeros are dropped, because `02` is just 2. The roboRIO also answers to a name: `roboRIO-1360-FRC.local`. The name and the address reach the same computer.
+
+## Try it: address calculator
+
+<TeamIpCalculator client:visible lessonId="1.9" />
 
 ## The radio joins the robot to your laptop
 
