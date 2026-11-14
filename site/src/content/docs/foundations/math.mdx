@@ -26,6 +26,7 @@ import RecapCard from '../../../components/lesson/RecapCard.astro';
 import GoDeeper from '../../../components/lesson/GoDeeper.astro';
 import Checkpoint from '../../../components/lesson/Checkpoint.astro';
 import Practice from '../../../components/practice/Practice.astro';
+import UnitConverter from '../../../components/playgrounds/UnitConverter.tsx';
 
 <WhyItMatters>
 An arm holds still at 0 degrees and swings wildly at 60 degrees, because code that wanted radians was handed degrees. It compiles, it runs, and the numbers are just wrong.
@@ -47,6 +48,10 @@ To change units, multiply by a fraction that equals 1. The unit you want to remo
 | 90 degrees | 1 rotation / 360 degrees | 0.25 rotations |
 
 If the units do not cancel to what you wanted, the arithmetic is wrong. Lesson 1.8 does this for gear ratios.
+
+## Try it: motor rotations to mechanism units
+
+<UnitConverter client:visible lessonId="0.8" />
 
 ## Radians
 

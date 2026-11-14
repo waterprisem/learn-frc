@@ -15,3 +15,11 @@
 .lf-gear-read dt { font-size: var(--sl-text-xs); color: var(--sl-color-gray-3); }
 .lf-gear-read dd { margin: 0; font-size: var(--sl-text-lg); font-weight: 600; font-variant-numeric: tabular-nums; }
 @media (prefers-reduced-motion: reduce) { .lf-gears .spin { animation-play-state: paused; } }
+
+.lf-unitconv .lf-knob input[type='number'] { width: 7.5rem; }
+.lf-conv-chain { list-style: none; margin: 0.5rem 0 0; padding: 0; display: grid; gap: 0.35rem; }
+.lf-conv-chain li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.4rem; padding: 0.4rem 0.7rem; border: 1px solid var(--sl-color-gray-5); border-radius: 0.4rem; margin: 0; }
+.lf-conv-chain li span { flex: 1 1 9rem; font-size: var(--sl-text-sm); color: var(--sl-color-gray-2); }
+.lf-conv-chain li b { font-variant-numeric: tabular-nums; }
+.lf-conv-chain li small { color: var(--sl-color-gray-3); }
+.lf-conv-chain li.last { border-color: var(--sig-measurement); }
