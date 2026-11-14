@@ -29,6 +29,7 @@ import GoDeeper from '../../../components/lesson/GoDeeper.astro';
 import Checkpoint from '../../../components/lesson/Checkpoint.astro';
 import Practice from '../../../components/practice/Practice.astro';
 import ComponentCard from '../../../components/hardware/ComponentCard.tsx';
+import SwerveDrive from '../../../components/playgrounds/SwerveDrive.tsx';
 
 <WhyItMatters>
 A tank drive can only go forward and turn. A swerve robot can slide sideways, drive diagonally, and spin while it does both, so it lines up with a scoring spot faster.
@@ -79,6 +80,10 @@ Each wheel's motion is just the robot's translation plus the spin at that corner
 Turning a wheel 180° takes time. Instead, the code can point it at the angle within 90° of where it is now and run it backward.
 So you may see a state such as 45° at negative speed instead of 225° at positive speed. The wheel moves the same way on the floor.
 </GoDeeper>
+
+## Try it: ask for a motion
+
+<SwerveDrive client:visible lessonId="6.2" />
 
 ## Practice
 

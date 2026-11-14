@@ -460,3 +460,15 @@ details.lf-deeper > summary svg { color: var(--sl-color-text-accent); flex: none
 .lf-grav .bar { height: 0.5rem; border-radius: 3px; background: var(--sl-color-gray-6); overflow: hidden; }
 .lf-grav .bar i { display: block; height: 100%; background: var(--sig-output); }
 .lf-arm .lf-check { margin-top: 0.4rem; }
+
+/* ---------- Swerve drive (P16) ---------- */
+.lf-swerve .lf-pg-top { grid-template-columns: minmax(0, 1fr) minmax(13rem, 20rem); }
+.lf-swerve .lf-pg-visual svg { max-width: 20rem; border-radius: 6px; }
+.lf-swerve .floor { fill: var(--sl-color-gray-6); }
+.lf-swerve .body { fill: var(--sl-color-gray-5); stroke: var(--sl-color-gray-3); stroke-width: 1.5; }
+.lf-swerve .front { fill: var(--sl-color-gray-2); }
+.lf-swerve .wheel { fill: var(--sl-color-gray-3); stroke: var(--sl-color-gray-1); stroke-width: 1; }
+.lf-swerve .arrow { stroke: var(--sig-output); stroke-width: 3; stroke-linecap: round; }
+.lf-wheels { width: 100%; font-size: var(--sl-text-sm); border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.lf-wheels th, .lf-wheels td { padding: 0.25rem 0.5rem; text-align: start; border-bottom: 1px solid var(--sl-color-gray-5); }
+@media (max-width: 40rem) { .lf-swerve .lf-pg-top { grid-template-columns: minmax(0, 1fr); } }
