@@ -1,0 +1,33 @@
+# Glossary. Each entry: id → term, short (tooltip, ≤160 chars), optional long, lessons that teach it.
+setpoint:
+  term: Setpoint
+  short: The value you want a mechanism to reach, such as a target speed or height.
+  lessons: ["3.2"]
+measurement:
+  term: Measurement
+  short: What a sensor says the mechanism is doing right now.
+  lessons: ["3.2"]
+error:
+  term: Error
+  short: Setpoint minus measurement. How far the mechanism is from where you want it.
+  lessons: ["3.2"]
+feedforward:
+  term: Feedforward
+  short: A prediction of the voltage a mechanism needs for the motion you asked for.
+  lessons: ["3.4"]
+feedback:
+  term: Feedback
+  short: A correction calculated from measured error, such as PID.
+  lessons: ["3.3"]
+can-id:
+  term: CAN ID
+  short: The unique number that identifies a device on the robot's CAN bus.
+  lessons: ["1.5"]
+subsystem:
+  term: Subsystem
+  short: A class that owns one mechanism's motors and sensors.
+  lessons: ["2.2"]
+command:
+  term: Command
+  short: A class or object that describes one robot behavior and runs through the scheduler.
+  lessons: ["2.3"]

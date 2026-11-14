@@ -1,0 +1,15 @@
+# Practice bank for lesson 3.5 (Velocity control: PID + feedforward). Expanded in M1.
+lesson: "3.5"
+items:
+  - type: mcq
+    prompt: "The flywheel settles a few RPS below every target and stays there. Which gain is most likely too small?"
+    choices: ["kP", "kV", "kD", "Velocity tolerance"]
+    answer: 1
+    explain: "kV supplies the voltage needed to hold a speed. If it is too small, feedforward under-predicts and a modest kP cannot close the gap, leaving steady-state error."
+    source: "Lab 4, Experiment 1"
+  - type: mcq
+    prompt: "After raising one gain, the velocity graph swings above and below the target without settling. Which gain did you raise too far?"
+    choices: ["kS", "kV", "kP", "kI"]
+    answer: 2
+    explain: "A large kP over-corrects each error, so the flywheel overshoots in both directions and oscillates."
+    source: "Lab 4, Experiment 2"

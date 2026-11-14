@@ -1,0 +1,103 @@
+/*
+ * Design tokens that stay the same in every color theme (see planning/04_DESIGN_SYSTEM.md).
+ * Theme-dependent colors (accent + neutrals) are generated from src/theme/themes.mjs.
+ */
+:root {
+  /* Signals: fixed meaning on every graph and diagram. Pair each with its line style, never color alone. */
+  --sig-setpoint: #f0b429; /* goal / setpoint: dashed */
+  --sig-profile: #e58fc0; /* profiled setpoint: dotted */
+  --sig-measurement: #56b4e9; /* measurement: solid, thick */
+  --sig-error: #ff7a45; /* error: solid, thin */
+  --sig-output: #2fc79b; /* output volts: solid, second axis */
+  --sig-at-target: rgba(240, 228, 66, 0.18); /* at-target: shaded band */
+
+  /* Hardware layers on the control-system map */
+  --layer-power: #ff7a45;
+  --layer-can: #2fc79b;
+  --layer-network: #56b4e9;
+  --layer-dio: #c59bf5;
+
+  /* Semantic */
+  --ok: #4ade80;
+  --warn: #fbbf24;
+  --danger: #f87171;
+
+  /* Shape and motion */
+  --radius: 0.5rem;
+  --space: 0.25rem;
+  --ease: 200ms ease;
+
+  --sl-content-width: 46rem;
+}
+
+:root[data-theme='light'] {
+  --sig-setpoint: #b26a00;
+  --sig-profile: #b0387f;
+  --sig-measurement: #0072b2;
+  --sig-error: #c44900;
+  --sig-output: #00795b;
+  --sig-at-target: rgba(178, 106, 0, 0.14);
+
+  --layer-power: #c44900;
+  --layer-can: #00795b;
+  --layer-network: #0072b2;
+  --layer-dio: #7c3aed;
+
+  --ok: #15803d;
+  --warn: #a16207;
+  --danger: #b91c1c;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --ease: 0ms;
+  }
+}
+
+/* Path map on the home page */
+.path-map {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
+  margin-top: 1.5rem;
+}
+.path-map .track {
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem;
+  background: var(--sl-color-bg-sidebar);
+}
+.path-map .track h3 {
+  margin: 0 0 0.25rem;
+  font-size: var(--sl-text-lg);
+}
+.path-map .track p {
+  margin: 0 0 0.6rem;
+  color: var(--sl-color-gray-3);
+  font-size: var(--sl-text-sm);
+}
+.path-map .track ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--sl-text-sm);
+}
+.path-map .track li {
+  margin: 0;
+  padding: 0.12rem 0;
+}
+.path-map .track .num {
+  display: inline-block;
+  min-width: 2.4em;
+  color: var(--sl-color-gray-3);
+  font-variant-numeric: tabular-nums;
+}
+.badge-new {
+  font-size: 0.7em;
+  border: 1px solid var(--sl-color-gray-4);
+  border-radius: 999px;
+  padding: 0 0.45em;
+  margin-inline-start: 0.35em;
+  color: var(--sl-color-gray-2);
+  white-space: nowrap;
+}

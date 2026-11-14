@@ -1,0 +1,50 @@
+---
+// Overrides Starlight's ThemeSelect: keeps the light/dark/auto menu and adds a color-theme menu.
+import Default from '@astrojs/starlight/components/ThemeSelect.astro';
+import Select from '@astrojs/starlight/components/Select.astro';
+import { defaultTheme, storageKey, themes } from '../theme/themes.mjs';
+---
+
+<Default />
+<learn-accent-select data-key={storageKey} data-default={defaultTheme}>
+  <Select
+    label="Color theme"
+    icon="star"
+    width="8.5em"
+    options={themes.map((t) => ({ label: t.label, value: t.id, selected: t.id === defaultTheme }))}
+  />
+</learn-accent-select>
+
+<script>
+  class LearnAccentSelect extends HTMLElement {
+    constructor() {
+      super();
+      const key = this.dataset.key ?? 'learn-frc-accent';
+      const fallback = this.dataset.default ?? 'slate';
+      const select = this.querySelector('select');
+      if (!select) return;
+      const valid = (v: string | null) => [...select.options].some((o) => o.value === v);
+      let saved: string | null = null;
+      try {
+        saved = localStorage.getItem(key);
+      } catch {
+        // Storage can be blocked; the default theme still works.
+      }
+      const apply = (value: string, store: boolean) => {
+        document.documentElement.dataset.accent = value;
+        document
+          .querySelectorAll<HTMLSelectElement>('learn-accent-select select')
+          .forEach((s) => (s.value = value));
+        if (!store) return;
+        try {
+          localStorage.setItem(key, value);
+        } catch {
+          // Not saved; the choice still applies to this page.
+        }
+      };
+      apply(valid(saved) ? saved! : fallback, false);
+      select.addEventListener('change', () => apply(select.value, true));
+    }
+  }
+  customElements.define('learn-accent-select', LearnAccentSelect);
+</script>
