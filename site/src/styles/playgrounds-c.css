@@ -56,3 +56,19 @@
 .lf-cam-read div { display: block; }
 .lf-cam-read dt { color: var(--sl-color-gray-3); font-size: var(--sl-text-xs); }
 .lf-cam-read dd { margin: 0; font-variant-numeric: tabular-nums; font-weight: 600; color: var(--sig-error); }
+
+/* ---------- P19 align to tag ---------- */
+.lf-align-top { grid-template-columns: minmax(0, 1fr) minmax(12rem, 16rem); }
+.lf-align .lf-pg-visual svg { max-width: 16rem; width: 100%; }
+@media (max-width: 40rem) { .lf-align .lf-pg-visual svg { max-width: 100%; } }
+.lf-align .field { fill: none; stroke: var(--sl-color-gray-4); stroke-width: 2; }
+.lf-align .goal rect { fill: none; stroke: var(--sig-setpoint); stroke-width: 2; stroke-dasharray: 5 3; }
+.lf-align .goal line { stroke: var(--sig-setpoint); stroke-width: 2; }
+.lf-align .bot rect { fill: var(--sig-measurement); fill-opacity: 0.25; stroke: var(--sig-measurement); stroke-width: 2; }
+.lf-align .bot line { stroke: var(--sig-measurement); stroke-width: 2; }
+.lf-align .tag rect { fill: var(--sl-color-gray-2); }
+.lf-align .tag.covered rect { fill: var(--sl-color-gray-5); }
+.lf-align .tag line { stroke: var(--sig-error); stroke-width: 2; }
+.lf-align .sight { stroke: var(--sl-color-gray-3); stroke-width: 1; stroke-dasharray: 2 4; }
+.lf-align .lf-check { margin-block: 0.6rem; }
+.lf-align-state { display: flex; align-items: center; gap: 0.6rem; }

@@ -26,6 +26,7 @@ import RecapCard from '../../../components/lesson/RecapCard.astro';
 import GoDeeper from '../../../components/lesson/GoDeeper.astro';
 import Checkpoint from '../../../components/lesson/Checkpoint.astro';
 import Practice from '../../../components/practice/Practice.astro';
+import AlignToTag from '../../../components/playgrounds/AlignToTag';
 
 <WhyItMatters>
 Scoring from the same spot every time beats a driver's eye. If the robot can drive itself to exactly 0.5 m in front of a tag, facing it, the shot or placement is repeatable. The risk is a robot that keeps driving after the camera stops seeing the tag.
@@ -67,6 +68,10 @@ Vision can disappear: the tag is covered, the camera is blocked, or the robot tu
 Track the time of the last accepted vision measurement. If it is older than a limit (the plan uses 0.5 s), **stop**. Never keep driving on stale data. The robot should hold still, or end the command and let the driver take over.
 
 Also limit the speed. Clamp each PID output to a maximum so a large initial error, like 3 m, does not slam the robot toward a wall.
+
+## Try it: align and lose the tag
+
+<AlignToTag client:visible lessonId="7.4" />
 
 ## Alignment is not path following
 
