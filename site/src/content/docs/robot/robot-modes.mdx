@@ -27,6 +27,7 @@ import RecapCard from '../../../components/lesson/RecapCard.astro';
 import Checkpoint from '../../../components/lesson/Checkpoint.astro';
 import Practice from '../../../components/practice/Practice.astro';
 import AnnotatedCode from '../../../components/code/AnnotatedCode.astro';
+import ModeTimeline from '../../../components/diagrams/ModeTimeline.astro';
 
 <WhyItMatters>
 The robot is on, the code is running, and the intake still does not spin. Often the robot is simply disabled.
@@ -61,6 +62,8 @@ At a competition, the field system (FMS) controls the Driver Station, so a team 
 | Test | `testInit()` | `testPeriodic()` |
 
 `robotPeriodic()` runs in every mode, including disabled. Each mode also has an `Exit` method that runs once when the mode ends.
+
+<ModeTimeline />
 
 ## The one line that makes commands work
 
