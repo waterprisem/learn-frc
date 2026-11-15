@@ -3,6 +3,7 @@
 import Default from '@astrojs/starlight/components/PageTitle.astro';
 import { CalendarDays, Clock, Layers, Milestone } from 'lucide-react';
 import { lessons } from '../data/path.mjs';
+import { url } from '../lib/url';
 
 const data = Astro.locals.starlightRoute.entry.data;
 const lesson = data.id && data.status !== 'stub' ? lessons.find((l) => l.id === data.id) : undefined;
@@ -15,7 +16,7 @@ const prereqs = (data.prereqs ?? []).flatMap((id: string) => lessons.find((l) =>
     {data.minutes && <span><Clock size={15} aria-hidden="true" />About {data.minutes} min</span>}
     {data.session && <span><CalendarDays size={15} aria-hidden="true" />Curriculum session {data.session}</span>}
     {prereqs.length > 0 && (
-      <span><Milestone size={15} aria-hidden="true" />Before this: {prereqs.map((p, i) => <>{i > 0 && ', '}<a href={p.href}>{p.id} {p.title}</a></>)}</span>
+      <span><Milestone size={15} aria-hidden="true" />Before this: {prereqs.map((p, i) => <>{i > 0 && ', '}<a href={url(p.href)}>{p.id} {p.title}</a></>)}</span>
     )}
   </div>
 )}

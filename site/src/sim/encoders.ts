@@ -18,7 +18,7 @@ export const setShaft = (s: EncoderState, shaft: number): EncoderState => ({ ...
 export const powerCycle = (s: EncoderState): EncoderState => ({ ...s, zero: s.shaft });
 
 /** Move to the known home mark, then tell the relative encoder "this is 0". */
-export const home = (s: EncoderState): EncoderState => ({ shaft: HOME_ANGLE, zero: HOME_ANGLE });
+export const home = (_s: EncoderState): EncoderState => ({ shaft: HOME_ANGLE, zero: HOME_ANGLE });
 
 export const relativeReading = (s: EncoderState): number => wrap(s.shaft - s.zero);
 export const absoluteReading = (s: EncoderState): number => wrap(s.shaft);

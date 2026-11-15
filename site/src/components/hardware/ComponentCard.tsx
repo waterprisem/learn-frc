@@ -1,4 +1,5 @@
 import { ArrowRight } from 'lucide-react';
+import { url } from '../../lib/url';
 import { devices, LAYERS, type Device, type DeviceId, type Layer } from '../../data/hardware';
 
 /** A layer name with a sample of the line that layer uses on the control-system map. */
@@ -36,7 +37,7 @@ export default function ComponentCard({ id, link = true }: { id: DeviceId; link?
           </ul>
         </dd>
       </dl>
-      {link && d.lesson && <a href={d.lesson.href}>{d.lesson.label}<ArrowRight size={14} aria-hidden="true" /></a>}
+      {link && d.lesson && <a href={url(d.lesson.href)}>{d.lesson.label}<ArrowRight size={14} aria-hidden="true" /></a>}
     </article>
   );
 }

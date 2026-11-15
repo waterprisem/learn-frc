@@ -2,12 +2,14 @@
  * Inline script: wraps the first mention of each glossary term in lesson text with a tooltip span.
  * Runs after load, skips code, links, headings and interactive islands.
  */
-export const glossaryScript = `
+export const glossaryScript = (base) => `
 addEventListener('DOMContentLoaded', async () => {
   const root = document.querySelector('.sl-markdown-content');
-  if (!root || !/^\\/(?!glossary|flashcards|credits)[^/]+\\/[^/]+\\/?$/.test(location.pathname)) return;
+  const base = ${JSON.stringify(base)};
+  const path = location.pathname.startsWith(base) ? location.pathname.slice(base.length) : location.pathname;
+  if (!root || !/^\\/(?!glossary|flashcards|credits)[^/]+\\/[^/]+\\/?$/.test(path)) return;
   let list;
-  try { list = await (await fetch('/glossary.json')).json(); } catch { return; }
+  try { list = await (await fetch(base + '/glossary.json')).json(); } catch { return; }
   const SKIP = 'code,pre,a,h1,h2,h3,h4,h5,h6,button,summary,kbd,svg,script,style,abbr,astro-island,.lf-playground,.lf-practice,.lf-term,figure,.lf-walk,.expressive-code';
   const forms = new Map();
   const page = document.querySelector('[data-lesson-id]')?.dataset.lessonId;

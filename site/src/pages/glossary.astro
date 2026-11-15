@@ -3,6 +3,7 @@ import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
 import { getCollection } from 'astro:content';
 import Glossary from '../components/reference/Glossary.tsx';
 import { lessons } from '../data/path.mjs';
+import { url } from '../lib/url';
 
 const entries = (await getCollection('glossary'))
   .map((e) => ({
@@ -10,7 +11,7 @@ const entries = (await getCollection('glossary'))
     term: e.data.term,
     short: e.data.short,
     long: e.data.long,
-    lessons: e.data.lessons.flatMap((id) => lessons.find((l) => l.id === id) ?? []).map((l) => ({ id: l.id, title: l.title, href: l.href })),
+    lessons: e.data.lessons.flatMap((id) => lessons.find((l) => l.id === id) ?? []).map((l) => ({ id: l.id, title: l.title, href: url(l.href) })),
   }))
   .sort((a, b) => a.term.localeCompare(b.term));
 ---

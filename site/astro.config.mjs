@@ -6,7 +6,12 @@ import { tracks } from './src/data/path.mjs';
 import { glossaryScript } from './src/theme/glossaryScript.mjs';
 import { noFlashScript, themeCss } from './src/theme/themes.mjs';
 
+// Deployed to GitHub Pages at https://waterprisem.github.io/learn-frc/
+const base = '/learn-frc';
+
 export default defineConfig({
+  site: 'https://waterprisem.github.io',
+  base,
   integrations: [
     starlight({
       title: 'Learn FRC Programming',
@@ -27,7 +32,7 @@ export default defineConfig({
       head: [
         { tag: 'style', content: themeCss() },
         { tag: 'script', content: noFlashScript },
-        { tag: 'script', content: glossaryScript },
+        { tag: 'script', content: glossaryScript(base) },
       ],
       // The sidebar is the learning path (src/data/path.mjs).
       sidebar: [

@@ -2,6 +2,7 @@
 // Home page learning path. Data: src/data/path.mjs plus each lesson's status from its frontmatter.
 import { getCollection } from 'astro:content';
 import { tracks } from '../data/path.mjs';
+import { url } from '../lib/url';
 import HomePath from './home/HomePath.tsx';
 
 const docs = await getCollection('docs');
@@ -19,7 +20,7 @@ const stages = groups.map((g) => ({
     key: t.key,
     label: t.label,
     blurb: t.blurb,
-    lessons: t.lessons.map(([id, slug, title, , isNew]) => ({ id, title, href: `/${t.dir}/${slug}/`, ready: ready.has(id), isNew })),
+    lessons: t.lessons.map(([id, slug, title, , isNew]) => ({ id, title, href: url(`/${t.dir}/${slug}/`), ready: ready.has(id), isNew })),
   })),
 }));
 ---
